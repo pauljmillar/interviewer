@@ -66,7 +66,11 @@ CREATE INDEX IF NOT EXISTS idx_sessions_instance ON sessions(interview_instance_
 -- ALTER TABLE positions ADD COLUMN IF NOT EXISTS org_id TEXT;
 -- ALTER TABLE interview_templates ADD COLUMN IF NOT EXISTS org_id TEXT;
 -- ALTER TABLE interview_instances ADD COLUMN IF NOT EXISTS org_id TEXT;
--- Then backfill org_id with a default (e.g. a single default org id), then:
+-- Backfill org_id with default '1':
+-- UPDATE positions SET org_id = '1' WHERE org_id IS NULL;
+-- UPDATE interview_templates SET org_id = '1' WHERE org_id IS NULL;
+-- UPDATE interview_instances SET org_id = '1' WHERE org_id IS NULL;
+-- Then:
 -- ALTER TABLE positions ALTER COLUMN org_id SET NOT NULL;
 -- ALTER TABLE interview_instances ALTER COLUMN org_id SET NOT NULL;
 -- CREATE INDEX IF NOT EXISTS idx_positions_org ON positions(org_id);

@@ -46,7 +46,8 @@ function normalizeSession(s: SessionRecord & { interviewId?: string }): SessionR
 
 // --- Positions ---
 export function getPositions(): PositionRecord[] {
-  return safeParse<PositionRecord[]>(POSITIONS_KEY, []);
+  const raw = safeParse<(PositionRecord & { orgId?: string })[]>(POSITIONS_KEY, []);
+  return raw.map((p) => ({ ...p, orgId: p.orgId ?? 'local' }));
 }
 
 export function getPosition(id: string): PositionRecord | undefined {
@@ -64,9 +65,11 @@ export function createPosition(params: {
   name: string;
   type?: PositionType;
   templateId?: string;
+  orgId?: string;
 }): PositionRecord {
   const position: PositionRecord = {
     id: generateId(),
+    orgId: params.orgId ?? 'local',
     name: params.name,
     type: params.type,
     templateId: params.templateId,
@@ -83,7 +86,8 @@ export function deletePosition(id: string): void {
 
 // --- Interview instances ---
 export function getInterviewInstances(): InterviewInstanceRecord[] {
-  return safeParse<InterviewInstanceRecord[]>(INSTANCES_KEY, []);
+  const raw = safeParse<(InterviewInstanceRecord & { orgId?: string })[]>(INSTANCES_KEY, []);
+  return raw.map((i) => ({ ...i, orgId: i.orgId ?? 'local' }));
 }
 
 export function getInterviewInstance(id: string): InterviewInstanceRecord | undefined {
@@ -105,9 +109,11 @@ export function createInterviewInstance(params: {
   intro?: string;
   conclusion?: string;
   reminder?: string;
+  orgId?: string;
 }): InterviewInstanceRecord {
   const instance: InterviewInstanceRecord = {
     id: generateId(),
+    orgId: params.orgId ?? 'local',
     name: params.name,
     templateId: params.templateId,
     positionId: params.positionId,
