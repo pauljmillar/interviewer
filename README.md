@@ -9,7 +9,7 @@ A conversational AI interviewer that supports multiple interview modes (screenin
 - **Positions** — Create positions (e.g. “Janitor at Company X”, “Biography for Grandma Betty”) with optional type (job / biography / screening) and link to a template. Resume list shows instance and position.
 - **New position from job description** — Paste or upload a job description (.txt); an LLM generates 5–10 screening questions. Create a position and a new template from the result in one flow.
 - **Voice-enabled chat** — Text-to-speech for AI questions and speech-to-text for user responses (Chrome/Edge recommended).
-- **Persistence** — Interview instances and sessions saved in localStorage. Resume a previous interview; the agent receives a brief from prior sessions.
+- **Persistence** — When Supabase is configured, positions, custom templates, and interview instances/sessions use Supabase; otherwise instances and sessions use localStorage. Resume a previous interview; the agent receives a brief from prior sessions.
 - **Intro, conclusion, reminder** — Optional intro before the first question and conclusion after all questions (per template). One-time disengagement reminder when the interviewee dismisses the interview.
 - **Biography generation** — Turn interview conversations into narrative biographies (for biographer-style interviews).
 - **Debug panel** — Optional right-hand panel with full history of steps (thinking, tool calls) for the current conversation.
@@ -32,7 +32,7 @@ CLERK_SECRET_KEY=sk_test_...
 ```
 Optional: `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in` and `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up` if you use custom paths.
 
-**Supabase (database):** When set, positions, custom templates, and interview instances/sessions are stored in Supabase instead of localStorage and file. Run the SQL in [supabase/schema.sql](supabase/schema.sql) in your Supabase project, then add:
+**Supabase (database):** When set, positions, custom templates, and interview instances/sessions are stored in Supabase instead of localStorage. Run the SQL in [supabase/schema.sql](supabase/schema.sql) in your Supabase project, then add:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key

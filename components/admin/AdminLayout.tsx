@@ -35,15 +35,6 @@ const navItems: { href: string; label: string; icon: React.ReactNode }[] = [
       </svg>
     ),
   },
-  {
-    href: '/admin/instances',
-    label: 'Interview Instances',
-    icon: (
-      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-      </svg>
-    ),
-  },
 ];
 
 interface AdminLayoutProps {
@@ -77,7 +68,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <nav className="flex-1 py-2 overflow-y-auto" aria-label="Admin sections">
           {navItems.map(({ href, label, icon }) => {
             const active =
-              pathname === href || (href === '/admin/instances' && pathname.startsWith('/admin/instances/'));
+              pathname === href ||
+              (href === '/admin/interviews' && pathname.startsWith('/admin/interviews/'));
             return (
               <Link
                 key={href}

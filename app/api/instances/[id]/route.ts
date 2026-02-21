@@ -5,6 +5,9 @@ import {
   getLatestSession,
   getInstanceStatus,
 } from '@/lib/server/instanceStoreAdapter';
+import { getTemplateById } from '@/constants/templates';
+import { createServerSupabase } from '@/lib/supabase/server';
+import * as templatesStore from '@/lib/server/supabaseTemplates';
 
 export async function GET(
   _request: NextRequest,
@@ -28,7 +31,29 @@ export async function GET(
     const session = await getLatestSession(id);
     const status = await getInstanceStatus(id);
 
-    return NextResponse.json({ instance, session, status });
+    let templateName: string | null = null;
+    if (instance.templateId) {
+      const builtIn = getTemplateById(instance.templateId);
+      if (builtIn) {
+        templateName = builtIn.name;
+      } else {
+        const supabase = createServerSupabase();
+        if (supabase) {
+          const custom = await templatesStore.getTemplate(supabase, instance.templateId);
+          if (custom) templateName = custom.name;
+        }
+      }
+    }
+
+    const positionName: string | null = instance.name ?? null;
+
+    return NextResponse.json({
+      instance,
+      session,
+      status,
+      templateName,
+      positionName,
+    });
   } catch (error) {
     console.error('GET /api/instances/[id] error:', error);
     return NextResponse.json(

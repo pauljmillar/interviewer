@@ -14,7 +14,7 @@ type InstanceRow = {
   createdAt: string;
 };
 
-export default function ReviewInstancesList() {
+export default function InterviewsList() {
   const [instances, setInstances] = useState<InstanceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +49,15 @@ export default function ReviewInstancesList() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h2 className="text-lg font-semibold text-gray-800 mb-2">Interview instances</h2>
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+        <h2 className="text-lg font-semibold text-gray-800">Interview instances</h2>
+        <Link
+          href="/admin/interviews/new"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm inline-block"
+        >
+          Create New
+        </Link>
+      </div>
       {positionIds.length > 0 && (
         <div className="mb-3 flex items-center gap-2">
           <label className="text-sm font-medium text-gray-700">Filter by position:</label>
@@ -71,7 +79,9 @@ export default function ReviewInstancesList() {
         </div>
       )}
       {instances.length === 0 ? (
-        <p className="text-gray-600">No interview instances yet. Generate some from the Generate interviews tab.</p>
+        <p className="text-gray-600">
+          No interview instances yet. Click Create New to generate shareable links for a position and recipients.
+        </p>
       ) : (
         <div className="overflow-x-auto border border-gray-200 rounded-lg">
           <table className="min-w-full divide-y divide-gray-200">
@@ -95,8 +105,8 @@ export default function ReviewInstancesList() {
                         inst.status === 'completed'
                           ? 'text-green-600'
                           : inst.status === 'started'
-                          ? 'text-amber-600'
-                          : 'text-gray-500'
+                            ? 'text-amber-600'
+                            : 'text-gray-500'
                       }
                     >
                       {inst.status.replace('_', ' ')}
@@ -107,10 +117,10 @@ export default function ReviewInstancesList() {
                   </td>
                   <td className="px-4 py-2 text-right">
                     <Link
-                      href={`/admin/instances/${encodeURIComponent(inst.id)}/responses`}
+                      href={`/admin/interviews/${encodeURIComponent(inst.id)}`}
                       className="text-blue-600 hover:underline text-sm font-medium"
                     >
-                      View responses
+                      View
                     </Link>
                   </td>
                 </tr>

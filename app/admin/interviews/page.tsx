@@ -1,5 +1,5 @@
-import GenerateInterviews from '@/components/GenerateInterviews';
+import InterviewsList from '@/components/admin/InterviewsList';
 
 export default function AdminInterviewsPage() {
-  return <GenerateInterviews />;
+  return <InterviewsList />;
 }
