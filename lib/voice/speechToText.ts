@@ -7,6 +7,10 @@ export class SpeechToText {
   private onResultCallback: ((transcript: string) => void) | null = null;
   private onErrorCallback: ((error: string) => void) | null = null;
   private allFinalTranscripts: string[] = [];
+  /** When true, recording only stops when stop() is called; no silence timeout or onend submit. */
+  private manualStopOnly: boolean = false;
+  /** Set by stop() so onend delivers the transcript instead of restarting. */
+  private manualStopRequested: boolean = false;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -51,7 +55,30 @@ export class SpeechToText {
     }, 5000);
   }
 
+  /**
+   * Start listening; result is delivered on silence timeout (5s) or when the browser ends the session.
+   */
   start(
+    onResult: (transcript: string) => void,
+    onError?: (error: string) => void
+  ): void {
+    this.runStart(false, onResult, onError);
+  }
+
+  /**
+   * Start listening in manual-stop mode: recording continues until stop() is called.
+   * No silence timeout; browser onend will restart recognition to keep listening.
+   * The result callback is only invoked when stop() is called.
+   */
+  startManualStop(
+    onResult: (transcript: string) => void,
+    onError?: (error: string) => void
+  ): void {
+    this.runStart(true, onResult, onError);
+  }
+
+  private runStart(
+    manualStopOnly: boolean,
     onResult: (transcript: string) => void,
     onError?: (error: string) => void
   ): void {
@@ -64,6 +91,8 @@ export class SpeechToText {
       this.stop();
     }
 
+    this.manualStopOnly = manualStopOnly;
+    this.manualStopRequested = false;
     this.isListening = true;
     this.onResultCallback = onResult;
     this.onErrorCallback = onError ?? null;
@@ -76,48 +105,77 @@ export class SpeechToText {
         if (event.results[i].isFinal) {
           this.allFinalTranscripts.push(transcript);
           this.lastSpeechTime = Date.now();
-          this.resetSilenceTimeout();
+          if (!this.manualStopOnly) {
+            this.resetSilenceTimeout();
+          }
         }
       }
     };
 
     this.recognition.onerror = (event: any) => {
       if (event.error === 'no-speech') {
-        // Don't error on no-speech, just wait longer
-        this.resetSilenceTimeout();
+        if (!this.manualStopOnly) {
+          this.resetSilenceTimeout();
+        }
         return;
       }
-      
+
       this.isListening = false;
       if (this.silenceTimeout) {
         clearTimeout(this.silenceTimeout);
       }
-      
+
       let errorMessage = 'Speech recognition error occurred.';
       if (event.error === 'audio-capture') {
         errorMessage = 'No microphone found. Please check your microphone.';
       } else if (event.error === 'not-allowed') {
         errorMessage = 'Microphone permission denied. Please allow microphone access.';
       }
-      
+
       onError?.(errorMessage);
     };
 
     this.recognition.onend = () => {
+      if (this.manualStopRequested) {
+        this.isListening = false;
+        if (this.silenceTimeout) {
+          clearTimeout(this.silenceTimeout);
+        }
+        const finalTranscript = this.getFinalTranscript();
+        if (this.onResultCallback) {
+          this.onResultCallback(finalTranscript);
+        }
+        this.manualStopRequested = false;
+        return;
+      }
+      if (this.manualStopOnly) {
+        this.isListening = false;
+        if (this.silenceTimeout) {
+          clearTimeout(this.silenceTimeout);
+        }
+        try {
+          this.isListening = true;
+          this.recognition.start();
+        } catch {
+          this.isListening = false;
+        }
+        return;
+      }
       this.isListening = false;
       if (this.silenceTimeout) {
         clearTimeout(this.silenceTimeout);
       }
-      // If stopped manually, return the final transcript
       const finalTranscript = this.getFinalTranscript();
-      if (finalTranscript && this.onResultCallback && !this.isListening) {
+      if (finalTranscript && this.onResultCallback) {
         this.onResultCallback(finalTranscript);
       }
     };
 
     try {
       this.recognition.start();
-      this.resetSilenceTimeout();
+      if (!this.manualStopOnly) {
+        this.resetSilenceTimeout();
+      }
     } catch (error) {
       this.isListening = false;
       onError?.('Failed to start speech recognition.');
@@ -126,6 +184,9 @@ export class SpeechToText {
 
   stop(): void {
     if (this.isSupported && this.isListening) {
+      if (this.manualStopOnly) {
+        this.manualStopRequested = true;
+      }
       this.isListening = false;
       if (this.silenceTimeout) {
         clearTimeout(this.silenceTimeout);

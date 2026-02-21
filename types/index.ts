@@ -45,6 +45,8 @@ export interface QuestionConfig {
 
 export interface InterviewTemplate {
   id: string;
+  /** Clerk org id; undefined/null = standard (shared) template. */
+  orgId?: string;
   name: string;
   questions: Question[];
   /** Optional intro before the first question (e.g. screening). */
@@ -67,6 +69,7 @@ export type PositionType = 'job' | 'biography' | 'screening';
 
 export interface PositionRecord {
   id: string;
+  orgId: string;
   name: string;
   type?: PositionType;
   /** Links to the interview definition (template) used for this position. */
@@ -77,6 +80,7 @@ export interface PositionRecord {
 /** One candidate's or person's run (one interview instance). */
 export interface InterviewInstanceRecord {
   id: string;
+  orgId: string;
   name: string;
   templateId?: string;
   /** Optional link to a position (e.g. job opening or biography project). */
@@ -106,6 +110,8 @@ export interface SessionRecord {
   allQuestionsCovered: boolean;
   /** True after the disengagement reminder has been shown once this session. */
   reminderAlreadyShown?: boolean;
+  /** Total elapsed seconds in this session; updated on each text submit and voice end. */
+  elapsedSeconds?: number;
 }
 
 // Entity Schema System

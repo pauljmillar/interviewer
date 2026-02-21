@@ -5,12 +5,17 @@ import { Message, Question, DiscoveryContext } from '@/types';
 import { DEFAULT_ENTITY_SCHEMAS } from '@/lib/entities/schemas';
 import type { InterviewInstanceRecord, SessionRecord } from '@/types';
 import MessageBubble from './MessageBubble';
-import TalkingHeadAvatar from './candidate/TalkingHeadAvatar';
 import { TextToSpeech } from '@/lib/voice/textToSpeech';
 import { SpeechToText } from '@/lib/voice/speechToText';
 
 function countWords(text: string): number {
   return text.trim().split(/\s+/).filter((w) => w.length > 0).length;
+}
+
+function formatElapsed(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
 }
 
 interface CandidateChatProps {
@@ -39,46 +44,17 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isVoiceAvailable, setIsVoiceAvailable] = useState(false);
-  /** Blob URL for current TTS audio (drives talking head). Cleared when playback ends. */
-  const [speakingAudioUrl, setSpeakingAudioUrl] = useState<string | null>(null);
+  /** Ticker for elapsed time display; updates every second. */
+  const [elapsedTick, setElapsedTick] = useState(() => Date.now());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const ttsRef = useRef<TextToSpeech | null>(null);
   const sttRef = useRef<SpeechToText | null>(null);
-  const speakingAudioUrlRef = useRef<string | null>(null);
-  speakingAudioUrlRef.current = speakingAudioUrl;
+  const loadTimeRef = useRef(Date.now());
+  const elapsedAtLoad = initialSession.elapsedSeconds ?? 0;
 
   const questions = instance.questions;
-
-  const speakWithTalkingHead = useCallback(async (text: string, fallbackSpeak: () => void) => {
-    try {
-      const res = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-      if (!res.ok) {
-        fallbackSpeak();
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setSpeakingAudioUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return url;
-      });
-    } catch {
-      fallbackSpeak();
-    }
-  }, []);
-
-  const handleTalkingHeadEnd = useCallback(() => {
-    setSpeakingAudioUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
-  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -88,14 +64,19 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     }
   }, []);
 
+  const getCurrentElapsedSeconds = useCallback(() => {
+    return elapsedAtLoad + Math.floor((Date.now() - loadTimeRef.current) / 1000);
+  }, [elapsedAtLoad]);
+
   useEffect(() => {
-    return () => {
-      const url = speakingAudioUrlRef.current;
-      if (url) URL.revokeObjectURL(url);
-    };
+    const interval = setInterval(() => setElapsedTick(Date.now()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Start the conversation with intro/first question when the session has no messages yet
+  const displayedElapsedSeconds = elapsedAtLoad + Math.floor((elapsedTick - loadTimeRef.current) / 1000);
+
+  // Start the conversation with intro/first question when the session has no messages yet.
+  // When messages.length > 0 (returning user), we do not restart; the next send continues the thread.
   useEffect(() => {
     if (messages.length > 0 || questions.length === 0) return;
 
@@ -145,12 +126,13 @@ export default function CandidateChat({ instance, session: initialSession, onSes
           })),
           currentQuestionIndex: 0,
           reminderAlreadyShown: data.reminderShown ?? currentSession.reminderAlreadyShown,
+          elapsedSeconds: 0,
         };
         await persistSession(updatedSession);
         setCurrentSession(updatedSession);
 
         if (ttsRef.current?.isAvailable()) {
-          speakWithTalkingHead(data.response, () => ttsRef.current?.speak(data.response));
+          ttsRef.current.speak(data.response);
         }
       } catch (err) {
         if (!cancelled) {
@@ -249,7 +231,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
       if (data.allQuestionsCovered) setAllQuestionsCovered(true);
 
       if (ttsRef.current?.isAvailable()) {
-        speakWithTalkingHead(data.response, () => ttsRef.current?.speak(data.response));
+        ttsRef.current.speak(data.response);
       }
 
       const nextIndex =
@@ -270,6 +252,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
         discoveryContext: data.discoveryContext ?? discoveryContext,
         allQuestionsCovered: !!data.allQuestionsCovered,
         reminderAlreadyShown: data.reminderShown ?? currentSession.reminderAlreadyShown,
+        elapsedSeconds: getCurrentElapsedSeconds(),
       };
       await persistSession(nextSession);
     } catch (error) {
@@ -291,10 +274,12 @@ export default function CandidateChat({ instance, session: initialSession, onSes
       return;
     }
     setIsRecording(true);
-    sttRef.current.start(
+    sttRef.current.startManualStop(
       (transcript) => {
         setIsRecording(false);
-        handleSendMessage(transcript);
+        if (transcript.trim()) {
+          handleSendMessage(transcript);
+        }
       },
       (error) => {
         setIsRecording(false);
@@ -318,22 +303,28 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="flex flex-col flex-1 min-h-0">
         <header className="bg-white border-b shadow-sm p-4 flex-shrink-0">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
             <h1 className="text-xl font-bold text-gray-800">
               {instance.name}
             </h1>
+            <div className="text-sm font-medium text-gray-500 tabular-nums" aria-label="Elapsed time">
+              {formatElapsed(displayedElapsedSeconds)}
+            </div>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col">
-          <div className="max-w-4xl mx-auto w-full flex flex-col items-center flex-shrink-0 mb-4">
-            <TalkingHeadAvatar
-              audioUrl={speakingAudioUrl}
-              onEnd={handleTalkingHeadEnd}
-              isActive={true}
-              className="mb-2"
-            />
+        {isRecording && (
+          <div className="bg-red-600 text-white px-4 py-3 flex items-center justify-center gap-3 flex-shrink-0" role="status" aria-live="polite">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
+            </span>
+            <span className="font-semibold">Recording…</span>
+            <span className="text-red-200 text-sm">Click Stop when finished.</span>
           </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col">
           <div className="max-w-4xl mx-auto w-full">
             {messages.length === 0 && !isLoading && (
               <div className="text-center text-gray-500 mt-8">

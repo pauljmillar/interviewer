@@ -78,20 +78,24 @@ function deriveStatus(instanceId: string): InstanceStatus {
   return 'started';
 }
 
-export function createInstance(params: {
-  name: string;
-  templateId?: string;
-  positionId?: string;
-  recipientName?: string;
-  questions: Question[];
-  intro?: string;
-  conclusion?: string;
-  reminder?: string;
-}): { instance: InterviewInstanceRecord; shareableToken: string } {
+export function createInstance(
+  orgId: string,
+  params: {
+    name: string;
+    templateId?: string;
+    positionId?: string;
+    recipientName?: string;
+    questions: Question[];
+    intro?: string;
+    conclusion?: string;
+    reminder?: string;
+  }
+): { instance: InterviewInstanceRecord; shareableToken: string } {
   const id = generateId();
   const shareableToken = generateToken();
   const instance: InterviewInstanceRecord = {
     id,
+    orgId,
     name: params.name,
     templateId: params.templateId,
     positionId: params.positionId,
@@ -164,6 +168,7 @@ export function createSession(instanceId: string): SessionRecord {
     },
     allQuestionsCovered: false,
     reminderAlreadyShown: false,
+    elapsedSeconds: 0,
   };
   saveSession(session);
   return session;

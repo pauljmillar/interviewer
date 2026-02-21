@@ -27,6 +27,7 @@ function deriveStatus(latestSession: SessionRecord | null | undefined): Instance
 
 export async function createInstance(
   supabase: SupabaseClient,
+  orgId: string,
   params: {
     name: string;
     templateId?: string;
@@ -42,6 +43,7 @@ export async function createInstance(
   const shareableToken = generateToken();
   const instance: InterviewInstanceRecord = {
     id,
+    orgId,
     name: params.name,
     templateId: params.templateId,
     positionId: params.positionId,
@@ -55,6 +57,7 @@ export async function createInstance(
   };
   const { error: instErr } = await supabase.from('interview_instances').insert({
     id: instance.id,
+    org_id: orgId,
     name: instance.name,
     template_id: instance.templateId,
     position_id: instance.positionId,
@@ -83,6 +86,7 @@ export async function createInstance(
     },
     allQuestionsCovered: false,
     reminderAlreadyShown: false,
+    elapsedSeconds: 0,
   };
   const { error: sessErr } = await supabase.from('sessions').insert({
     id: session.id,
@@ -96,21 +100,22 @@ export async function createInstance(
     discovery_context: session.discoveryContext,
     all_questions_covered: session.allQuestionsCovered,
     reminder_already_shown: session.reminderAlreadyShown,
+    elapsed_seconds: 0,
   });
   if (sessErr) throw sessErr;
 
   return { instance, shareableToken };
 }
 
+/** If orgId is provided, only return instance when it belongs to that org (admin). */
 export async function getInstanceById(
   supabase: SupabaseClient,
-  id: string
+  id: string,
+  orgId?: string
 ): Promise<InterviewInstanceRecord | undefined> {
-  const { data, error } = await supabase
-    .from('interview_instances')
-    .select('*')
-    .eq('id', id)
-    .single();
+  let q = supabase.from('interview_instances').select('*').eq('id', id);
+  if (orgId != null) q = q.eq('org_id', orgId);
+  const { data, error } = await q.single();
   if (error || !data) return undefined;
   return rowToInstance(data);
 }
@@ -130,9 +135,14 @@ export async function getInstanceByToken(
 
 export async function getAllInstances(
   supabase: SupabaseClient,
+  orgId: string,
   positionId?: string
 ): Promise<(InterviewInstanceRecord & { status: InstanceStatus })[]> {
-  let q = supabase.from('interview_instances').select('*').order('created_at', { ascending: false });
+  let q = supabase
+    .from('interview_instances')
+    .select('*')
+    .eq('org_id', orgId)
+    .order('created_at', { ascending: false });
   if (positionId) q = q.eq('position_id', positionId);
   const { data: rows, error } = await q;
   if (error) return [];
@@ -189,6 +199,7 @@ export async function saveSession(
     discovery_context: session.discoveryContext,
     all_questions_covered: session.allQuestionsCovered,
     reminder_already_shown: session.reminderAlreadyShown ?? false,
+    elapsed_seconds: session.elapsedSeconds ?? 0,
   };
   const { error } = await supabase.from('sessions').upsert(row, {
     onConflict: 'id',
@@ -224,6 +235,7 @@ export async function createSession(
     },
     allQuestionsCovered: false,
     reminderAlreadyShown: false,
+    elapsedSeconds: 0,
   };
   const { error } = await supabase.from('sessions').insert({
     id: session.id,
@@ -237,6 +249,7 @@ export async function createSession(
     discovery_context: session.discoveryContext,
     all_questions_covered: session.allQuestionsCovered,
     reminder_already_shown: session.reminderAlreadyShown,
+    elapsed_seconds: 0,
   });
   if (error) throw error;
   return session;
@@ -245,6 +258,7 @@ export async function createSession(
 function rowToInstance(row: Record<string, unknown>): InterviewInstanceRecord {
   return {
     id: row.id as string,
+    orgId: row.org_id as string,
     name: row.name as string,
     templateId: row.template_id as string | undefined,
     positionId: row.position_id as string | undefined,
@@ -275,5 +289,6 @@ function rowToSession(row: Record<string, unknown>): SessionRecord {
     },
     allQuestionsCovered: (row.all_questions_covered as boolean) ?? false,
     reminderAlreadyShown: (row.reminder_already_shown as boolean) ?? false,
+    elapsedSeconds: (row.elapsed_seconds as number) ?? 0,
   };
 }
