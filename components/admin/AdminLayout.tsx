@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const SIDEBAR_EXPANDED_WIDTH = 260;
+const SIDEBAR_EXPANDED_WIDTH = 200;
 const SIDEBAR_COLLAPSED_WIDTH = 60;
 
 const navItems: { href: string; label: string; icon: React.ReactNode }[] = [
@@ -60,10 +60,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }, []);
 
   return (
-    <div className="flex flex-1 min-h-0 bg-gray-50">
+    <div className="relative flex flex-1 min-h-0 bg-gray-50">
       <aside
         ref={asideRef}
-        className="flex flex-col bg-white border-r border-gray-200 flex-shrink-0 transition-[width] duration-200 ease-in-out overflow-hidden"
+        className="absolute left-0 top-0 bottom-0 z-10 flex flex-col bg-white border-r border-gray-200 transition-[width] duration-200 ease-in-out overflow-hidden"
         style={{ width }}
         onMouseEnter={() => setCollapsed(false)}
         onMouseLeave={() => setCollapsed(true)}
@@ -102,7 +102,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           })}
         </nav>
       </aside>
-      <main className="flex-1 min-w-0 overflow-auto flex flex-col">
+      <main
+        className="flex-1 min-w-0 overflow-auto flex flex-col"
+        style={{ marginLeft: SIDEBAR_COLLAPSED_WIDTH }}
+      >
         {children}
       </main>
     </div>
