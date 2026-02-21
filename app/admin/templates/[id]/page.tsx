@@ -4,7 +4,17 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { getTemplateById } from '@/constants/templates';
-import type { InterviewTemplate, Question } from '@/types';
+import type { InterviewTemplate, Question, InterviewMode } from '@/types';
+
+const MODE_LABELS: Record<InterviewMode, string> = {
+  1: '1 – Screening (right answer, no hints)',
+  2: '2 – Right answer + hints',
+  3: '3 – List only, no follow-up',
+  4: '4 – Conversational (biographer)',
+  5: '5 – Contradiction check',
+};
+
+type EditQuestion = { mainQuestion: string; mode: InterviewMode; acceptableAnswers: string[] };
 
 export default function TemplateDetailPage() {
   const router = useRouter();
@@ -20,7 +30,7 @@ export default function TemplateDetailPage() {
   const [editIntro, setEditIntro] = useState('');
   const [editConclusion, setEditConclusion] = useState('');
   const [editReminder, setEditReminder] = useState('');
-  const [editQuestions, setEditQuestions] = useState<string[]>([]);
+  const [editQuestions, setEditQuestions] = useState<EditQuestion[]>([]);
 
   const loadTemplate = useCallback(async () => {
     if (!id) return;
@@ -34,7 +44,11 @@ export default function TemplateDetailPage() {
       setEditIntro(builtIn.intro ?? '');
       setEditConclusion(builtIn.conclusion ?? '');
       setEditReminder(builtIn.reminder ?? '');
-      setEditQuestions((builtIn.questions ?? []).map((q) => q.mainQuestion));
+      setEditQuestions((builtIn.questions ?? []).map((q) => ({
+        mainQuestion: q.mainQuestion,
+        mode: (q.mode ?? 4) as InterviewMode,
+        acceptableAnswers: q.acceptableAnswers ?? [],
+      })));
       setLoading(false);
       return;
     }
@@ -53,7 +67,11 @@ export default function TemplateDetailPage() {
       setEditIntro(data.intro ?? '');
       setEditConclusion(data.conclusion ?? '');
       setEditReminder(data.reminder ?? '');
-      setEditQuestions((data.questions ?? []).map((q: Question) => q.mainQuestion));
+      setEditQuestions((data.questions ?? []).map((q: Question) => ({
+        mainQuestion: q.mainQuestion,
+        mode: (q.mode ?? 4) as InterviewMode,
+        acceptableAnswers: q.acceptableAnswers ?? [],
+      })));
     } catch {
       setError('Failed to load template');
       setTemplate(null);
@@ -72,13 +90,15 @@ export default function TemplateDetailPage() {
     setSaving(true);
     try {
       const questions: Question[] = editQuestions
-        .map((mainQuestion, i) => {
+        .map((eq, i) => {
           const existing = template.questions?.[i];
           return {
-            mainQuestion: mainQuestion.trim(),
+            mainQuestion: eq.mainQuestion.trim(),
             subTopics: existing?.subTopics ?? [],
-            mode: existing?.mode ?? 4,
-            ...(existing?.acceptableAnswers != null && { acceptableAnswers: existing.acceptableAnswers }),
+            mode: eq.mode,
+            ...((eq.mode === 1 || eq.mode === 2) && {
+              acceptableAnswers: eq.acceptableAnswers.map((a) => a.trim()).filter(Boolean),
+            }),
             ...(existing?.followUpPrompt != null && { followUpPrompt: existing.followUpPrompt }),
             ...(existing?.correctReply != null && { correctReply: existing.correctReply }),
             ...(existing?.incorrectReply != null && { incorrectReply: existing.incorrectReply }),
@@ -131,15 +151,26 @@ export default function TemplateDetailPage() {
     }
   };
 
-  const addQuestion = () => setEditQuestions((prev) => [...prev, '']);
+  const addQuestion = () =>
+    setEditQuestions((prev) => [...prev, { mainQuestion: '', mode: 4, acceptableAnswers: [] }]);
   const removeQuestion = (index: number) =>
     setEditQuestions((prev) => prev.filter((_, i) => i !== index));
   const setQuestion = (index: number, value: string) =>
-    setEditQuestions((prev) => prev.map((v, i) => (i === index ? value : v)));
+    setEditQuestions((prev) => prev.map((q, i) => (i === index ? { ...q, mainQuestion: value } : q)));
+  const setQuestionMode = (index: number, mode: InterviewMode) =>
+    setEditQuestions((prev) => prev.map((q, i) => (i === index ? { ...q, mode } : q)));
+  const setQuestionAcceptableAnswers = (index: number, value: string) =>
+    setEditQuestions((prev) =>
+      prev.map((q, i) =>
+        i === index
+          ? { ...q, acceptableAnswers: value.split('\n').map((s) => s.trim()).filter(Boolean) }
+          : q
+      )
+    );
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-6">
         <p className="text-gray-500">Loading template...</p>
       </div>
     );
@@ -147,7 +178,7 @@ export default function TemplateDetailPage() {
 
   if (!template) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-6">
         <p className="text-red-600">{error || 'Template not found'}</p>
         <Link href="/admin/templates" className="mt-4 inline-block text-blue-600 hover:underline">
           Back to templates
@@ -157,7 +188,7 @@ export default function TemplateDetailPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
         <Link href="/admin/templates" className="text-sm text-gray-500 hover:text-gray-700">
           ← Back to templates
@@ -233,27 +264,78 @@ export default function TemplateDetailPage() {
                 </button>
               )}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {editQuestions.map((q, i) => (
-                <div key={i} className="flex gap-2 items-start">
-                  <span className="flex-shrink-0 text-sm text-gray-500 mt-2.5">{i + 1}.</span>
-                  <input
-                    type="text"
-                    value={q}
-                    onChange={(e) => setQuestion(i, e.target.value)}
-                    readOnly={isBuiltIn}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 disabled:bg-gray-100"
-                    placeholder="Question text"
-                  />
-                  {!isBuiltIn && (
-                    <button
-                      type="button"
-                      onClick={() => removeQuestion(i)}
-                      className="flex-shrink-0 px-2 py-1.5 text-red-600 hover:bg-red-50 rounded text-sm"
-                      title="Remove question"
-                    >
-                      Remove
-                    </button>
+                <div key={i} className="flex flex-col gap-2 sm:gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50/50">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                    <div className="flex gap-2 sm:items-center flex-1 min-w-0">
+                      <span className="flex-shrink-0 text-sm font-medium text-gray-600 w-6">{i + 1}.</span>
+                      <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-2">
+                        {isBuiltIn ? (
+                          <span className="text-xs font-medium text-gray-500 sm:w-48 flex-shrink-0">
+                            {MODE_LABELS[q.mode]}
+                          </span>
+                        ) : (
+                          <select
+                            value={q.mode}
+                            onChange={(e) => setQuestionMode(i, parseInt(e.target.value, 10) as InterviewMode)}
+                            className="flex-shrink-0 w-full sm:w-56 px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                            title="Question type (1–5)"
+                          >
+                            {([1, 2, 3, 4, 5] as const).map((m) => (
+                              <option key={m} value={m}>
+                                {MODE_LABELS[m]}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                        <input
+                          type="text"
+                          value={q.mainQuestion}
+                          onChange={(e) => setQuestion(i, e.target.value)}
+                          readOnly={isBuiltIn}
+                          className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 disabled:bg-gray-100"
+                          placeholder="Question text"
+                        />
+                      </div>
+                    </div>
+                    {!isBuiltIn && (
+                      <button
+                        type="button"
+                        onClick={() => removeQuestion(i)}
+                        className="flex-shrink-0 self-start sm:self-center px-2 py-1.5 text-red-600 hover:bg-red-50 rounded text-sm"
+                        title="Remove question"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  {(q.mode === 1 || q.mode === 2) && (
+                    <div className="ml-8">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Acceptable answers (one per line)
+                      </label>
+                      {isBuiltIn ? (
+                        <div className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 min-h-[2.5rem]">
+                          {q.acceptableAnswers.length === 0
+                            ? '—'
+                            : q.acceptableAnswers.map((a, j) => (
+                                <span key={j}>
+                                  {a}
+                                  {j < q.acceptableAnswers.length - 1 ? ', ' : ''}
+                                </span>
+                              ))}
+                        </div>
+                      ) : (
+                        <textarea
+                          value={q.acceptableAnswers.join('\n')}
+                          onChange={(e) => setQuestionAcceptableAnswers(i, e.target.value)}
+                          rows={Math.min(4, Math.max(2, q.acceptableAnswers.length + 1))}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                          placeholder="e.g. yes, yeah, I am"
+                        />
+                      )}
+                    </div>
                   )}
                 </div>
               ))}

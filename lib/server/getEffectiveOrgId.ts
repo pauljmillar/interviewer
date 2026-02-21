@@ -17,6 +17,7 @@ export async function getEffectiveOrgId(
   const clerkOrgId = authResult?.orgId ?? null;
 
   if (!userId) {
+    console.log('[getEffectiveOrgId] no userId, returning orgId=null');
     return { orgId: null, isSuperadmin: false };
   }
 
@@ -27,10 +28,12 @@ export async function getEffectiveOrgId(
       request?.headers.get(VIEWING_ORG_HEADER)?.trim() ||
       (await cookies()).get(VIEWING_ORG_COOKIE)?.value?.trim();
     if (override) {
+      console.log('[getEffectiveOrgId] superadmin override', { userId, clerkOrgId, effectiveOrgId: override });
       return { orgId: override, isSuperadmin: true };
     }
   }
 
+  console.log('[getEffectiveOrgId]', { userId, clerkOrgId, isSuperadmin });
   return { orgId: clerkOrgId, isSuperadmin };
 }
 
