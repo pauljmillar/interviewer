@@ -6,6 +6,7 @@ import type { PositionType } from '@/types';
 
 export async function GET(request: NextRequest) {
   const { orgId } = await getEffectiveOrgId(request);
+  console.log('[GET /api/positions] effective orgId:', orgId ?? '(null)');
   if (!orgId) {
     return NextResponse.json(
       { error: 'Organization required. Create or select an organization.' },
@@ -14,10 +15,12 @@ export async function GET(request: NextRequest) {
   }
   const supabase = createServerSupabase();
   if (!supabase) {
+    console.log('[GET /api/positions] Supabase not configured, returning []');
     return NextResponse.json([]);
   }
   try {
     const list = await positionsStore.getPositions(supabase, orgId);
+    console.log('[GET /api/positions] orgId=', orgId, 'count=', list.length);
     return NextResponse.json(list);
   } catch (error) {
     console.error('GET /api/positions error:', error);
