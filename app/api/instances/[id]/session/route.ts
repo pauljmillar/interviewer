@@ -8,19 +8,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { orgId } = await getEffectiveOrgId(request);
-  if (!orgId) {
-    return NextResponse.json(
-      { error: 'Organization required. Create or select an organization.' },
-      { status: 403 }
-    );
-  }
   try {
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: 'Instance id required' }, { status: 400 });
     }
 
-    const instance = await getInstanceById(id, orgId);
+    // Allow unauthenticated (interviewee) updates: look up by id only. Authenticated admins use orgId.
+    const instance = await getInstanceById(id, orgId ?? undefined);
     if (!instance) {
       return NextResponse.json({ error: 'Instance not found' }, { status: 404 });
     }
