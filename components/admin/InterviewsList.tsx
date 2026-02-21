@@ -10,6 +10,7 @@ type InstanceRow = {
   name: string;
   positionId?: string;
   recipientName?: string;
+  shareableToken?: string;
   status: InstanceStatus;
   createdAt: string;
 };
@@ -91,40 +92,80 @@ export default function InterviewsList() {
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Interview link</th>
                 <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {instances.map((inst) => (
-                <tr key={inst.id}>
-                  <td className="px-4 py-2 text-sm text-gray-900">{inst.recipientName ?? '—'}</td>
-                  <td className="px-4 py-2 text-sm text-gray-900">{inst.name}</td>
-                  <td className="px-4 py-2 text-sm">
-                    <span
-                      className={
-                        inst.status === 'completed'
-                          ? 'text-green-600'
-                          : inst.status === 'started'
-                            ? 'text-amber-600'
-                            : 'text-gray-500'
-                      }
-                    >
-                      {inst.status.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-600">
-                    {new Date(inst.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-2 text-right">
-                    <Link
-                      href={`/admin/interviews/${encodeURIComponent(inst.id)}`}
-                      className="text-blue-600 hover:underline text-sm font-medium"
-                    >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+              {instances.map((inst) => {
+                const interviewUrl =
+                  typeof window !== 'undefined' && inst.shareableToken
+                    ? `${window.location.origin}/interview/${inst.shareableToken}`
+                    : inst.shareableToken
+                      ? `/interview/${inst.shareableToken}`
+                      : null;
+                return (
+                  <tr key={inst.id}>
+                    <td className="px-4 py-2 text-sm text-gray-900">{inst.recipientName ?? '—'}</td>
+                    <td className="px-4 py-2 text-sm text-gray-900">{inst.name}</td>
+                    <td className="px-4 py-2 text-sm">
+                      <span
+                        className={
+                          inst.status === 'completed'
+                            ? 'text-green-600'
+                            : inst.status === 'started'
+                              ? 'text-amber-600'
+                              : 'text-gray-500'
+                        }
+                      >
+                        {inst.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-600">
+                      {new Date(inst.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-2 text-sm">
+                      {interviewUrl ? (
+                        <span className="flex items-center gap-2 flex-wrap">
+                          <a
+                            href={interviewUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline truncate max-w-[200px] sm:max-w-[280px]"
+                            title={interviewUrl}
+                          >
+                            {interviewUrl.length > 45 ? `${interviewUrl.slice(0, 42)}…` : interviewUrl}
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const full =
+                                typeof window !== 'undefined'
+                                  ? `${window.location.origin}/interview/${inst.shareableToken}`
+                                  : interviewUrl;
+                              navigator.clipboard.writeText(full);
+                            }}
+                            className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+                            title="Copy link"
+                          >
+                            Copy
+                          </button>
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      <Link
+                        href={`/admin/interviews/${encodeURIComponent(inst.id)}`}
+                        className="text-blue-600 hover:underline text-sm font-medium"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
