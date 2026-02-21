@@ -126,16 +126,13 @@ export default function InterviewsList() {
                     </td>
                     <td className="px-4 py-2 text-sm">
                       {interviewUrl ? (
-                        <span className="flex items-center gap-2 flex-wrap">
-                          <a
-                            href={interviewUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline truncate max-w-[200px] sm:max-w-[280px]"
+                        <span className="inline-flex items-center gap-2">
+                          <span
+                            className="truncate max-w-[200px] sm:max-w-[280px] text-gray-700"
                             title={interviewUrl}
                           >
                             {interviewUrl.length > 45 ? `${interviewUrl.slice(0, 42)}…` : interviewUrl}
-                          </a>
+                          </span>
                           <button
                             type="button"
                             onClick={() => {
@@ -145,7 +142,7 @@ export default function InterviewsList() {
                                   : interviewUrl;
                               navigator.clipboard.writeText(full);
                             }}
-                            className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+                            className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 flex-shrink-0"
                             title="Copy link"
                           >
                             Copy
