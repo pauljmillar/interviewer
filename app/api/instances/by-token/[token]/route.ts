@@ -17,13 +17,26 @@ export async function GET(
 
     const instance = await getInstanceByToken(token);
     if (!instance) {
+      console.log('[by-token] no instance for token', { tokenPrefix: token.slice(0, 8) });
       return NextResponse.json({ error: 'Invalid or expired link' }, { status: 404 });
     }
 
     let session = await getLatestSession(instance.id);
+    const createdNew = !session;
     if (!session) {
+      console.log('[by-token] no session for instance, creating', { instanceId: instance.id });
       session = await createSession(instance.id);
     }
+
+    const msgCount = session.messages?.length ?? 0;
+    console.log('[by-token] returning', {
+      instanceId: instance.id,
+      sessionId: session.id,
+      messageCount: msgCount,
+      messagesType: Array.isArray(session.messages) ? 'array' : typeof session.messages,
+      currentQuestionIndex: session.currentQuestionIndex,
+      createdNewSession: createdNew,
+    });
 
     return NextResponse.json({ instance, session });
   } catch (error) {

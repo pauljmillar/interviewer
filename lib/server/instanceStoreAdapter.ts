@@ -71,14 +71,28 @@ export async function getSessions(instanceId: string): Promise<SessionRecord[]> 
 
 export async function getLatestSession(instanceId: string): Promise<SessionRecord | undefined> {
   const sb = useSupabase();
-  if (sb) return supabaseStore.getLatestSession(sb, instanceId);
-  return Promise.resolve(fileStore.getLatestSession(instanceId));
+  const session = sb
+    ? await supabaseStore.getLatestSession(sb, instanceId)
+    : fileStore.getLatestSession(instanceId);
+  console.log('[instanceStore] getLatestSession', {
+    instanceId,
+    backend: sb ? 'supabase' : 'file',
+    found: !!session,
+    messageCount: session?.messages?.length ?? 0,
+  });
+  return session;
 }
 
 export async function saveSession(session: SessionRecord): Promise<void> {
   const sb = useSupabase();
-  if (sb) return supabaseStore.saveSession(sb, session);
-  fileStore.saveSession(session);
+  console.log('[instanceStore] saveSession', {
+    instanceId: session.interviewInstanceId,
+    sessionId: session.id,
+    backend: sb ? 'supabase' : 'file',
+    messageCount: session.messages?.length ?? 0,
+  });
+  if (sb) await supabaseStore.saveSession(sb, session);
+  else fileStore.saveSession(session);
 }
 
 export async function getInstanceStatus(instanceId: string): Promise<InstanceStatus> {

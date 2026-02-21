@@ -24,14 +24,37 @@ interface CandidateChatProps {
   onSessionUpdate?: (session: SessionRecord) => void;
 }
 
+/** Normalize messages from API (array or JSON string) to Message[]. */
+function normalizeMessages(raw: unknown): Message[] {
+  const arr = Array.isArray(raw)
+    ? raw
+    : typeof raw === 'string'
+      ? (() => {
+          try {
+            const p = JSON.parse(raw) as unknown;
+            return Array.isArray(p) ? p : [];
+          } catch (e) {
+            console.warn('[CandidateChat normalizeMessages] JSON.parse failed', e);
+            return [];
+          }
+        })()
+      : [];
+  const out = arr.map((m: { role?: string; content?: string; timestamp?: string }) => ({
+    role: m.role ?? 'user',
+    content: m.content ?? '',
+    timestamp: m.timestamp ? new Date(m.timestamp) : undefined,
+  }));
+  console.log('[CandidateChat normalizeMessages]', {
+    rawType: typeof raw,
+    rawIsArray: Array.isArray(raw),
+    rawLength: typeof raw === 'string' ? raw.length : Array.isArray(raw) ? raw.length : 'n/a',
+    parsedLength: out.length,
+  });
+  return out;
+}
+
 export default function CandidateChat({ instance, session: initialSession, onSessionUpdate }: CandidateChatProps) {
-  const [messages, setMessages] = useState<Message[]>(() =>
-    initialSession.messages.map((m) => ({
-      role: m.role,
-      content: m.content,
-      timestamp: m.timestamp ? new Date(m.timestamp) : undefined,
-    }))
-  );
+  const [messages, setMessages] = useState<Message[]>(() => normalizeMessages(initialSession.messages));
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(initialSession.currentQuestionIndex);
   const [coveredSubTopics, setCoveredSubTopics] = useState(initialSession.coveredSubTopics);
   const [currentQuestionWordCount, setCurrentQuestionWordCount] = useState(initialSession.currentQuestionWordCount);
@@ -76,7 +99,8 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const displayedElapsedSeconds = elapsedAtLoad + Math.floor((elapsedTick - loadTimeRef.current) / 1000);
 
   // Start the conversation with intro/first question when the session has no messages yet.
-  // When messages.length > 0 (returning user), we do not restart; the next send continues the thread.
+  // If the initial load returned 0 messages (e.g. stale read), re-fetch once before starting;
+  // if the server has messages we hydrate from it and never overwrite the DB.
   useEffect(() => {
     if (messages.length > 0 || questions.length === 0) return;
 
@@ -85,6 +109,43 @@ export default function CandidateChat({ instance, session: initialSession, onSes
 
     (async () => {
       try {
+        const sessionRes = await fetch(`/api/instances/${instance.id}/session`);
+        if (sessionRes.ok) {
+          const { session: refetched } = await sessionRes.json();
+          const refetchedMessages = Array.isArray(refetched?.messages)
+            ? refetched.messages
+            : typeof refetched?.messages === 'string'
+              ? (() => {
+                  try {
+                    const p = JSON.parse(refetched.messages) as unknown;
+                    return Array.isArray(p) ? p : [];
+                  } catch {
+                    return [];
+                  }
+                })()
+              : [];
+          if (refetchedMessages.length > 0 && !cancelled) {
+            setMessages(
+              refetchedMessages.map((m: { role?: string; content?: string; timestamp?: string }) => ({
+                role: m.role ?? 'user',
+                content: m.content ?? '',
+                timestamp: m.timestamp ? new Date(m.timestamp) : undefined,
+              }))
+            );
+            setCurrentQuestionIndex(refetched.currentQuestionIndex ?? 0);
+            setCoveredSubTopics(refetched.coveredSubTopics ?? []);
+            setCurrentQuestionWordCount(refetched.currentQuestionWordCount ?? 0);
+            setUserRepliesForCurrentQuestion(refetched.userRepliesForCurrentQuestion ?? 0);
+            if (refetched.discoveryContext) setDiscoveryContext(refetched.discoveryContext);
+            setAllQuestionsCovered(refetched.allQuestionsCovered ?? false);
+            setCurrentSession(refetched);
+            if (!cancelled) setIsLoading(false);
+            return;
+          }
+        }
+
+        if (cancelled) return;
+
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -147,7 +208,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     return () => {
       cancelled = true;
     };
-  }, []); // Run once on mount when messages are empty and questions exist (questions.length check is inside)
+  }, []); // Run once on mount when messages are empty and questions exist
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -163,10 +224,13 @@ export default function CandidateChat({ instance, session: initialSession, onSes
         body: JSON.stringify(nextSession),
       });
       if (!res.ok) {
-        console.error('Failed to save session', await res.text());
+        const text = await res.text();
+        console.error('[CandidateChat] persistSession failed', { status: res.status, body: text });
+      } else {
+        console.log('[CandidateChat] persistSession ok', { messageCount: nextSession.messages?.length ?? 0 });
       }
     } catch (err) {
-      console.error('Failed to save session', err);
+      console.error('[CandidateChat] persistSession error', err);
     }
   };
 

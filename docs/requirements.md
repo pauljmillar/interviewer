@@ -100,3 +100,5 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 
 - *Implemented* **Supabase (optional)**  
   When `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set, positions, custom templates, and interview instances/sessions use Supabase. Run [supabase/schema.sql](../supabase/schema.sql) in the Supabase SQL Editor to create tables: `positions`, `interview_templates`, `interview_instances`, `sessions`. Aligns with terminology and API routes (GET/POST/PATCH/DELETE for positions and templates).
+
+  **Session reads:** For consistent reads after refresh (no stale session), set **`SUPABASE_PRIMARY_URL`** to your project’s Primary API URL. With one URL today, use the same as `NEXT_PUBLIC_SUPABASE_URL`. When you add Read Replicas, use the dedicated Primary URL from Dashboard → Project Settings → API (Source: Primary).

@@ -172,26 +172,36 @@ export async function getLatestSession(
   supabase: SupabaseClient,
   instanceId: string
 ): Promise<SessionRecord | undefined> {
-  const { data, error } = await supabase
-    .from('sessions')
-    .select('*')
-    .eq('interview_instance_id', instanceId)
-    .order('started_at', { ascending: false })
-    .limit(1)
-    .single();
-  if (error || !data) return undefined;
-  return rowToSession(data);
+  const sessions = await getSessions(supabase, instanceId);
+  if (sessions.length === 0) return undefined;
+
+  // Return the session with the most messages so we never show an empty session
+  // when a session with progress exists (avoids duplicate-session + replica lag issues).
+  const byMessageCount = [...sessions].sort(
+    (a, b) => (b.messages?.length ?? 0) - (a.messages?.length ?? 0)
+  );
+  const chosen = byMessageCount[0];
+  console.log('[supabase getLatestSession]', {
+    instanceId,
+    sessionCount: sessions.length,
+    chosenSessionId: chosen.id,
+    chosenMessageCount: chosen.messages?.length ?? 0,
+    allCounts: sessions.map((s) => ({ id: s.id.slice(-8), n: s.messages?.length ?? 0 })),
+  });
+  return chosen;
 }
 
 export async function saveSession(
   supabase: SupabaseClient,
   session: SessionRecord
 ): Promise<void> {
+  // Use update().eq() so all columns (including JSONB messages) are written.
+  // Ensure messages is an array; JSONB can reject or mis-store if sent as string.
+  const messages = Array.isArray(session.messages) ? session.messages : [];
   const row = {
-    id: session.id,
     interview_instance_id: session.interviewInstanceId,
     started_at: session.startedAt,
-    messages: session.messages,
+    messages,
     current_question_index: session.currentQuestionIndex,
     covered_sub_topics: session.coveredSubTopics,
     current_question_word_count: session.currentQuestionWordCount,
@@ -201,10 +211,22 @@ export async function saveSession(
     reminder_already_shown: session.reminderAlreadyShown ?? false,
     elapsed_seconds: session.elapsedSeconds ?? 0,
   };
-  const { error } = await supabase.from('sessions').upsert(row, {
-    onConflict: 'id',
-  });
+  const { data: updated, error } = await supabase
+    .from('sessions')
+    .update(row)
+    .eq('id', session.id)
+    .select('id, messages')
+    .single();
   if (error) throw error;
+  const msgCount = Array.isArray(updated?.messages) ? (updated as { messages: unknown[] }).messages.length : 0;
+  console.log('[supabase saveSession] after update', {
+    sessionId: session.id,
+    rowsReturned: updated ? 1 : 0,
+    messagesLength: msgCount,
+  });
+  if (!updated) {
+    console.warn('[supabase saveSession] update matched 0 rows – session may not exist or RLS blocked');
+  }
 }
 
 export async function getInstanceStatus(
@@ -272,12 +294,39 @@ function rowToInstance(row: Record<string, unknown>): InterviewInstanceRecord {
   };
 }
 
+/** JSONB can come back as a string from Postgres/PostgREST in some cases; normalize to array. */
+function parseMessages(raw: unknown): SessionRecord['messages'] {
+  const out =
+    Array.isArray(raw)
+      ? (raw as SessionRecord['messages'])
+      : typeof raw === 'string'
+        ? (() => {
+            try {
+              const parsed = JSON.parse(raw) as unknown;
+              return Array.isArray(parsed) ? (parsed as SessionRecord['messages']) : [];
+            } catch (e) {
+              console.warn('[supabase parseMessages] JSON.parse failed', e);
+              return [];
+            }
+          })()
+        : [];
+  console.log('[supabase parseMessages]', {
+    rawType: typeof raw,
+    rawIsArray: Array.isArray(raw),
+    rawLength: typeof raw === 'string' ? raw.length : Array.isArray(raw) ? raw.length : 'n/a',
+    parsedLength: out.length,
+    rawPreview:
+      typeof raw === 'string' ? raw.slice(0, 80) + (raw.length > 80 ? '...' : '') : undefined,
+  });
+  return out;
+}
+
 function rowToSession(row: Record<string, unknown>): SessionRecord {
   return {
     id: row.id as string,
     interviewInstanceId: row.interview_instance_id as string,
     startedAt: (row.started_at as string) ?? new Date().toISOString(),
-    messages: (row.messages as SessionRecord['messages']) ?? [],
+    messages: parseMessages(row.messages),
     currentQuestionIndex: (row.current_question_index as number) ?? 0,
     coveredSubTopics: (row.covered_sub_topics as SessionRecord['coveredSubTopics']) ?? [],
     currentQuestionWordCount: (row.current_question_word_count as number) ?? 0,
