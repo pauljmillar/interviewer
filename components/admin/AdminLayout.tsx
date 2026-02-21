@@ -70,7 +70,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       >
         <Link
           href="/admin"
-          className={`w-full flex items-center gap-2 p-3 border-b border-gray-100 text-left hover:bg-gray-50 transition-colors ${collapsed ? 'justify-center' : ''}`}
+          className="w-full flex items-center gap-2 p-3 border-b border-gray-100 text-left hover:bg-gray-50 transition-colors"
           title="Admin home"
         >
           <svg className="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +89,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 href={href}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors ${
                   active ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'
-                } ${collapsed ? 'justify-center px-0' : ''}`}
+                }`}
                 title={collapsed ? label : undefined}
               >
                 {icon}
