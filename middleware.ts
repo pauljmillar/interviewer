@@ -10,14 +10,21 @@ const isProtectedApiRoute = createRouteMatcher([
   '/api/templates(.*)',
   '/api/positions(.*)',
   '/api/instances(.*)',
+  '/api/superadmin(.*)',
 ]);
+
+/** Public: candidate interview by shareable link; no auth required. */
+function isInstancesByTokenRoute(req: Request): boolean {
+  const url = new URL(req.url);
+  return url.pathname.startsWith('/api/instances/by-token/');
+}
 
 export default clerkMiddleware(async (auth, req) => {
   if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
     return NextResponse.next();
   }
   if (isAdminRoute(req)) await auth.protect();
-  if (isProtectedApiRoute(req)) await auth.protect();
+  if (isProtectedApiRoute(req) && !isInstancesByTokenRoute(req)) await auth.protect();
 });
 
 export const config = {

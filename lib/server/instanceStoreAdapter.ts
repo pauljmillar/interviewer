@@ -14,25 +14,35 @@ function useSupabase() {
   return createServerSupabase();
 }
 
-export async function createInstance(params: {
-  name: string;
-  templateId?: string;
-  positionId?: string;
-  recipientName?: string;
-  questions: Question[];
-  intro?: string;
-  conclusion?: string;
-  reminder?: string;
-}): Promise<{ instance: InterviewInstanceRecord; shareableToken: string }> {
+export async function createInstance(
+  orgId: string,
+  params: {
+    name: string;
+    templateId?: string;
+    positionId?: string;
+    recipientName?: string;
+    questions: Question[];
+    intro?: string;
+    conclusion?: string;
+    reminder?: string;
+  }
+): Promise<{ instance: InterviewInstanceRecord; shareableToken: string }> {
   const sb = useSupabase();
-  if (sb) return supabaseStore.createInstance(sb, params);
-  return Promise.resolve(fileStore.createInstance(params));
+  if (sb) return supabaseStore.createInstance(sb, orgId, params);
+  const { instance, shareableToken } = fileStore.createInstance(orgId, params);
+  return Promise.resolve({ instance, shareableToken });
 }
 
-export async function getInstanceById(id: string): Promise<InterviewInstanceRecord | undefined> {
+/** When orgId is provided (admin), only return if instance belongs to that org. */
+export async function getInstanceById(
+  id: string,
+  orgId?: string
+): Promise<InterviewInstanceRecord | undefined> {
   const sb = useSupabase();
-  if (sb) return supabaseStore.getInstanceById(sb, id);
-  return Promise.resolve(fileStore.getInstanceById(id));
+  if (sb) return supabaseStore.getInstanceById(sb, id, orgId);
+  const instance = await fileStore.getInstanceById(id);
+  if (!instance) return undefined;
+  return { ...instance, orgId: (instance as InterviewInstanceRecord).orgId ?? orgId ?? '' };
 }
 
 export async function getInstanceByToken(token: string): Promise<InterviewInstanceRecord | undefined> {
@@ -42,13 +52,15 @@ export async function getInstanceByToken(token: string): Promise<InterviewInstan
 }
 
 export async function getAllInstances(
+  orgId: string,
   positionId?: string
 ): Promise<(InterviewInstanceRecord & { status: InstanceStatus })[]> {
   const sb = useSupabase();
-  if (sb) return supabaseStore.getAllInstances(sb, positionId);
+  if (sb) return supabaseStore.getAllInstances(sb, orgId, positionId);
   const list = fileStore.getAllInstances();
-  if (positionId) return list.filter((i) => i.positionId === positionId);
-  return list;
+  let out = list.filter((i) => (i as InterviewInstanceRecord).orgId === orgId);
+  if (positionId) out = out.filter((i) => i.positionId === positionId);
+  return out;
 }
 
 export async function getSessions(instanceId: string): Promise<SessionRecord[]> {

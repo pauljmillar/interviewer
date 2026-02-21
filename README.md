@@ -30,7 +30,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 ```
-Optional: `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in` and `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up` if you use custom paths.
+Enable **Organizations** in the Clerk Dashboard so admins can create/join an org; data is scoped by organization. Optional: `SUPERADMIN_USER_IDS=user_xxx,user_yyy` (comma-separated Clerk user IDs) to allow those users to use "View as org" in admin. Optional: `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in` and `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up` if you use custom paths.
 
 **Supabase (database):** When set, positions, custom templates, and interview instances/sessions are stored in Supabase instead of localStorage. Run the SQL in [supabase/schema.sql](supabase/schema.sql) in your Supabase project, then add:
 ```

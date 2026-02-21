@@ -1,21 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import {
   getInstanceById,
   getLatestSession,
   getInstanceStatus,
 } from '@/lib/server/instanceStoreAdapter';
+import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
 import { getTemplateById } from '@/constants/templates';
 import { createServerSupabase } from '@/lib/supabase/server';
 import * as templatesStore from '@/lib/server/supabaseTemplates';
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   try {
     const { id } = await params;
@@ -23,7 +26,7 @@ export async function GET(
       return NextResponse.json({ error: 'Instance id required' }, { status: 400 });
     }
 
-    const instance = await getInstanceById(id);
+    const instance = await getInstanceById(id, orgId);
     if (!instance) {
       return NextResponse.json({ error: 'Instance not found' }, { status: 404 });
     }
@@ -39,7 +42,11 @@ export async function GET(
       } else {
         const supabase = createServerSupabase();
         if (supabase) {
-          const custom = await templatesStore.getTemplate(supabase, instance.templateId);
+          const custom = await templatesStore.getTemplate(
+            supabase,
+            instance.templateId,
+            orgId
+          );
           if (custom) templateName = custom.name;
         }
       }

@@ -1,21 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { createServerSupabase } from '@/lib/supabase/server';
+import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
 import * as templatesStore from '@/lib/server/supabaseTemplates';
 import type { InterviewTemplate } from '@/types';
 
-export async function GET() {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+/** Returns standard (org_id IS NULL) + custom (org) templates for the current org. */
+export async function GET(request: NextRequest) {
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   const supabase = createServerSupabase();
   if (!supabase) {
     return NextResponse.json([]);
   }
   try {
-    const custom = await templatesStore.getCustomTemplates(supabase);
-    return NextResponse.json(custom);
+    const list = await templatesStore.getTemplatesForOrg(supabase, orgId);
+    return NextResponse.json(list);
   } catch (error) {
     console.error('GET /api/templates error:', error);
     return NextResponse.json(
@@ -26,9 +30,12 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   const supabase = createServerSupabase();
   if (!supabase) {
@@ -45,7 +52,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    await templatesStore.saveCustomTemplate(supabase, template);
+    await templatesStore.saveCustomTemplate(supabase, orgId, template);
     return NextResponse.json(template);
   } catch (error) {
     console.error('POST /api/templates error:', error);

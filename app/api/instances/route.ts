@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { createInstance, getAllInstances } from '@/lib/server/instanceStoreAdapter';
+import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
 import type { Question } from '@/types';
 
 type CreateBody = {
@@ -15,9 +15,12 @@ type CreateBody = {
 };
 
 export async function POST(request: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   try {
     const body: CreateBody = await request.json();
@@ -39,7 +42,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'questions array is required' }, { status: 400 });
     }
 
-    const { instance, shareableToken } = await createInstance({
+    const { instance, shareableToken } = await createInstance(orgId, {
       name,
       positionId,
       templateId,
@@ -68,13 +71,16 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   try {
     const positionId = request.nextUrl.searchParams.get('positionId') ?? undefined;
-    const list = await getAllInstances(positionId);
+    const list = await getAllInstances(orgId, positionId);
     return NextResponse.json(list);
   } catch (error) {
     console.error('GET /api/instances error:', error);

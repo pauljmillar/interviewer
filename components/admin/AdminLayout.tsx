@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -42,15 +42,31 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
+  const asideRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
   const width = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
+
+  useEffect(() => {
+    const el = asideRef.current;
+    if (!el) return;
+    const handleFocusOut = (e: FocusEvent) => {
+      const relatedTarget = e.relatedTarget as Node | null;
+      if (relatedTarget != null && el.contains(relatedTarget)) return;
+      setCollapsed(true);
+    };
+    el.addEventListener('focusout', handleFocusOut);
+    return () => el.removeEventListener('focusout', handleFocusOut);
+  }, []);
 
   return (
     <div className="flex flex-1 min-h-0 bg-gray-50">
       <aside
+        ref={asideRef}
         className="flex flex-col bg-white border-r border-gray-200 flex-shrink-0 transition-[width] duration-200 ease-in-out overflow-hidden"
         style={{ width }}
+        onMouseEnter={() => setCollapsed(false)}
+        onMouseLeave={() => setCollapsed(true)}
       >
         <Link
           href="/admin"
@@ -85,24 +101,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             );
           })}
         </nav>
-        <div className="p-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={() => setCollapsed((c) => !c)}
-            className="w-full flex items-center justify-center gap-2 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg text-sm transition-colors"
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <svg
-              className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-            {!collapsed && <span>Collapse</span>}
-          </button>
-        </div>
       </aside>
       <main className="flex-1 min-w-0 overflow-auto flex flex-col">
         {children}

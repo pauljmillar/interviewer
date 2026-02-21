@@ -3,22 +3,23 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  OrganizationSwitcher,
   SignInButton,
   SignUpButton,
   SignedIn,
   SignedOut,
   UserButton,
 } from '@clerk/nextjs';
+import SuperadminViewAsOrg from '@/components/admin/SuperadminViewAsOrg';
 
 interface HeaderProps {
   hasClerk?: boolean;
 }
 
-const adminNav = [
-  { href: '/admin/positions', label: 'Positions' },
-  { href: '/admin/templates', label: 'Templates' },
-  { href: '/admin/interviews', label: 'Interviews' },
-  { href: '/admin/instances', label: 'Instances' },
+const publicNav = [
+  { href: '/products', label: 'Products' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/about', label: 'About' },
 ] as const;
 
 function isAdminPath(pathname: string): boolean {
@@ -37,27 +38,17 @@ export default function Header({ hasClerk = true }: HeaderProps) {
         >
           AI Interviewer
         </Link>
-        {isAdminPath(pathname) && (
-          <nav className="hidden sm:flex items-center gap-1" aria-label="Admin navigation">
-            {adminNav.map(({ href, label }) => {
-              const active =
-                pathname === href || (pathname.startsWith(href + '/'));
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    active
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
-        )}
+        <nav className="hidden sm:flex items-center gap-1" aria-label="Main navigation">
+          {publicNav.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className="px-3 py-1.5 rounded text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
       {hasClerk && (
         <div className="flex-shrink-0 flex items-center gap-2">
@@ -74,6 +65,21 @@ export default function Header({ hasClerk = true }: HeaderProps) {
             </SignUpButton>
           </SignedOut>
           <SignedIn>
+            {isAdminPath(pathname) && (
+              <>
+                <SuperadminViewAsOrg />
+                <OrganizationSwitcher
+                  hidePersonal
+                  afterSelectOrganizationUrl="/admin"
+                  afterCreateOrganizationUrl="/admin"
+                  appearance={{
+                    elements: {
+                      rootBox: 'flex items-center',
+                    },
+                  }}
+                />
+              </>
+            )}
             {!isAdminPath(pathname) && (
               <Link
                 href="/admin"

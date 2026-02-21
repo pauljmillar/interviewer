@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { createServerSupabase } from '@/lib/supabase/server';
+import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
 import * as positionsStore from '@/lib/server/supabasePositions';
 import type { PositionRecord } from '@/types';
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   const supabase = createServerSupabase();
   if (!supabase) {
@@ -18,7 +21,7 @@ export async function GET(
   }
   try {
     const { id } = await params;
-    const position = await positionsStore.getPosition(supabase, id);
+    const position = await positionsStore.getPosition(supabase, id, orgId);
     if (!position) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
@@ -36,9 +39,12 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   const supabase = createServerSupabase();
   if (!supabase) {
@@ -50,8 +56,8 @@ export async function PATCH(
   try {
     const { id } = await params;
     const position = (await request.json()) as PositionRecord;
-    if (position.id !== id) {
-      return NextResponse.json({ error: 'id mismatch' }, { status: 400 });
+    if (position.id !== id || position.orgId !== orgId) {
+      return NextResponse.json({ error: 'id or org mismatch' }, { status: 400 });
     }
     await positionsStore.updatePosition(supabase, position);
     return NextResponse.json(position);
@@ -65,12 +71,15 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   const supabase = createServerSupabase();
   if (!supabase) {
@@ -81,7 +90,7 @@ export async function DELETE(
   }
   try {
     const { id } = await params;
-    await positionsStore.deletePosition(supabase, id);
+    await positionsStore.deletePosition(supabase, id, orgId);
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('DELETE /api/positions/[id] error:', error);

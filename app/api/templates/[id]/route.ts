@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { createServerSupabase } from '@/lib/supabase/server';
+import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
 import * as templatesStore from '@/lib/server/supabaseTemplates';
 import type { InterviewTemplate } from '@/types';
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   const supabase = createServerSupabase();
   if (!supabase) {
@@ -18,7 +21,7 @@ export async function GET(
   }
   try {
     const { id } = await params;
-    const template = await templatesStore.getTemplate(supabase, id);
+    const template = await templatesStore.getTemplate(supabase, id, orgId);
     if (!template) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
@@ -36,9 +39,12 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   const supabase = createServerSupabase();
   if (!supabase) {
@@ -59,7 +65,7 @@ export async function PATCH(
         { status: 400 }
       );
     }
-    await templatesStore.saveCustomTemplate(supabase, template);
+    await templatesStore.saveCustomTemplate(supabase, orgId, template);
     return NextResponse.json(template);
   } catch (error) {
     console.error('PATCH /api/templates/[id] error:', error);
@@ -71,12 +77,15 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
   }
   const supabase = createServerSupabase();
   if (!supabase) {
@@ -87,7 +96,7 @@ export async function DELETE(
   }
   try {
     const { id } = await params;
-    await templatesStore.deleteCustomTemplate(supabase, id);
+    await templatesStore.deleteCustomTemplate(supabase, id, orgId);
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('DELETE /api/templates/[id] error:', error);

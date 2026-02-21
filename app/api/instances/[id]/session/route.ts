@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getInstanceById, getSessions, saveSession } from '@/lib/server/instanceStoreAdapter';
+import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
 import type { SessionRecord } from '@/types';
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json(
+      { error: 'Organization required. Create or select an organization.' },
+      { status: 403 }
+    );
+  }
   try {
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: 'Instance id required' }, { status: 400 });
     }
 
-    const instance = await getInstanceById(id);
+    const instance = await getInstanceById(id, orgId);
     if (!instance) {
       return NextResponse.json({ error: 'Instance not found' }, { status: 404 });
     }

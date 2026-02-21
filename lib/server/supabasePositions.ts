@@ -8,6 +8,7 @@ function generateId(): string {
 function rowToPosition(row: Record<string, unknown>): PositionRecord {
   return {
     id: row.id as string,
+    orgId: row.org_id as string,
     name: row.name as string,
     type: row.type as PositionType | undefined,
     templateId: row.template_id as string | undefined,
@@ -15,10 +16,14 @@ function rowToPosition(row: Record<string, unknown>): PositionRecord {
   };
 }
 
-export async function getPositions(supabase: SupabaseClient): Promise<PositionRecord[]> {
+export async function getPositions(
+  supabase: SupabaseClient,
+  orgId: string
+): Promise<PositionRecord[]> {
   const { data, error } = await supabase
     .from('positions')
     .select('*')
+    .eq('org_id', orgId)
     .order('created_at', { ascending: false });
   if (error) return [];
   return (data ?? []).map(rowToPosition);
@@ -26,12 +31,14 @@ export async function getPositions(supabase: SupabaseClient): Promise<PositionRe
 
 export async function getPosition(
   supabase: SupabaseClient,
-  id: string
+  id: string,
+  orgId: string
 ): Promise<PositionRecord | undefined> {
   const { data, error } = await supabase
     .from('positions')
     .select('*')
     .eq('id', id)
+    .eq('org_id', orgId)
     .single();
   if (error || !data) return undefined;
   return rowToPosition(data);
@@ -39,11 +46,13 @@ export async function getPosition(
 
 export async function createPosition(
   supabase: SupabaseClient,
+  orgId: string,
   params: { name: string; type?: PositionType; templateId?: string }
 ): Promise<PositionRecord> {
   const id = generateId();
   const record: PositionRecord = {
     id,
+    orgId,
     name: params.name,
     type: params.type,
     templateId: params.templateId,
@@ -51,6 +60,7 @@ export async function createPosition(
   };
   const { error } = await supabase.from('positions').insert({
     id: record.id,
+    org_id: orgId,
     name: record.name,
     type: record.type,
     template_id: record.templateId,
@@ -70,11 +80,16 @@ export async function updatePosition(
       type: position.type,
       template_id: position.templateId,
     })
-    .eq('id', position.id);
+    .eq('id', position.id)
+    .eq('org_id', position.orgId);
   if (error) throw error;
 }
 
-export async function deletePosition(supabase: SupabaseClient, id: string): Promise<void> {
-  const { error } = await supabase.from('positions').delete().eq('id', id);
+export async function deletePosition(
+  supabase: SupabaseClient,
+  id: string,
+  orgId: string
+): Promise<void> {
+  const { error } = await supabase.from('positions').delete().eq('id', id).eq('org_id', orgId);
   if (error) throw error;
 }
