@@ -125,9 +125,16 @@ export function getInstanceByToken(token: string): InterviewInstanceRecord | und
   return id ? instancesById.get(id) : undefined;
 }
 
-export function getAllInstances(): (InterviewInstanceRecord & { status: InstanceStatus })[] {
+export function getAllInstances(): (InterviewInstanceRecord & {
+  status: InstanceStatus;
+  durationSeconds?: number;
+})[] {
   const list = Array.from(instancesById.values());
-  return list.map((inst) => ({ ...inst, status: deriveStatus(inst.id) }));
+  return list.map((inst) => {
+    const latest = getLatestSession(inst.id);
+    const durationSeconds = latest ? (latest.elapsedSeconds ?? 0) : 0;
+    return { ...inst, status: deriveStatus(inst.id), durationSeconds };
+  });
 }
 
 export function getSessions(instanceId: string): SessionRecord[] {

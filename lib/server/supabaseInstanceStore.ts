@@ -140,7 +140,7 @@ export async function getAllInstances(
   supabase: SupabaseClient,
   orgId: string,
   positionId?: string
-): Promise<(InterviewInstanceRecord & { status: InstanceStatus })[]> {
+): Promise<(InterviewInstanceRecord & { status: InstanceStatus; durationSeconds?: number })[]> {
   let q = supabase
     .from('interview_instances')
     .select('*')
@@ -149,11 +149,16 @@ export async function getAllInstances(
   if (positionId) q = q.eq('position_id', positionId);
   const { data: rows, error } = await q;
   if (error) return [];
-  const out: (InterviewInstanceRecord & { status: InstanceStatus })[] = [];
+  const out: (InterviewInstanceRecord & { status: InstanceStatus; durationSeconds?: number })[] = [];
   for (const row of rows ?? []) {
     const instance = rowToInstance(row);
     const latest = await getLatestSession(supabase, instance.id);
-    out.push({ ...instance, status: deriveStatus(latest ?? null) });
+    const durationSeconds = latest ? (latest.elapsedSeconds ?? 0) : 0;
+    out.push({
+      ...instance,
+      status: deriveStatus(latest ?? null),
+      durationSeconds,
+    });
   }
   return out;
 }

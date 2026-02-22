@@ -55,7 +55,7 @@ export async function getInstanceByToken(token: string): Promise<InterviewInstan
 export async function getAllInstances(
   orgId: string,
   positionId?: string
-): Promise<(InterviewInstanceRecord & { status: InstanceStatus })[]> {
+): Promise<(InterviewInstanceRecord & { status: InstanceStatus; durationSeconds?: number })[]> {
   const sb = useSupabase();
   if (sb) return supabaseStore.getAllInstances(sb, orgId, positionId);
   const list = fileStore.getAllInstances();
