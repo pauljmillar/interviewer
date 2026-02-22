@@ -16,16 +16,26 @@ export default function HomePage() {
           }}
           aria-hidden
         />
-        {/* Motion graphics: simple shapes drifting behind content */}
+        {/* Motion graphics: circles migrate from top-left toward triangle at bottom-right */}
         <div
           className="hero-motion absolute inset-0 -z-10 overflow-hidden pointer-events-none"
           aria-hidden
         >
-          <div className="hero-shape hero-shape--circle hero-shape--accent" style={{ left: "10%", top: "20%" }} />
-          <div className="hero-shape hero-shape--circle hero-shape--muted" style={{ left: "75%", top: "45%" }} />
-          <div className="hero-shape hero-shape--circle hero-shape--accent" style={{ left: "80%", top: "70%" }} />
-          <div className="hero-shape hero-shape--bar hero-shape--muted" style={{ left: "15%", top: "60%" }} />
-          <div className="hero-shape hero-shape--bar hero-shape--accent" style={{ left: "60%", top: "25%" }} />
+          {/* Circles start in top-left, animate toward bottom-right */}
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--accent" style={{ left: "2%", top: "5%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--muted" style={{ left: "8%", top: "12%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--accent" style={{ left: "0%", top: "22%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--muted" style={{ left: "15%", top: "3%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--accent" style={{ left: "5%", top: "30%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--muted" style={{ left: "22%", top: "8%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--accent" style={{ left: "12%", top: "18%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--muted" style={{ left: "3%", top: "38%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--accent" style={{ left: "18%", top: "25%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--muted" style={{ left: "25%", top: "2%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--accent" style={{ left: "28%", top: "15%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--suck hero-shape--muted" style={{ left: "10%", top: "42%" }} />
+          {/* Triangle at bottom-right (sink) with subtle pulse */}
+          <div className="hero-triangle" />
         </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-landing-heading tracking-tight mb-6">
           Augment your HR. Screen candidates in minutes, not hours.

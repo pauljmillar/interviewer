@@ -75,20 +75,29 @@ body {
   }
 }
 
-/* Hero motion graphics: slow drift (transform only for performance) */
-@keyframes hero-drift {
+/* Hero motion: circles migrate from top-left toward triangle at bottom-right (transform only) */
+@keyframes hero-suck {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.2;
+  }
+  70% {
+    transform: translate(65vw, 42vh) scale(0.5);
+    opacity: 0.12;
+  }
+  100% {
+    transform: translate(72vw, 48vh) scale(0.2);
+    opacity: 0.04;
+  }
+}
+
+@keyframes hero-triangle-pulse {
   0%,
   100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate(25%, -15%) rotate(2deg);
+    transform: scale(1);
   }
   50% {
-    transform: translate(-15%, 20%) rotate(-1deg);
-  }
-  75% {
-    transform: translate(20%, 12%) rotate(1deg);
+    transform: scale(1.06);
   }
 }
 
@@ -98,56 +107,64 @@ body {
 
 .hero-shape {
   position: absolute;
-  animation: hero-drift 28s ease-in-out infinite;
   will-change: transform;
 }
 
 .hero-shape--circle {
-  width: 80px;
-  height: 80px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
 }
 
-.hero-shape--bar {
-  width: 120px;
-  height: 6px;
-  border-radius: 2px;
+.hero-shape--suck {
+  animation: hero-suck 22s ease-in forwards;
+  animation-iteration-count: infinite;
 }
 
 .hero-shape--accent {
   background-color: var(--landing-accent);
-  opacity: 0.14;
 }
 
 .hero-shape--muted {
   background-color: var(--landing-muted);
-  opacity: 0.14;
 }
 
-/* Stagger duration and delay so shapes don't move in sync */
-.hero-motion .hero-shape:nth-child(1) {
-  animation-duration: 28s;
-  animation-delay: 0s;
-}
-.hero-motion .hero-shape:nth-child(2) {
-  animation-duration: 34s;
-  animation-delay: 5s;
-}
-.hero-motion .hero-shape:nth-child(3) {
-  animation-duration: 38s;
-  animation-delay: 10s;
-}
-.hero-motion .hero-shape:nth-child(4) {
-  animation-duration: 30s;
-  animation-delay: 2s;
-}
-.hero-motion .hero-shape:nth-child(5) {
-  animation-duration: 36s;
-  animation-delay: 7s;
+/* Stagger so circles don't all move in sync */
+.hero-motion .hero-shape:nth-child(1) { animation-duration: 22s; animation-delay: 0s; }
+.hero-motion .hero-shape:nth-child(2) { animation-duration: 26s; animation-delay: 2s; }
+.hero-motion .hero-shape:nth-child(3) { animation-duration: 24s; animation-delay: 4s; }
+.hero-motion .hero-shape:nth-child(4) { animation-duration: 28s; animation-delay: 1s; }
+.hero-motion .hero-shape:nth-child(5) { animation-duration: 20s; animation-delay: 5s; }
+.hero-motion .hero-shape:nth-child(6) { animation-duration: 25s; animation-delay: 3s; }
+.hero-motion .hero-shape:nth-child(7) { animation-duration: 23s; animation-delay: 6s; }
+.hero-motion .hero-shape:nth-child(8) { animation-duration: 27s; animation-delay: 2.5s; }
+.hero-motion .hero-shape:nth-child(9) { animation-duration: 21s; animation-delay: 4.5s; }
+.hero-motion .hero-shape:nth-child(10) { animation-duration: 29s; animation-delay: 0.5s; }
+.hero-motion .hero-shape:nth-child(11) { animation-duration: 24s; animation-delay: 5.5s; }
+.hero-motion .hero-shape:nth-child(12) { animation-duration: 26s; animation-delay: 3.5s; }
+
+/* Triangle at bottom-right (sink) with subtle pulse */
+.hero-triangle {
+  position: absolute;
+  right: 4%;
+  bottom: 6%;
+  width: 0;
+  height: 0;
+  border-left: 32px solid transparent;
+  border-right: 32px solid transparent;
+  border-bottom: 56px solid var(--landing-accent);
+  opacity: 0.18;
+  animation: hero-triangle-pulse 4s ease-in-out infinite;
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-shape {
+    animation: none;
+    will-change: auto;
+    opacity: 0.08;
+  }
+  .hero-triangle {
     animation: none;
     will-change: auto;
   }
