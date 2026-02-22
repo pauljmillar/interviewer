@@ -37,7 +37,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
           href="/"
           className="text-lg font-semibold text-white truncate hover:text-gray-200 transition-colors"
         >
-          AI Interviewer
+          Candice
         </Link>
       </div>
 

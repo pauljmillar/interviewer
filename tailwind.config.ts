@@ -13,9 +13,10 @@ const config: Config = {
         foreground: "var(--foreground)",
         landing: {
           heading: "var(--landing-heading)",
-          muted: "var(--landing-muted)",
-          accent: "var(--landing-accent)",
-          "accent-hover": "var(--landing-accent-hover)",
+          primary: "var(--landing-primary)",
+          secondary: "var(--landing-secondary)",
+          tertiary: "var(--landing-tertiary)",
+          "primary-hover": "var(--landing-primary-hover)",
         },
       },
     },

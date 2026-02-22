@@ -9,11 +9,12 @@ html {
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Landing page (Poolside-style) tokens – used only on home; compatible non–light blue */
+  /* Landing page color palette */
   --landing-heading: #0a0a0a;
-  --landing-muted: #525252;
-  --landing-accent: #1e40af;
-  --landing-accent-hover: #1d4ed8;
+  --landing-primary: #788c9e;
+  --landing-secondary: #a5b9c7;
+  --landing-tertiary: #dae6f0;
+  --landing-primary-hover: #657a8b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,9 +22,10 @@ html {
     --background: #0a0a0a;
     --foreground: #ededed;
     --landing-heading: #fafafa;
-    --landing-muted: #a3a3a3;
-    --landing-accent: #2563eb;
-    --landing-accent-hover: #1d4ed8;
+    --landing-primary: #8a9caa;
+    --landing-secondary: #b5c5d1;
+    --landing-tertiary: #2a3540;
+    --landing-primary-hover: #9aadbc;
   }
 }
 
@@ -47,7 +49,7 @@ body {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-color: var(--landing-accent);
+    background-color: var(--landing-primary);
     border-radius: inherit;
     transform: scaleX(0);
     transform-origin: left;
@@ -122,11 +124,11 @@ body {
 }
 
 .hero-shape--accent {
-  background-color: var(--landing-accent);
+  background-color: var(--landing-primary);
 }
 
 .hero-shape--muted {
-  background-color: var(--landing-muted);
+  background-color: var(--landing-secondary);
 }
 
 /* Stagger so circles don't all move in sync */
@@ -152,7 +154,7 @@ body {
   height: 0;
   border-left: 32px solid transparent;
   border-right: 32px solid transparent;
-  border-bottom: 56px solid var(--landing-accent);
+  border-bottom: 56px solid var(--landing-primary);
   opacity: 0.18;
   animation: hero-triangle-pulse 4s ease-in-out infinite;
   will-change: transform;

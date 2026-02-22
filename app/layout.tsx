@@ -4,8 +4,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "AI Interviewer",
-  description: "A conversational AI interviewer for capturing life stories",
+  title: "Candice",
+  description: "Your AI Agent for candidate interviews",
 };
 
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
