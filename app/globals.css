@@ -40,7 +40,7 @@ body {
     position: relative;
     z-index: 0;
     isolation: isolate;
-    transition: color 0.2s ease 0.12s;
+    transition: color 0.1s ease 0.06s;
   }
   .link-roll::before {
     content: "";
@@ -51,7 +51,7 @@ body {
     border-radius: inherit;
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.3s cubic-bezier(0.47, 0.1, 1, 0.63);
+    transition: transform 0.15s cubic-bezier(0.47, 0.1, 1, 0.63);
   }
   .link-roll:hover::before,
   .link-roll:focus-visible::before {
