@@ -75,6 +75,84 @@ body {
   }
 }
 
+/* Hero motion graphics: slow drift (transform only for performance) */
+@keyframes hero-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(25%, -15%) rotate(2deg);
+  }
+  50% {
+    transform: translate(-15%, 20%) rotate(-1deg);
+  }
+  75% {
+    transform: translate(20%, 12%) rotate(1deg);
+  }
+}
+
+.hero-motion {
+  z-index: -10;
+}
+
+.hero-shape {
+  position: absolute;
+  animation: hero-drift 28s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero-shape--circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.hero-shape--bar {
+  width: 120px;
+  height: 6px;
+  border-radius: 2px;
+}
+
+.hero-shape--accent {
+  background-color: var(--landing-accent);
+  opacity: 0.14;
+}
+
+.hero-shape--muted {
+  background-color: var(--landing-muted);
+  opacity: 0.14;
+}
+
+/* Stagger duration and delay so shapes don't move in sync */
+.hero-motion .hero-shape:nth-child(1) {
+  animation-duration: 28s;
+  animation-delay: 0s;
+}
+.hero-motion .hero-shape:nth-child(2) {
+  animation-duration: 34s;
+  animation-delay: 5s;
+}
+.hero-motion .hero-shape:nth-child(3) {
+  animation-duration: 38s;
+  animation-delay: 10s;
+}
+.hero-motion .hero-shape:nth-child(4) {
+  animation-duration: 30s;
+  animation-delay: 2s;
+}
+.hero-motion .hero-shape:nth-child(5) {
+  animation-duration: 36s;
+  animation-delay: 7s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-shape {
+    animation: none;
+    will-change: auto;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

@@ -6,8 +6,9 @@ const dmSans = DM_Sans({ subsets: ['latin'] });
 export default function HomePage() {
   return (
     <div className={`${dmSans.className} min-h-full`}>
-      {/* Hero – soft gradient band */}
-      <section className="relative px-6 py-20 sm:py-28 max-w-4xl mx-auto text-center">
+      {/* Hero – motion layer + soft gradient band */}
+      <section className="relative isolate px-6 py-20 sm:py-28 max-w-4xl mx-auto text-center">
+        {/* Gradient band (behind motion so shapes sit on top and stay visible) */}
         <div
           className="absolute inset-0 -z-10 opacity-[0.03]"
           style={{
@@ -15,6 +16,17 @@ export default function HomePage() {
           }}
           aria-hidden
         />
+        {/* Motion graphics: simple shapes drifting behind content */}
+        <div
+          className="hero-motion absolute inset-0 -z-10 overflow-hidden pointer-events-none"
+          aria-hidden
+        >
+          <div className="hero-shape hero-shape--circle hero-shape--accent" style={{ left: "10%", top: "20%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--muted" style={{ left: "75%", top: "45%" }} />
+          <div className="hero-shape hero-shape--circle hero-shape--accent" style={{ left: "80%", top: "70%" }} />
+          <div className="hero-shape hero-shape--bar hero-shape--muted" style={{ left: "15%", top: "60%" }} />
+          <div className="hero-shape hero-shape--bar hero-shape--accent" style={{ left: "60%", top: "25%" }} />
+        </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-landing-heading tracking-tight mb-6">
           Augment your HR. Screen candidates in minutes, not hours.
         </h1>
