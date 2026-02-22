@@ -94,27 +94,25 @@ export default function PositionsView() {
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Template</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredPositions.map((p) => (
                   <tr key={p.id}>
-                    <td className="px-4 py-2 text-sm text-gray-900">{p.name}</td>
+                    <td className="px-4 py-2 text-sm">
+                      <Link
+                        href={`/admin/positions/${p.id}`}
+                        className="text-blue-600 hover:underline font-medium"
+                      >
+                        {p.name}
+                      </Link>
+                    </td>
                     <td className="px-4 py-2 text-sm text-gray-600">{p.type ?? '—'}</td>
                     <td className="px-4 py-2 text-sm text-gray-600">
                       {p.templateId ? getTemplateName(p.templateId, customTemplateNames) : '—'}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-600">
                       {new Date(p.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <Link
-                        href={`/admin/positions/${p.id}`}
-                        className="text-blue-600 hover:underline text-sm font-medium"
-                      >
-                        View
-                      </Link>
                     </td>
                   </tr>
                 ))}
