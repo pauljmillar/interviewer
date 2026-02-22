@@ -4,6 +4,7 @@ This directory holds plan documentation, requirements, and design notes for the 
 
 - **[interview-modes-and-templates.md](interview-modes-and-templates.md)** — Plan for interview modes (1–5), templates, and agent architecture (implemented; see requirements for current state).
 - **[requirements.md](requirements.md)** — Product and feature requirements, including implemented behavior and terminology (Position, Interview instance, Session). Covers admin routes, position/template detail pages, and Supabase backend.
+- **[landing-page-motion-and-imagery.md](landing-page-motion-and-imagery.md)** — Description of the landing page hero motion (circles migrating to triangle, pulse) and imagery (gradient, roll-in hover, color tokens). Intended to be extended as more motion or imagery is added.
 
 ## Terminology (implemented)
 
