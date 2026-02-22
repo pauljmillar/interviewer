@@ -2,15 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Landing page (Poolside-style) tokens – used only on home; compatible non–light blue */
+  --landing-heading: #0a0a0a;
+  --landing-muted: #525252;
+  --landing-accent: #1e40af;
+  --landing-accent-hover: #1d4ed8;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --landing-heading: #fafafa;
+    --landing-muted: #a3a3a3;
+    --landing-accent: #2563eb;
+    --landing-accent-hover: #1d4ed8;
   }
 }
 
@@ -20,9 +33,57 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@layer components {
+  /* Roll-in hover: background sweeps left to right via ::before scaleX */
+  .link-roll {
+    display: inline-block;
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
+    transition: color 0.2s ease 0.12s;
+  }
+  .link-roll::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--landing-accent);
+    border-radius: inherit;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.47, 0.1, 1, 0.63);
+  }
+  .link-roll:hover::before,
+  .link-roll:focus-visible::before {
+    transform: scaleX(1);
+  }
+  .link-roll:hover,
+  .link-roll:focus-visible {
+    color: white;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .link-roll::before {
+      transition: none;
+    }
+    .link-roll:hover::before,
+    .link-roll:focus-visible::before {
+      transform: scaleX(1);
+    }
+    .link-roll {
+      transition: none;
+    }
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 

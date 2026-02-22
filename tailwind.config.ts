@@ -11,6 +11,12 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        landing: {
+          heading: "var(--landing-heading)",
+          muted: "var(--landing-muted)",
+          accent: "var(--landing-accent)",
+          "accent-hover": "var(--landing-accent-hover)",
+        },
       },
     },
   },
