@@ -3,16 +3,19 @@ export class TextToSpeech {
   private voices: SpeechSynthesisVoice[] = [];
   private isSupported: boolean;
   private selectedVoiceName: string | null = null;
+  private preferredTtsId: string | null = null;
 
   constructor() {
     this.isSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
     if (this.isSupported) {
       this.synth = window.speechSynthesis;
       this.loadVoices();
-      
       // Some browsers load voices asynchronously
       if (this.synth.onvoiceschanged !== undefined) {
-        this.synth.onvoiceschanged = () => this.loadVoices();
+        this.synth.onvoiceschanged = () => {
+          this.loadVoices();
+          if (this.preferredTtsId) this.applyTtsIdToVoice(this.preferredTtsId);
+        };
       }
     }
   }
@@ -21,6 +24,19 @@ export class TextToSpeech {
     if (this.isSupported) {
       this.voices = this.synth.getVoices();
     }
+  }
+
+  private applyTtsIdToVoice(ttsId: string) {
+    const voices = this.getAvailableVoices();
+    if (voices.length === 0) return;
+    const preferFemale = ['alloy', 'nova', 'shimmer'].includes(ttsId);
+    const preferMale = ['echo', 'onyx'].includes(ttsId);
+    const preferred = preferFemale
+      ? voices.find((v) => /samantha|karen|victoria|google.*english|female|natural/i.test(v.name))
+      : preferMale
+        ? voices.find((v) => /daniel|alex|david|male|mark/i.test(v.name))
+        : null;
+    this.selectedVoiceName = preferred ? preferred.name : voices[0].name;
   }
 
   getAvailableVoices(): SpeechSynthesisVoice[] {
@@ -33,6 +49,21 @@ export class TextToSpeech {
 
   setVoice(voiceName: string | null) {
     this.selectedVoiceName = voiceName;
+  }
+
+  /**
+   * Set voice from an OpenAI TTS id (alloy, echo, fable, onyx, nova, shimmer).
+   * Maps to a best-effort browser voice; falls back to default English if no match.
+   * Re-applies when browser voices load asynchronously.
+   */
+  setVoiceByTtsId(ttsId: string | null | undefined) {
+    if (!ttsId || !this.isSupported) {
+      this.preferredTtsId = null;
+      this.selectedVoiceName = null;
+      return;
+    }
+    this.preferredTtsId = ttsId;
+    this.applyTtsIdToVoice(ttsId);
   }
 
   getSelectedVoice(): SpeechSynthesisVoice | null {

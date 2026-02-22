@@ -25,6 +25,7 @@ export async function createInstance(
     intro?: string;
     conclusion?: string;
     reminder?: string;
+    voice?: string;
   }
 ): Promise<{ instance: InterviewInstanceRecord; shareableToken: string }> {
   const sb = useSupabase();

@@ -5,11 +5,17 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-/** POST /api/tts — body: { text: string }. Returns audio/mpeg for use with wawa-lipsync. */
+const OPENAI_TTS_VOICES = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'] as const;
+
+/** POST /api/tts — body: { text: string, voice?: string }. Returns audio/mpeg for use with wawa-lipsync. */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const text = typeof body?.text === 'string' ? body.text.trim() : '';
+    const requestedVoice = typeof body?.voice === 'string' ? body.voice.trim() : '';
+    const voice = OPENAI_TTS_VOICES.includes(requestedVoice as (typeof OPENAI_TTS_VOICES)[number])
+      ? requestedVoice
+      : 'alloy';
 
     if (!text) {
       return NextResponse.json({ error: 'text is required' }, { status: 400 });
@@ -31,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     const response = await openai.audio.speech.create({
       model: 'tts-1',
-      voice: 'alloy',
+      voice: voice as 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer',
       input: text,
       response_format: 'mp3',
     });

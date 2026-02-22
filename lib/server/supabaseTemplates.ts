@@ -10,6 +10,7 @@ function rowToTemplate(row: Record<string, unknown>): InterviewTemplate {
     intro: row.intro as string | undefined,
     conclusion: row.conclusion as string | undefined,
     reminder: row.reminder as string | undefined,
+    voice: row.tts_voice as string | undefined,
   };
 }
 
@@ -71,6 +72,7 @@ export async function saveCustomTemplate(
     intro: template.intro,
     conclusion: template.conclusion,
     reminder: template.reminder,
+    tts_voice: template.voice ?? null,
   };
   const { error } = await supabase.from('interview_templates').upsert(row, {
     onConflict: 'id',

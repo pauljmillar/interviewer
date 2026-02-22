@@ -55,6 +55,8 @@ export interface InterviewTemplate {
   conclusion?: string;
   /** Optional reminder shown once when interviewee dismisses the interview (e.g. "idk this is stupid"). */
   reminder?: string;
+  /** TTS voice id (e.g. OpenAI: alloy, echo, fable, onyx, nova, shimmer). Used for /api/tts and browser TTS mapping. */
+  voice?: string;
 }
 
 // Persistence: interview instances and sessions (localStorage-friendly; dates as ISO strings)
@@ -94,6 +96,8 @@ export interface InterviewInstanceRecord {
   intro?: string;
   conclusion?: string;
   reminder?: string;
+  /** TTS voice id (e.g. OpenAI: alloy, echo, fable, onyx, nova, shimmer). Copied from template on create; optional override. */
+  voice?: string;
 }
 
 /** One sitting / one continuous conversation. */

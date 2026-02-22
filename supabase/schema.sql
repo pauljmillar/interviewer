@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS interview_templates (
   intro TEXT,
   conclusion TEXT,
   reminder TEXT,
+  tts_voice TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_templates_org ON interview_templates(org_id);
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS interview_instances (
   intro TEXT,
   conclusion TEXT,
   reminder TEXT,
+  tts_voice TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_instances_org ON interview_instances(org_id);
@@ -76,3 +78,6 @@ CREATE INDEX IF NOT EXISTS idx_sessions_instance ON sessions(interview_instance_
 -- CREATE INDEX IF NOT EXISTS idx_positions_org ON positions(org_id);
 -- CREATE INDEX IF NOT EXISTS idx_templates_org ON interview_templates(org_id);
 -- CREATE INDEX IF NOT EXISTS idx_instances_org ON interview_instances(org_id);
+-- Migration for tts_voice (run if tables existed before voice was added):
+-- ALTER TABLE interview_templates ADD COLUMN IF NOT EXISTS tts_voice TEXT;
+-- ALTER TABLE interview_instances ADD COLUMN IF NOT EXISTS tts_voice TEXT;

@@ -10,7 +10,10 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
   Per-question mode: screening (1), hints (2), list-only (3), biographer (4), contradiction check (5). Mode controls which tools run and how the agent responds.
 
 - *Implemented* **Templates**  
-  Built-in and custom interview templates (questions, intro, conclusion, reminder). Start from template or save current questions as a template.
+  Built-in and custom interview templates (questions, intro, conclusion, reminder, optional TTS voice). Start from template or save current questions as a template.
+
+- *Implemented* **Voice (TTS)**  
+  Voice is configurable per template (OpenAI-style ids: alloy, echo, fable, onyx, nova, shimmer). When an interview instance is created from a template, the template’s voice is copied to the instance. The candidate experience uses the instance’s voice for browser TTS and for POST `/api/tts` when server-generated audio is used. Admin config panel can pick a browser voice; when loading a template or instance that has a voice set, the panel’s selection is initialized from it.
 
 - *Implemented* **Persistence**  
   When Supabase is configured (see Database backend), positions, custom templates, and interview instances/sessions use Supabase. Otherwise localStorage is used for instances and sessions. Resume a previous interview; review-historical runs at session start to brief the agent.
@@ -32,10 +35,10 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
   A role or project (e.g. "Janitor at Company X", "Biography for Grandma Betty"). Has optional `type`: job | biography | screening. Links to one interview definition (template). Stored in Supabase `positions` table when configured (see [supabase/schema.sql](../supabase/schema.sql)).
 
 - *Implemented* **Interview (definition)**  
-  Reusable config: questions, intro, conclusion, reminder. Implemented as **InterviewTemplate** (built-in in code; custom in Supabase when configured, else localStorage).
+  Reusable config: questions, intro, conclusion, reminder, optional voice. Implemented as **InterviewTemplate** (built-in in code; custom in Supabase when configured, else localStorage).
 
 - *Implemented* **Interview instance**  
-  One candidate's or person's run. Created when someone starts an interview. Has many sessions. Stored as **InterviewInstanceRecord** in Supabase `interview_instances` when configured.
+  One candidate's or person's run. Created when someone starts an interview. Has many sessions. Voice is copied from the template on create (optional override). Stored as **InterviewInstanceRecord** in Supabase `interview_instances` when configured.
 
 - *Implemented* **Session**  
   One sitting / one continuous conversation. Stored as **SessionRecord** in Supabase `sessions` when configured (keyed by `interview_instance_id`).
@@ -93,7 +96,7 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 - **Position detail** — `/admin/positions/[id]`. View and edit name, type, template; Save (PATCH) or Delete (DELETE). Back to list.
 - **Create position** — `/admin/positions/new`. JD upload/paste (with generate questions), use existing template, or from scratch. Redirects to positions list on success.
 - **Templates list** — `/admin/templates`. Table with filter by source (Built-in / Custom); “View” links to `/admin/templates/[id]`.
-- **Template detail** — `/admin/templates/[id]`. Built-in: view-only. Custom: edit name, intro, conclusion, reminder, and questions (add/remove/edit main question text); Save (PATCH) or Delete (DELETE). Back to list.
+- **Template detail** — `/admin/templates/[id]`. Built-in: view-only. Custom: edit name, intro, conclusion, reminder, TTS voice (dropdown), and questions (add/remove/edit main question text); Save (PATCH) or Delete (DELETE). Back to list.
 - **Auth** — Clerk protects `/admin` and `/api/templates`, `/api/positions`, `/api/instances`. Client fetches use `credentials: 'include'`. Env: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`.
 
 ## Database backend (implemented)

@@ -14,6 +14,16 @@ const MODE_LABELS: Record<InterviewMode, string> = {
   5: '5 – Contradiction check',
 };
 
+const TTS_VOICES = [
+  { value: '', label: 'Default (alloy)' },
+  { value: 'alloy', label: 'Alloy' },
+  { value: 'echo', label: 'Echo' },
+  { value: 'fable', label: 'Fable' },
+  { value: 'onyx', label: 'Onyx' },
+  { value: 'nova', label: 'Nova' },
+  { value: 'shimmer', label: 'Shimmer' },
+] as const;
+
 type EditQuestion = { mainQuestion: string; mode: InterviewMode; acceptableAnswers: string[] };
 
 export default function TemplateDetailPage() {
@@ -30,6 +40,8 @@ export default function TemplateDetailPage() {
   const [editIntro, setEditIntro] = useState('');
   const [editConclusion, setEditConclusion] = useState('');
   const [editReminder, setEditReminder] = useState('');
+  const [editVoice, setEditVoice] = useState<string>('');
+  const [voicePreviewPlaying, setVoicePreviewPlaying] = useState(false);
   const [editQuestions, setEditQuestions] = useState<EditQuestion[]>([]);
 
   const loadTemplate = useCallback(async () => {
@@ -67,6 +79,7 @@ export default function TemplateDetailPage() {
       setEditIntro(data.intro ?? '');
       setEditConclusion(data.conclusion ?? '');
       setEditReminder(data.reminder ?? '');
+      setEditVoice(data.voice ?? '');
       setEditQuestions((data.questions ?? []).map((q: Question) => ({
         mainQuestion: q.mainQuestion,
         mode: (q.mode ?? 4) as InterviewMode,
@@ -112,6 +125,7 @@ export default function TemplateDetailPage() {
         intro: editIntro.trim() || undefined,
         conclusion: editConclusion.trim() || undefined,
         reminder: editReminder.trim() || undefined,
+        voice: editVoice?.trim() || undefined,
         questions,
       };
       const res = await fetch(`/api/templates/${id}`, {
@@ -167,6 +181,41 @@ export default function TemplateDetailPage() {
           : q
       )
     );
+
+  const handleVoicePreview = async () => {
+    if (voicePreviewPlaying) return;
+    setVoicePreviewPlaying(true);
+    try {
+      const voice = editVoice?.trim() || 'alloy';
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: 'This is a brief sample of how this voice sounds.',
+          voice,
+        }),
+      });
+      if (!res.ok) throw new Error('Preview failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      await new Promise<void>((resolve, reject) => {
+        audio.onended = () => {
+          URL.revokeObjectURL(url);
+          resolve();
+        };
+        audio.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(audio.error);
+        };
+        audio.play().catch(reject);
+      });
+    } catch {
+      // ignore
+    } finally {
+      setVoicePreviewPlaying(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -251,6 +300,35 @@ export default function TemplateDetailPage() {
               placeholder="One-time reminder when interviewee dismisses"
             />
           </div>
+          {!isBuiltIn && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">TTS voice</label>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={editVoice || ''}
+                  onChange={(e) => setEditVoice(e.target.value)}
+                  className="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  title="Voice used for text-to-speech in candidate interview"
+                >
+                  {TTS_VOICES.map((v) => (
+                    <option key={v.value || 'default'} value={v.value}>
+                      {v.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={handleVoicePreview}
+                  disabled={voicePreviewPlaying}
+                  className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  title="Play a short sample of this voice"
+                >
+                  {voicePreviewPlaying ? 'Playing…' : 'Play sample'}
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">Used when the candidate hears the interviewer (browser or API TTS).</p>
+            </div>
+          )}
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="block text-sm font-medium text-gray-700">Questions</label>

@@ -69,6 +69,8 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const [isVoiceAvailable, setIsVoiceAvailable] = useState(false);
   /** Ticker for elapsed time display; updates every second. */
   const [elapsedTick, setElapsedTick] = useState(() => Date.now());
+  /** Typewriter: number of characters to show for the last assistant message (0 = not yet started). */
+  const [typewriterLength, setTypewriterLength] = useState(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -78,14 +80,46 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const elapsedAtLoad = initialSession.elapsedSeconds ?? 0;
 
   const questions = instance.questions;
+  const voiceId = instance.voice ?? 'alloy';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       ttsRef.current = new TextToSpeech();
       sttRef.current = new SpeechToText();
       setIsVoiceAvailable(sttRef.current?.isAvailable() ?? false);
+      ttsRef.current.setVoiceByTtsId(voiceId);
     }
-  }, []);
+  }, [voiceId]);
+
+  /** Speak using OpenAI TTS (same as template sample); fall back to browser TTS if API fails. */
+  const speakResponse = useCallback(
+    async (text: string) => {
+      if (!text.trim()) return;
+      const truncated = text.trim().slice(0, 4096);
+      try {
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: truncated, voice: voiceId }),
+        });
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const audio = new Audio(url);
+          audio.onended = () => URL.revokeObjectURL(url);
+          audio.onerror = () => URL.revokeObjectURL(url);
+          await audio.play();
+          return;
+        }
+      } catch {
+        // fall through to browser TTS
+      }
+      if (ttsRef.current?.isAvailable()) {
+        ttsRef.current.speak(truncated);
+      }
+    },
+    [voiceId]
+  );
 
   const getCurrentElapsedSeconds = useCallback(() => {
     return elapsedAtLoad + Math.floor((Date.now() - loadTimeRef.current) / 1000);
@@ -192,9 +226,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
         await persistSession(updatedSession);
         setCurrentSession(updatedSession);
 
-        if (ttsRef.current?.isAvailable()) {
-          ttsRef.current.speak(data.response);
-        }
+        speakResponse(data.response);
       } catch (err) {
         if (!cancelled) {
           console.error('Error starting conversation:', err);
@@ -208,11 +240,50 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     return () => {
       cancelled = true;
     };
-  }, []); // Run once on mount when messages are empty and questions exist
+  }, [speakResponse]); // Run once on mount when messages are empty and questions exist
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Typewriter effect for the last assistant message (word-by-word)
+  const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+  const lastIsAssistant = lastMessage?.role === 'assistant';
+  const lastAssistantContent = lastIsAssistant ? lastMessage!.content : '';
+
+  useEffect(() => {
+    if (!lastIsAssistant || !lastAssistantContent) {
+      setTypewriterLength(0);
+      return;
+    }
+    setTypewriterLength(0);
+    const fullLength = lastAssistantContent.length;
+    const wordDelayMs = 45;
+    let intervalId: ReturnType<typeof setInterval>;
+
+    const advance = () => {
+      setTypewriterLength((prev) => {
+        if (prev >= fullLength) {
+          clearInterval(intervalId);
+          return prev;
+        }
+        const nextSpace = lastAssistantContent.indexOf(' ', prev);
+        const nextEnd = nextSpace === -1 ? fullLength : nextSpace + 1;
+        return Math.min(nextEnd, fullLength);
+      });
+    };
+
+    advance(); // show first word immediately
+    intervalId = setInterval(advance, wordDelayMs);
+    return () => clearInterval(intervalId);
+  }, [messages.length, lastIsAssistant, lastAssistantContent]);
+
+  // When the last message content changes (new message), we already reset in the effect above.
+  // Ensure we never show more than current message length in case of rapid updates.
+  const displayedLastContent =
+    lastIsAssistant && lastAssistantContent
+      ? lastAssistantContent.slice(0, typewriterLength)
+      : null;
 
   const persistSession = async (nextSession: SessionRecord) => {
     setCurrentSession(nextSession);
@@ -294,9 +365,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
       }
       if (data.allQuestionsCovered) setAllQuestionsCovered(true);
 
-      if (ttsRef.current?.isAvailable()) {
-        ttsRef.current.speak(data.response);
-      }
+      speakResponse(data.response);
 
       const nextIndex =
         data.questionCovered && currentQuestionIndex < questions.length - 1
@@ -395,9 +464,20 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                 Starting conversation...
               </div>
             )}
-            {messages.map((message, index) => (
-              <MessageBubble key={index} message={message} />
-            ))}
+            {messages.map((message, index) => {
+              const isLastAssistant =
+                index === messages.length - 1 && message.role === 'assistant';
+              const content =
+                isLastAssistant && displayedLastContent !== null
+                  ? displayedLastContent
+                  : message.content;
+              return (
+                <MessageBubble
+                  key={index}
+                  message={{ ...message, content }}
+                />
+              );
+            })}
             {isLoading && (
               <div className="flex justify-start mb-4">
                 <div className="bg-blue-100 text-blue-900 rounded-lg px-4 py-2">

@@ -37,6 +37,7 @@ export async function createInstance(
     intro?: string;
     conclusion?: string;
     reminder?: string;
+    voice?: string;
   }
 ): Promise<{ instance: InterviewInstanceRecord; shareableToken: string }> {
   const id = generateId();
@@ -54,6 +55,7 @@ export async function createInstance(
     intro: params.intro,
     conclusion: params.conclusion,
     reminder: params.reminder,
+    voice: params.voice,
   };
   const { error: instErr } = await supabase.from('interview_instances').insert({
     id: instance.id,
@@ -67,6 +69,7 @@ export async function createInstance(
     intro: instance.intro,
     conclusion: instance.conclusion,
     reminder: instance.reminder,
+    tts_voice: instance.voice ?? null,
   });
   if (instErr) throw instErr;
 
@@ -291,6 +294,7 @@ function rowToInstance(row: Record<string, unknown>): InterviewInstanceRecord {
     intro: row.intro as string | undefined,
     conclusion: row.conclusion as string | undefined,
     reminder: row.reminder as string | undefined,
+    voice: row.tts_voice as string | undefined,
   };
 }
 

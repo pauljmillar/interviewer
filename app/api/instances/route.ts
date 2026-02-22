@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createInstance, getAllInstances } from '@/lib/server/instanceStoreAdapter';
 import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
+import { createServerSupabase } from '@/lib/supabase/server';
+import * as templatesStore from '@/lib/server/supabaseTemplates';
+import { getTemplateById } from '@/constants/templates';
 import type { Question } from '@/types';
 
 type CreateBody = {
@@ -12,6 +15,7 @@ type CreateBody = {
   intro?: string;
   conclusion?: string;
   reminder?: string;
+  voice?: string;
 };
 
 export async function POST(request: NextRequest) {
@@ -33,6 +37,7 @@ export async function POST(request: NextRequest) {
       intro,
       conclusion,
       reminder,
+      voice: bodyVoice,
     } = body;
 
     if (!name || typeof name !== 'string') {
@@ -40,6 +45,19 @@ export async function POST(request: NextRequest) {
     }
     if (!questions || !Array.isArray(questions)) {
       return NextResponse.json({ error: 'questions array is required' }, { status: 400 });
+    }
+
+    let voice = bodyVoice;
+    if (voice == null && templateId) {
+      const builtIn = getTemplateById(templateId);
+      if (builtIn?.voice) voice = builtIn.voice;
+      else {
+        const supabase = createServerSupabase();
+        if (supabase) {
+          const custom = await templatesStore.getTemplate(supabase, templateId, orgId);
+          if (custom?.voice) voice = custom.voice;
+        }
+      }
     }
 
     const { instance, shareableToken } = await createInstance(orgId, {
@@ -51,6 +69,7 @@ export async function POST(request: NextRequest) {
       intro,
       conclusion,
       reminder,
+      voice,
     });
 
     const origin = request.headers.get('origin') || request.nextUrl.origin;

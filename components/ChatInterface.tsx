@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Message, Question, DiscoveryContext } from '@/types';
 import { DEFAULT_QUESTIONS } from '@/constants/questions';
 import { INTERVIEW_TEMPLATES, getCustomTemplates, addCustomTemplate, getTemplateById } from '@/constants/templates';
@@ -97,6 +97,14 @@ export default function ChatInterface({
   const [jdPositionType, setJdPositionType] = useState<PositionType | undefined>('job');
   const jdFileInputRef = useRef<HTMLInputElement>(null);
 
+  /** When loading a template or instance with voice, sync TTS and config panel selection. */
+  const applyVoiceFromTtsId = useCallback((ttsId: string | undefined) => {
+    if (!ttsId || !ttsRef.current) return;
+    ttsRef.current.setVoiceByTtsId(ttsId);
+    const v = ttsRef.current.getSelectedVoice();
+    if (v) setSelectedVoiceName(v.name);
+  }, []);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const ttsRef = useRef<TextToSpeech | null>(null);
@@ -152,6 +160,7 @@ export default function ChatInterface({
         setInterviewIntro(template.intro);
         setInterviewConclusion(template.conclusion);
         setInterviewReminder(template.reminder);
+        if (template.voice) applyVoiceFromTtsId(template.voice);
       }
       setIsConfigOpen(true);
     } else if (createChoice === 'scratch') {
@@ -697,6 +706,7 @@ export default function ChatInterface({
     const session = getLatestSession(instanceId);
     setQuestions(instance.questions);
     setCurrentInstance(instance);
+    if (instance.voice) applyVoiceFromTtsId(instance.voice);
     if (!session) {
       setMessages([]);
       setCurrentSession(null);
@@ -772,6 +782,7 @@ export default function ChatInterface({
                       setInterviewIntro(template.intro);
                       setInterviewConclusion(template.conclusion);
                       setInterviewReminder(template.reminder);
+                      if (template.voice) applyVoiceFromTtsId(template.voice);
                     }
                   }
                 }
@@ -855,6 +866,7 @@ export default function ChatInterface({
                     setInterviewIntro(template.intro);
                     setInterviewConclusion(template.conclusion);
                     setInterviewReminder(template.reminder);
+                    if (template.voice) applyVoiceFromTtsId(template.voice);
                     setIsConfigOpen(true);
                   }
                 }

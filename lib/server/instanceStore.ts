@@ -89,6 +89,7 @@ export function createInstance(
     intro?: string;
     conclusion?: string;
     reminder?: string;
+    voice?: string;
   }
 ): { instance: InterviewInstanceRecord; shareableToken: string } {
   const id = generateId();
@@ -106,6 +107,7 @@ export function createInstance(
     intro: params.intro,
     conclusion: params.conclusion,
     reminder: params.reminder,
+    voice: params.voice,
   };
   instancesById.set(id, instance);
   instancesByToken.set(shareableToken, id);
