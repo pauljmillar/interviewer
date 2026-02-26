@@ -59,10 +59,14 @@ CREATE TABLE IF NOT EXISTS sessions (
   discovery_context JSONB NOT NULL DEFAULT '{"entities":[],"timeline":[],"entitySchemas":[]}',
   all_questions_covered BOOLEAN NOT NULL DEFAULT false,
   reminder_already_shown BOOLEAN NOT NULL DEFAULT false,
-  elapsed_seconds INTEGER NOT NULL DEFAULT 0
+  elapsed_seconds INTEGER NOT NULL DEFAULT 0,
+  recording_key TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_sessions_instance ON sessions(interview_instance_id);
+
+-- Migration for recording_key (run once if sessions already existed):
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS recording_key TEXT;
 
 -- Migration for existing databases (run once if tables already existed without org_id):
 -- ALTER TABLE positions ADD COLUMN IF NOT EXISTS org_id TEXT;

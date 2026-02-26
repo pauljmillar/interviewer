@@ -4,7 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Candice",
+  title: "Candice AI",
   description: "Your AI Agent for candidate interviews",
 };
 

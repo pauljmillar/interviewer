@@ -107,6 +107,21 @@ export default function AdminInterviewInstanceDetailPage() {
               )}
             </dd>
           </div>
+          {session?.recordingKey && (
+            <div className="sm:col-span-2">
+              <dt className="font-medium text-gray-500">Recording</dt>
+              <dd>
+                <a
+                  href={`/api/instances/${id}/recording`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  View recording
+                </a>
+              </dd>
+            </div>
+          )}
         </dl>
       </div>
 

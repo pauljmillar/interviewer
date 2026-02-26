@@ -14,6 +14,7 @@ export default function InterviewPage({
   const [session, setSession] = useState<SessionRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [consentGiven, setConsentGiven] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -62,10 +63,35 @@ export default function InterviewPage({
     );
   }
 
+  if (!consentGiven) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-10">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">
+              Before you begin
+            </h2>
+            <p className="text-gray-700 mb-6">
+              This company prefers that you have your camera on and that this interview be recorded, even if you choose to type your responses. Click OK to continue and start the recording.
+            </p>
+            <button
+              type="button"
+              onClick={() => setConsentGiven(true)}
+              className="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <CandidateChat
       instance={instance}
       session={session}
+      startRecording={true}
     />
   );
 }

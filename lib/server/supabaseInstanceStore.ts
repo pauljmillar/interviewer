@@ -104,6 +104,7 @@ export async function createInstance(
     all_questions_covered: session.allQuestionsCovered,
     reminder_already_shown: session.reminderAlreadyShown,
     elapsed_seconds: 0,
+    recording_key: null,
   });
   if (sessErr) throw sessErr;
 
@@ -218,6 +219,7 @@ export async function saveSession(
     all_questions_covered: session.allQuestionsCovered,
     reminder_already_shown: session.reminderAlreadyShown ?? false,
     elapsed_seconds: session.elapsedSeconds ?? 0,
+    recording_key: session.recordingKey ?? null,
   };
   const { data: updated, error } = await supabase
     .from('sessions')
@@ -280,6 +282,7 @@ export async function createSession(
     all_questions_covered: session.allQuestionsCovered,
     reminder_already_shown: session.reminderAlreadyShown,
     elapsed_seconds: 0,
+    recording_key: null,
   });
   if (error) throw error;
   return session;
@@ -348,5 +351,6 @@ function rowToSession(row: Record<string, unknown>): SessionRecord {
     allQuestionsCovered: (row.all_questions_covered as boolean) ?? false,
     reminderAlreadyShown: (row.reminder_already_shown as boolean) ?? false,
     elapsedSeconds: (row.elapsed_seconds as number) ?? 0,
+    recordingKey: (row.recording_key as string) ?? undefined,
   };
 }

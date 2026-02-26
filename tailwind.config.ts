@@ -13,6 +13,7 @@ const config: Config = {
         foreground: "var(--foreground)",
         landing: {
           heading: "var(--landing-heading)",
+          text: "var(--landing-text)",
           primary: "var(--landing-primary)",
           secondary: "var(--landing-secondary)",
           tertiary: "var(--landing-tertiary)",

@@ -116,6 +116,8 @@ export interface SessionRecord {
   reminderAlreadyShown?: boolean;
   /** Total elapsed seconds in this session; updated on each text submit and voice end. */
   elapsedSeconds?: number;
+  /** S3 object key for the interview recording (video/audio), set after upload on completion. */
+  recordingKey?: string;
 }
 
 // Entity Schema System

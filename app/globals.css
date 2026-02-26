@@ -9,8 +9,9 @@ html {
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Landing page color palette */
-  --landing-heading: #0a0a0a;
+  /* Landing page: all text Deep Obsidian (#0B0E14); primary/secondary/tertiary unchanged for UI */
+  --landing-heading: #0b0e14;
+  --landing-text: #0b0e14;
   --landing-primary: #788c9e;
   --landing-secondary: #a5b9c7;
   --landing-tertiary: #dae6f0;
@@ -22,6 +23,7 @@ html {
     --background: #0a0a0a;
     --foreground: #ededed;
     --landing-heading: #fafafa;
+    --landing-text: #fafafa;
     --landing-primary: #8a9caa;
     --landing-secondary: #b5c5d1;
     --landing-tertiary: #2a3540;

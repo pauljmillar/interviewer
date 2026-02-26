@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Message, Question, DiscoveryContext } from '@/types';
+import { Message, MessageRole, Question, DiscoveryContext } from '@/types';
 import { DEFAULT_ENTITY_SCHEMAS } from '@/lib/entities/schemas';
 import type { InterviewInstanceRecord, SessionRecord } from '@/types';
 import MessageBubble from './MessageBubble';
@@ -22,6 +22,8 @@ interface CandidateChatProps {
   instance: InterviewInstanceRecord;
   session: SessionRecord;
   onSessionUpdate?: (session: SessionRecord) => void;
+  /** When true, start camera+mic recording on mount (if interview not already completed); stop and upload on completion. */
+  startRecording?: boolean;
 }
 
 /** Normalize messages from API (array or JSON string) to Message[]. */
@@ -39,8 +41,8 @@ function normalizeMessages(raw: unknown): Message[] {
           }
         })()
       : [];
-  const out = arr.map((m: { role?: string; content?: string; timestamp?: string }) => ({
-    role: m.role ?? 'user',
+  const out: Message[] = arr.map((m: { role?: string; content?: string; timestamp?: string }) => ({
+    role: (m.role === 'assistant' ? 'assistant' : 'user') as MessageRole,
     content: m.content ?? '',
     timestamp: m.timestamp ? new Date(m.timestamp) : undefined,
   }));
@@ -53,7 +55,7 @@ function normalizeMessages(raw: unknown): Message[] {
   return out;
 }
 
-export default function CandidateChat({ instance, session: initialSession, onSessionUpdate }: CandidateChatProps) {
+export default function CandidateChat({ instance, session: initialSession, onSessionUpdate, startRecording = false }: CandidateChatProps) {
   const [messages, setMessages] = useState<Message[]>(() => normalizeMessages(initialSession.messages));
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(initialSession.currentQuestionIndex);
   const [coveredSubTopics, setCoveredSubTopics] = useState(initialSession.coveredSubTopics);
@@ -67,6 +69,10 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isVoiceAvailable, setIsVoiceAvailable] = useState(false);
+  /** True when interview video/audio is being recorded (camera+mic). */
+  const [isInterviewRecording, setIsInterviewRecording] = useState(false);
+  /** True when recording was paused (user can resume). */
+  const [isInterviewRecordingPaused, setIsInterviewRecordingPaused] = useState(false);
   /** Ticker for elapsed time display; updates every second. */
   const [elapsedTick, setElapsedTick] = useState(() => Date.now());
   /** Typewriter: number of characters to show for the last assistant message (0 = not yet started). */
@@ -78,9 +84,21 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const sttRef = useRef<SpeechToText | null>(null);
   const loadTimeRef = useRef(Date.now());
   const elapsedAtLoad = initialSession.elapsedSeconds ?? 0;
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingChunksRef = useRef<Blob[]>([]);
+  /** Accumulated segments (one blob per recording run); concatenated and uploaded on each pause/completion. */
+  const segmentsRef = useRef<Blob[]>([]);
+  /** Why the recorder was stopped: 'pause' = show Resume; 'complete' = interview ended. */
+  const recordingStopReasonRef = useRef<'pause' | 'complete'>('complete');
+  const sessionIdRef = useRef<string>(currentSession.id);
 
   const questions = instance.questions;
   const voiceId = instance.voice ?? 'alloy';
+
+  useEffect(() => {
+    sessionIdRef.current = currentSession.id;
+  }, [currentSession.id]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -90,6 +108,132 @@ export default function CandidateChat({ instance, session: initialSession, onSes
       ttsRef.current.setVoiceByTtsId(voiceId);
     }
   }, [voiceId]);
+
+  const uploadRecordingSegments = useCallback(
+    (segments: Blob[], mimeType: string) => {
+      if (segments.length === 0) return;
+      const blob = new Blob(segments, { type: mimeType });
+      const sessionId = sessionIdRef.current;
+      console.log('[CandidateChat] recording upload starting', {
+        instanceId: instance.id,
+        segmentCount: segments.length,
+        blobSizeBytes: blob.size,
+        blobType: blob.type,
+      });
+      const headers: Record<string, string> = { 'Content-Type': blob.type || 'video/webm' };
+      if (sessionId) headers['X-Recording-Session-Id'] = sessionId;
+      fetch(`/api/instances/${instance.id}/recording`, { method: 'POST', headers, body: blob })
+        .then((res) => {
+          if (!res.ok) {
+            return res.text().then((text) => {
+              console.error('[CandidateChat] recording upload failed', { status: res.status, statusText: res.statusText, body: text });
+            });
+          }
+          return res.json().then((data) => {
+            console.log('[CandidateChat] recording upload success', data);
+          });
+        })
+        .catch((err) => {
+          console.error('[CandidateChat] recording upload error', err);
+        });
+    },
+    [instance.id]
+  );
+
+  const startRecordingStream = useCallback(async () => {
+    recordingChunksRef.current = [];
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      mediaStreamRef.current = stream;
+
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+        ? 'video/webm;codecs=vp9'
+        : MediaRecorder.isTypeSupported('video/webm')
+          ? 'video/webm'
+          : '';
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      const effectiveMime = recorder.mimeType || 'video/webm';
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordingChunksRef.current.push(e.data);
+      };
+      recorder.onstop = () => {
+        const chunks = recordingChunksRef.current;
+        mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+        mediaStreamRef.current = null;
+        mediaRecorderRef.current = null;
+
+        if (chunks.length > 0) {
+          const segmentBlob = new Blob(chunks, { type: effectiveMime });
+          segmentsRef.current = [...segmentsRef.current, segmentBlob];
+          uploadRecordingSegments(segmentsRef.current, effectiveMime);
+        } else {
+          console.warn('[CandidateChat] recording onstop: no chunks for this segment');
+        }
+
+        if (recordingStopReasonRef.current === 'pause') {
+          setIsInterviewRecordingPaused(true);
+        }
+        setIsInterviewRecording(false);
+      };
+
+      mediaRecorderRef.current = recorder;
+      recorder.start(1000);
+      setIsInterviewRecording(true);
+      setIsInterviewRecordingPaused(false);
+    } catch (err) {
+      console.warn('[CandidateChat] getUserMedia failed', err);
+    }
+  }, [uploadRecordingSegments]);
+
+  const handlePauseRecording = useCallback(() => {
+    if (mediaRecorderRef.current?.state !== 'recording') return;
+    recordingStopReasonRef.current = 'pause';
+    mediaRecorderRef.current.stop();
+  }, []);
+
+  const handleResumeRecording = useCallback(() => {
+    startRecordingStream();
+  }, [startRecordingStream]);
+
+  // Interview recording: start when startRecording is true and session not already completed.
+  useEffect(() => {
+    if (!startRecording || initialSession.allQuestionsCovered) return;
+
+    let cancelled = false;
+    segmentsRef.current = [];
+    recordingStopReasonRef.current = 'complete';
+
+    startRecordingStream().then(() => {
+      if (cancelled) {
+        if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
+        mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+        mediaStreamRef.current = null;
+        mediaRecorderRef.current = null;
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      if (mediaRecorderRef.current?.state === 'recording') {
+        recordingStopReasonRef.current = 'complete';
+        mediaRecorderRef.current.stop();
+      }
+      mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+      mediaStreamRef.current = null;
+      mediaRecorderRef.current = null;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- run only when startRecording/allQuestionsCovered change; startRecordingStream is stable for resume.
+  }, [startRecording, initialSession.allQuestionsCovered]);
+
+  // When interview completes, stop the recorder so onstop runs and uploads (replacing S3 object).
+  useEffect(() => {
+    if (!allQuestionsCovered || !mediaRecorderRef.current) return;
+    if (mediaRecorderRef.current.state === 'recording') {
+      recordingStopReasonRef.current = 'complete';
+      mediaRecorderRef.current.stop();
+    }
+  }, [allQuestionsCovered]);
 
   /** Speak using OpenAI TTS (same as template sample); fall back to browser TTS if API fails. */
   const speakResponse = useCallback(
@@ -440,8 +584,37 @@ export default function CandidateChat({ instance, session: initialSession, onSes
             <h1 className="text-xl font-bold text-gray-800">
               {instance.name}
             </h1>
-            <div className="text-sm font-medium text-gray-500 tabular-nums" aria-label="Elapsed time">
-              {formatElapsed(displayedElapsedSeconds)}
+            <div className="flex items-center gap-3">
+              {isInterviewRecording && (
+                <span className="flex items-center gap-1.5 text-xs font-medium text-red-600" role="status" aria-live="polite">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600" />
+                  </span>
+                  Recording
+                </span>
+              )}
+              {isInterviewRecording && !isInterviewRecordingPaused && (
+                <button
+                  type="button"
+                  onClick={handlePauseRecording}
+                  className="px-3 py-1.5 text-xs font-medium rounded-md bg-amber-100 text-amber-800 hover:bg-amber-200"
+                >
+                  Pause recording
+                </button>
+              )}
+              {isInterviewRecordingPaused && (
+                <button
+                  type="button"
+                  onClick={handleResumeRecording}
+                  className="px-3 py-1.5 text-xs font-medium rounded-md bg-green-100 text-green-800 hover:bg-green-200"
+                >
+                  Resume recording
+                </button>
+              )}
+              <div className="text-sm font-medium text-gray-500 tabular-nums" aria-label="Elapsed time">
+                {formatElapsed(displayedElapsedSeconds)}
+              </div>
             </div>
           </div>
         </header>
