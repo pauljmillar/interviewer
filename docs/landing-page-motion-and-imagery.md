@@ -6,7 +6,7 @@ This document describes the motion graphics and visual elements on the **home/la
 
 ## Overview
 
-- **Scope:** The landing page hero (banner) only. Other pages are unchanged.
+- **Scope:** The landing page only. The motion layer lives in the **Approach** section (below the fold), not in the hero. The hero is a simple instruction plus chat-style input with no motion.
 - **Tech:** Pure CSS (no JavaScript). All animation uses `transform` and `opacity` only so the browser can run it on the compositor (GPU-friendly).
 - **Accessibility:** `@media (prefers-reduced-motion: reduce)` disables or simplifies motion; shapes remain static at low opacity.
 
@@ -14,9 +14,9 @@ This document describes the motion graphics and visual elements on the **home/la
 
 ## Current elements
 
-### 1. Hero motion layer (circles + triangle)
+### 1. Motion layer (circles + triangle)
 
-**Location:** Inside the hero `<section>`, in a container with `hero-motion` (absolute, behind content, `overflow: hidden`).
+**Location:** Inside the **Approach** section (`#approach`) on the landing page, in a container with `hero-motion` (absolute, behind content, `overflow: hidden`). This is a below-the-fold section, not the hero.
 
 **Behavior:**
 
@@ -28,16 +28,16 @@ This document describes the motion graphics and visual elements on the **home/la
 
 **Implementation:**
 
-- **Markup:** [app/page.tsx](../app/page.tsx) — `hero-motion` div containing 12 `hero-shape hero-shape--circle hero-shape--suck hero-shape--accent|muted` divs (accent/muted map to primary/secondary colors) and one `hero-triangle` div.
+- **Markup:** [app/page.tsx](../app/page.tsx) — In the Approach section, a `hero-motion` div containing 12 `hero-shape hero-shape--circle hero-shape--suck hero-shape--accent|muted` divs (accent/muted map to primary/secondary colors) and one `hero-triangle` div.
 - **Styles:** [app/globals.css](../app/globals.css) — `@keyframes hero-suck`, `@keyframes hero-triangle-pulse`, `.hero-motion`, `.hero-shape`, `.hero-shape--circle`, `.hero-shape--suck`, `.hero-shape--accent` (primary), `.hero-shape--muted` (secondary), `.hero-triangle`, nth-child stagger rules, and `prefers-reduced-motion` overrides.
 
-### 2. Soft gradient band
+### 2. Soft gradient band (in Approach section)
 
-A very subtle vertical gradient behind the hero content: `--landing-primary` at 3% opacity at the top, fading to transparent by 60%. It sits above the motion layer in the stack so the shapes are still visible beneath it. Implemented as an absolute div with the gradient in `page.tsx`.
+A very subtle vertical gradient behind the Approach section content: `--landing-primary` at 3% opacity at the top, fading to transparent by 60%. It sits above the motion layer in the stack so the shapes are still visible beneath it. Implemented as an absolute div with the gradient in the Approach section in `page.tsx`.
 
 ### 3. Roll-in hover (links and buttons)
 
-Landing CTAs and header nav links use a **roll-in hover** effect: on hover, a background color sweeps in from the left (via a `::before` pseudo-element with `transform: scaleX(0)` → `scaleX(1)`). Text color switches to white. Implemented in [app/globals.css](../app/globals.css) as `.link-roll` and applied to the hero CTA, “Hover me” example, pricing tier buttons, and header nav links. Square corners (no border-radius on these elements).
+Landing CTAs and header nav links use a **roll-in hover** effect: on hover, a background color sweeps in from the left (via a `::before` pseudo-element with `transform: scaleX(0)` → `scaleX(1)`). Text color switches to white. Implemented in [app/globals.css](../app/globals.css) as `.link-roll` and applied to pricing tier buttons, Get Started CTAs, and header nav links (when not on the landing page). Square corners (no border-radius on these elements).
 
 ### 4. Color tokens (landing)
 
@@ -55,7 +55,7 @@ Used for motion shapes, gradient, roll-in hover, and typography on the landing p
 
 ## Stacking and performance
 
-- The hero section uses `isolate` (stacking context) so the motion layer’s `z-index: -10` keeps shapes behind the text but visible within the section.
+- The Approach section uses `isolate` (stacking context) so the motion layer’s `z-index: -10` keeps shapes behind the text but visible within the section.
 - Motion container order: gradient div first, then motion div (so shapes render on top of the gradient).
 - All animation uses only `transform` and `opacity`; no `left`/`top` or layout-triggering properties, so the cost is low. Adding more circles (e.g. 20–30) with the same approach remains lightweight.
 
