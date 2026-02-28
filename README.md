@@ -7,7 +7,8 @@ A conversational AI interviewer that supports multiple interview modes (screenin
 - **Interview modes (1–5)** — Per-question mode: strict screening (1), hints (2), list-only (3), biographer (4), contradiction check (5). Mode controls evaluation and follow-up behavior.
 - **Templates** — Built-in and custom templates (questions, intro, conclusion, reminder). Start from template or save current questions as a template.
 - **Positions** — Create positions (e.g. “Janitor at Company X”, “Biography for Grandma Betty”) with optional type (job / biography / screening) and link to a template. Resume list shows instance and position.
-- **New position from job description** — Paste or upload a job description (.txt); an LLM generates 5–10 screening questions. Create a position and a new template from the result in one flow.
+- **New position from job description** — Paste or upload a job description, or paste a URL to a JD; an LLM generates 5–10 screening questions and a suggested job title. Create a position and a new template from the result in one flow. Supported inputs: plain text, **.txt / .pdf / .docx** files, or **URLs** (HTML/PDF/DOCX); text is extracted server-side via `POST /api/jd/extract`.
+- **Demo flow (no account)** — From the landing hero, paste or upload a JD or paste a URL → generate questions → customize settings → generate a shareable interview link. **Claim**: after signing in (or signing up), add the demo position to your account so it appears in admin; or use “Add to my account” on the demo done page when already signed in.
 - **Voice-enabled chat** — Text-to-speech for AI questions and speech-to-text for user responses (Chrome/Edge recommended).
 - **Persistence** — When Supabase is configured, positions, custom templates, and interview instances/sessions use Supabase; otherwise instances and sessions use localStorage. Resume a previous interview; the agent receives a brief from prior sessions.
 - **Intro, conclusion, reminder** — Optional intro before the first question and conclusion after all questions (per template). One-time disengagement reminder when the interviewee dismisses the interview.
@@ -54,8 +55,11 @@ npm run dev
 
 ## Usage
 
+**Demo (no account):** On the landing page, paste a job description or URL, or upload a .txt/.pdf/.docx file → submit → review/edit questions and position name → settings (voice, intro, etc.) → generate a shareable interview link. To keep the position in your account: sign in (or sign up) and use “Add to my account” on the done page, or sign in with “Sign in” (redirects to claim after login); the demo is then moved to your org and appears under Admin → Positions.
+
+**Admin / full flow:**
 1. **Position (optional)** — Choose a position from the dropdown to load its template; or leave “None”.
-2. **Template** — Choose “Start from template” (built-in or custom) or “New position from JD” to paste/upload a job description and generate questions.
+2. **Template** — Choose “Start from template” (built-in or custom) or “New position from JD” to paste/upload a job description or URL and generate questions (supports .txt, .pdf, .docx and URLs).
 3. **Start** — The AI sends an intro (if set) and the first question.
 4. **Respond** — Use voice (microphone) or type. In screening modes the agent evaluates answers and moves on; in biographer mode it asks follow-ups and tracks entities.
 5. **Resume** — Pick a saved interview instance from the “Resume” dropdown to continue where you left off.
@@ -65,14 +69,14 @@ npm run dev
 
 ## Project structure
 
-- `app/` — Next.js app router: pages and API routes (`/api/chat`, `/api/analyze-jd`, `/api/review-historical`, `/api/biography`, `/api/wordcount`).
-- `components/` — React UI (ChatInterface, ConfigPanel, MessageBubble, etc.).
-- `lib/` — OpenAI chat and tools (evaluateAnswer, analyzeJobDescription, checkAnswer, detectDisengagement, reviewForContradiction), entities discovery, persistence, voice.
-- `constants/` — Built-in questions and templates (`templates.ts`).
+- `app/` — Next.js app router: pages and API routes (`/api/chat`, `/api/analyze-jd`, `/api/jd/extract`, `/api/demo/create`, `/api/demo/create-instance`, `/api/demo/claim`, `/api/review-historical`, `/api/biography`, `/api/wordcount`).
+- `components/` — React UI (ChatInterface, ConfigPanel, MessageBubble, landing HeroInput, etc.).
+- `lib/` — OpenAI chat and tools (evaluateAnswer, analyzeJobDescription, checkAnswer, detectDisengagement, reviewForContradiction), JD extractors (PDF, DOCX, HTML), persistence, voice.
+- `lib/constants/` — Built-in templates, JD extract limits (`jdExtract.ts`), demo org and cookie (`demo.ts`).
 - `types/` — TypeScript types (Question, InterviewTemplate, PositionRecord, InterviewInstanceRecord, SessionRecord, etc.).
 - `docs/` — Documentation: [docs/README.md](docs/README.md), [docs/requirements.md](docs/requirements.md), [docs/interview-modes-and-templates.md](docs/interview-modes-and-templates.md).
 
 ## Documentation
 
-- **[docs/requirements.md](docs/requirements.md)** — Implemented and planned requirements (terminology, positions, JD flow, tools, APIs).
+- **[docs/requirements.md](docs/requirements.md)** — Implemented and planned requirements (terminology, positions, JD extract and analyze flow, demo flow and claim, tools, APIs).
 - **[docs/interview-modes-and-templates.md](docs/interview-modes-and-templates.md)** — Interview modes and template design.
