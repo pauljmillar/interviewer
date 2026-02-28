@@ -1,6 +1,9 @@
 'use client';
 
 import { useRef, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+
+const DEMO_JD_KEY = 'demo_jd';
 
 const MENU_OPTIONS = [
   { id: 'upload', label: 'Upload job description' },
@@ -9,16 +12,121 @@ const MENU_OPTIONS = [
 ] as const;
 
 export default function HeroInput() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
+  const goToDemo = useCallback(
+    (jdText: string) => {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(DEMO_JD_KEY, jdText);
+      }
+      closeMenu();
+      setUploadModalOpen(false);
+      router.push('/demo?step=analyzing');
+    },
+    [closeMenu, router]
+  );
+
   const handleOption = (id: string) => {
-    if (id === 'typing') {
-      inputRef.current?.focus();
+    if (id === 'upload') {
+      setUploadModalOpen(true);
+      setUploadError(null);
+      closeMenu();
+    } else if (id === 'typing' || id === 'link') {
+      closeMenu();
+      const text = inputRef.current?.value?.trim() ?? '';
+      if (text) void handleSubmitInput();
+      else inputRef.current?.focus();
     }
-    closeMenu();
+  };
+
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const looksLikeUrl = (s: string): boolean => {
+    const t = s.trim();
+    return t.startsWith('http://') || t.startsWith('https://');
+  };
+
+  const handleSubmitInput = useCallback(async () => {
+    const raw = inputRef.current?.value?.trim() ?? '';
+    if (!raw) {
+      inputRef.current?.focus();
+      return;
+    }
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      const isUrl = looksLikeUrl(raw);
+      const res = await fetch('/api/jd/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+          isUrl ? { type: 'url', url: raw.trim() } : { type: 'text', content: raw }
+        ),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(data.error || `Failed to process (${res.status})`);
+        return;
+      }
+      const text = typeof data.text === 'string' ? data.text.trim() : '';
+      if (text) goToDemo(text);
+      else setSubmitError('No text could be extracted');
+    } catch {
+      setSubmitError('Something went wrong');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [goToDemo]);
+
+  const handleFileUpload = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      setUploadError('Please select a file');
+      return;
+    }
+    const name = (file.name || '').toLowerCase();
+    const ok =
+      name.endsWith('.txt') ||
+      name.endsWith('.pdf') ||
+      name.endsWith('.docx') ||
+      file.type === 'text/plain' ||
+      file.type === 'application/pdf' ||
+      file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    if (!ok) {
+      setUploadError('Please upload a .txt, .pdf, or .docx file');
+      return;
+    }
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/jd/extract', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setUploadError(data.error || `Upload failed (${res.status})`);
+        return;
+      }
+      const text = typeof data.text === 'string' ? data.text.trim() : '';
+      if (text) goToDemo(text);
+      else setUploadError('No text could be extracted from the file');
+    } catch {
+      setUploadError('Failed to upload file');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -33,8 +141,9 @@ export default function HeroInput() {
           onKeyDown={(e) => {
             if (e.key === 'Escape') closeMenu();
           }}
+          onChange={() => setSubmitError(null)}
         />
-        <div className="flex items-center px-3 pb-3">
+        <div className="flex items-center justify-between px-3 pb-3 gap-2">
           <div className="relative flex-shrink-0">
             <button
               type="button"
@@ -69,8 +178,75 @@ export default function HeroInput() {
               </>
             )}
           </div>
+          {submitError && (
+            <p className="text-sm text-red-400 truncate flex-1 min-w-0" role="alert">
+              {submitError}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={handleSubmitInput}
+            disabled={submitting}
+            className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-landing-primary hover:opacity-90 disabled:opacity-50 text-white transition-opacity"
+            aria-label="Submit"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+          </button>
         </div>
       </div>
+
+      {/* Upload job description modal */}
+      {uploadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+          <div
+            className="bg-neutral-900 rounded-xl shadow-xl max-w-md w-full p-6 border border-neutral-700"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="upload-modal-title"
+          >
+            <h2 id="upload-modal-title" className="text-lg font-semibold text-white mb-3">
+              Upload job description
+            </h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Choose a .txt, .pdf, or .docx file. We&apos;ll generate interview questions from it.
+            </p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".txt,.pdf,.docx,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-neutral-700 file:text-gray-200"
+              onChange={() => setUploadError(null)}
+            />
+            {uploadError && (
+              <p className="mt-2 text-sm text-red-400" role="alert">
+                {uploadError}
+              </p>
+            )}
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadModalOpen(false);
+                  setUploadError(null);
+                }}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-300 bg-neutral-800 rounded-lg hover:bg-neutral-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleFileUpload}
+                disabled={uploading}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-landing-primary rounded-lg hover:opacity-90 disabled:opacity-50"
+              >
+                {uploading ? 'Uploading…' : 'Upload'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

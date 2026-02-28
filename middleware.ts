@@ -11,6 +11,7 @@ const isProtectedApiRoute = createRouteMatcher([
   '/api/positions(.*)',
   '/api/instances(.*)',
   '/api/superadmin(.*)',
+  // /api/demo/* is intentionally not protected; create and create-instance are public; claim requires auth inside handler
 ]);
 
 /** Public: candidate interview by shareable link; no auth required. */

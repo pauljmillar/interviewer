@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const questions = await analyzeJobDescription(jobDescription);
-    return NextResponse.json({ questions });
+    const { suggestedTitle, questions } = await analyzeJobDescription(jobDescription);
+    return NextResponse.json({ suggestedTitle, questions });
   } catch (error) {
     console.error('analyze-jd error:', error);
     return NextResponse.json(

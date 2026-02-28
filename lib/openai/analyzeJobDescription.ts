@@ -1,31 +1,44 @@
 import OpenAI from 'openai';
 import type { Question } from '@/types';
+import { MAX_JD_CHARS_FOR_ANALYSIS } from '@/lib/constants/jdExtract';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+export interface AnalyzeJobDescriptionResult {
+  suggestedTitle: string;
+  questions: Question[];
+}
+
 /**
- * Analyzes a job description and returns 5-10 screening questions to help
- * determine if a candidate is worthy of a next-round interview.
+ * Analyzes a job description and returns a suggested job title (from the JD) and
+ * 5-10 screening questions. JD text is truncated to MAX_JD_CHARS_FOR_ANALYSIS to stay within model context.
  */
-export async function analyzeJobDescription(jobDescription: string): Promise<Question[]> {
-  const prompt = `You are an expert recruiter. Given the following job description, generate between 5 and 10 screening interview questions. These questions should help discern whether a candidate is worthy of advancing to a next-round interview. Focus on:
-- Role-specific skills and experience
-- Eligibility and logistics (e.g. work authorization, start date) when relevant
-- Motivation and fit
-- Key requirements mentioned in the JD
+export async function analyzeJobDescription(jobDescription: string): Promise<AnalyzeJobDescriptionResult> {
+  const trimmed = jobDescription.trim();
+  const capped =
+    trimmed.length > MAX_JD_CHARS_FOR_ANALYSIS
+      ? trimmed.slice(0, MAX_JD_CHARS_FOR_ANALYSIS) + '\n\n[Content truncated for length.]'
+      : trimmed;
+
+  const prompt = `You are an expert recruiter. Given the following job description:
+
+1) Extract a short job title (e.g. "Senior Software Engineer", "Product Manager") that appears in or is clearly implied by the JD. Use the employer's wording when possible.
+2) Generate between 5 and 10 screening interview questions that help discern whether a candidate is worthy of advancing to a next-round interview. Focus on role-specific skills, eligibility/logistics when relevant, motivation and fit, and key requirements.
 
 Job description:
 """
-${jobDescription.trim()}
+${capped}
 """
 
-Output a JSON array of questions only. Each item must have:
-- "mainQuestion": string (the question to ask, clear and concise)
-- "mode": number (1 = screening with yes/no or short answer, 2 = right answer with hints, 3 = open-ended/list, 4 = conversational. Use 1 for eligibility/yes-no, 3 for experience/skills/open-ended)
+Output a single JSON object with exactly two keys:
+- "suggestedTitle": string (the job title, concise, from or implied by the JD)
+- "questions": array of objects, each with:
+  - "mainQuestion": string (the question to ask, clear and concise)
+  - "mode": number (1 = yes/no or short answer, 2 = right answer with hints, 3 = open-ended/list, 4 = conversational. Use 1 for eligibility, 3 for experience/skills.)
 
-Do not include any other fields. Do not include markdown or code fences, only the raw JSON array.`;
+Do not include any other fields. Do not include markdown or code fences, only the raw JSON object.`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4',
@@ -34,24 +47,33 @@ Do not include any other fields. Do not include markdown or code fences, only th
     max_tokens: 2000,
   });
 
-  const raw = completion.choices[0]?.message?.content?.trim() ?? '[]';
+  const raw = completion.choices[0]?.message?.content?.trim() ?? '{}';
   const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '');
-  let parsed: Array<{ mainQuestion: string; mode?: number }>;
+  let parsed: { suggestedTitle?: string; questions?: Array<{ mainQuestion: string; mode?: number }> };
   try {
     parsed = JSON.parse(cleaned);
   } catch {
     throw new Error('Failed to parse LLM response as JSON');
   }
 
-  if (!Array.isArray(parsed) || parsed.length === 0) {
+  const questionsRaw = Array.isArray(parsed?.questions) ? parsed.questions : [];
+  if (questionsRaw.length === 0) {
     throw new Error('LLM did not return a non-empty array of questions');
   }
 
-  const questions: Question[] = parsed.slice(0, 10).map((q) => ({
+  const suggestedTitle =
+    typeof parsed.suggestedTitle === 'string' && parsed.suggestedTitle.trim()
+      ? parsed.suggestedTitle.trim()
+      : '';
+
+  const questions: Question[] = questionsRaw.slice(0, 10).map((q) => ({
     mainQuestion: typeof q.mainQuestion === 'string' ? q.mainQuestion.trim() : String(q.mainQuestion),
     subTopics: [],
     mode: typeof q.mode === 'number' && q.mode >= 1 && q.mode <= 5 ? (q.mode as 1 | 2 | 3 | 4 | 5) : 3,
   }));
 
-  return questions.filter((q) => q.mainQuestion.length > 0);
+  return {
+    suggestedTitle,
+    questions: questions.filter((q) => q.mainQuestion.length > 0),
+  };
 }
