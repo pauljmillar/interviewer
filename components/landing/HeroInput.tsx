@@ -5,6 +5,14 @@ import { useRouter } from 'next/navigation';
 
 const DEMO_JD_KEY = 'demo_jd';
 
+async function tryInterview(): Promise<{ shareableUrl: string }> {
+  const res = await fetch('/api/demo/try-interview', { method: 'POST' });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Failed to start demo');
+  if (typeof data.shareableUrl !== 'string') throw new Error('Invalid response');
+  return { shareableUrl: data.shareableUrl };
+}
+
 const MENU_OPTIONS = [
   { id: 'upload', label: 'Upload job description' },
   { id: 'link', label: 'Share link/URL' },
@@ -49,6 +57,21 @@ export default function HeroInput() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [tryInterviewLoading, setTryInterviewLoading] = useState(false);
+  const [tryInterviewError, setTryInterviewError] = useState<string | null>(null);
+
+  const handleTryInterview = useCallback(async () => {
+    setTryInterviewError(null);
+    setTryInterviewLoading(true);
+    try {
+      const { shareableUrl } = await tryInterview();
+      if (typeof window !== 'undefined') window.open(shareableUrl, '_blank');
+    } catch {
+      setTryInterviewError("Couldn't start demo. Please try again.");
+    } finally {
+      setTryInterviewLoading(false);
+    }
+  }, []);
 
   const looksLikeUrl = (s: string): boolean => {
     const t = s.trim();
@@ -130,14 +153,14 @@ export default function HeroInput() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto relative z-30">
-      {/* Rounded chat block: row 1 = textarea, row 2 = + pill on left */}
-      <div className="rounded-2xl bg-neutral-900 shadow-sm flex flex-col overflow-visible">
+    <div className="max-w-3xl mx-auto relative z-30 flex gap-3">
+      {/* Left half: rounded block with single-row textarea + pills */}
+      <div className="flex-1 min-w-0 rounded-2xl bg-neutral-900 shadow-sm flex flex-col overflow-visible">
         <textarea
           ref={inputRef}
           placeholder="Paste or type your job description…"
-          rows={2}
-          className="w-full px-4 pt-3 pb-1 text-sm text-gray-100 placeholder:text-neutral-500 bg-transparent resize-none focus:outline-none focus:ring-0"
+          rows={1}
+          className="w-full px-4 py-2 text-sm text-gray-100 placeholder:text-neutral-500 bg-transparent resize-none focus:outline-none focus:ring-0"
           onKeyDown={(e) => {
             if (e.key === 'Escape') closeMenu();
           }}
@@ -187,7 +210,7 @@ export default function HeroInput() {
             type="button"
             onClick={handleSubmitInput}
             disabled={submitting}
-            className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-landing-primary hover:opacity-90 disabled:opacity-50 text-white transition-opacity"
+            className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-neutral-300 hover:text-white transition-colors"
             aria-label="Submit"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -195,6 +218,22 @@ export default function HeroInput() {
             </svg>
           </button>
         </div>
+      </div>
+      {/* Right half: Try our interview */}
+      <div className="flex-1 min-w-0 flex flex-col gap-1">
+        <button
+          type="button"
+          onClick={handleTryInterview}
+          disabled={tryInterviewLoading}
+          className="flex-1 min-w-0 flex items-center justify-center rounded-2xl bg-neutral-900 shadow-sm border border-transparent hover:bg-neutral-800 disabled:opacity-50 text-gray-100 text-sm font-medium transition-colors px-4"
+        >
+          {tryInterviewLoading ? 'Opening…' : 'Try our interview'}
+        </button>
+        {tryInterviewError && (
+          <p className="text-sm text-red-400 truncate" role="alert">
+            {tryInterviewError}
+          </p>
+        )}
       </div>
 
       {/* Upload job description modal */}

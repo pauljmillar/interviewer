@@ -49,13 +49,13 @@ export default function AdminInterviewInstanceDetailPage() {
     };
   }, [id]);
 
-  if (!id) return <p className="p-4 text-gray-500">Loading...</p>;
-  if (loading) return <p className="p-4 text-gray-600">Loading instance...</p>;
+  if (!id) return <p className="p-4 text-gray-500 dark:text-gray-400">Loading...</p>;
+  if (loading) return <p className="p-4 text-gray-600 dark:text-gray-400">Loading instance...</p>;
   if (error || !data) {
     return (
       <div className="p-4 max-w-4xl mx-auto">
-        <p className="text-red-600">{error ?? 'Not found'}</p>
-        <Link href="/admin/interviews" className="mt-4 inline-block text-blue-600 hover:underline">
+        <p className="text-red-600 dark:text-red-400">{error ?? 'Not found'}</p>
+        <Link href="/admin/interviews" className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline">
           Back to interviews
         </Link>
       </div>
@@ -68,38 +68,38 @@ export default function AdminInterviewInstanceDetailPage() {
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <div className="mb-4">
-        <Link href="/admin/interviews" className="text-sm text-gray-500 hover:text-gray-700">
+        <Link href="/admin/interviews" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
           ← Back to interviews
         </Link>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-        <h1 className="text-xl font-semibold text-gray-800 mb-4">Interview instance</h1>
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 mb-6">
+        <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Interview instance</h1>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
-            <dt className="font-medium text-gray-500">Recipient</dt>
-            <dd className="text-gray-900">{instance.recipientName ?? '—'}</dd>
+            <dt className="font-medium text-gray-500 dark:text-gray-400">Recipient</dt>
+            <dd className="text-gray-900 dark:text-gray-100">{instance.recipientName ?? '—'}</dd>
           </div>
           <div>
-            <dt className="font-medium text-gray-500">Position</dt>
-            <dd className="text-gray-900">{positionName ?? instance.name ?? '—'}</dd>
+            <dt className="font-medium text-gray-500 dark:text-gray-400">Position</dt>
+            <dd className="text-gray-900 dark:text-gray-100">{positionName ?? instance.name ?? '—'}</dd>
           </div>
           <div>
-            <dt className="font-medium text-gray-500">Template</dt>
-            <dd className="text-gray-900">{templateName ?? '—'}</dd>
+            <dt className="font-medium text-gray-500 dark:text-gray-400">Template</dt>
+            <dd className="text-gray-900 dark:text-gray-100">{templateName ?? '—'}</dd>
           </div>
           <div>
-            <dt className="font-medium text-gray-500">Date</dt>
-            <dd className="text-gray-900">
+            <dt className="font-medium text-gray-500 dark:text-gray-400">Date</dt>
+            <dd className="text-gray-900 dark:text-gray-100">
               {new Date(instance.createdAt).toLocaleString()}
               {status && (
                 <span
                   className={`ml-2 ${
                     status === 'completed'
-                      ? 'text-green-600'
+                      ? 'text-green-600 dark:text-green-400'
                       : status === 'started'
-                        ? 'text-amber-600'
-                        : 'text-gray-500'
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : 'text-gray-500 dark:text-gray-400'
                   }`}
                 >
                   · {status.replace('_', ' ')}
@@ -109,13 +109,13 @@ export default function AdminInterviewInstanceDetailPage() {
           </div>
           {session?.recordingKey && (
             <div className="sm:col-span-2">
-              <dt className="font-medium text-gray-500">Recording</dt>
+              <dt className="font-medium text-gray-500 dark:text-gray-400">Recording</dt>
               <dd>
                 <a
                   href={`/api/instances/${id}/recording`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   View recording
                 </a>
@@ -125,20 +125,20 @@ export default function AdminInterviewInstanceDetailPage() {
         </dl>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <h2 className="text-base font-semibold text-gray-800 px-6 py-3 border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 px-6 py-3 border-b border-gray-200 dark:border-gray-600">
           Questions asked and responses given
         </h2>
         {messages.length === 0 ? (
-          <p className="p-6 text-gray-500">No messages yet.</p>
+          <p className="p-6 text-gray-500 dark:text-gray-400">No messages yet.</p>
         ) : (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-gray-100 dark:divide-gray-600">
             {messages.map((m, i) => (
               <li key={i} className="p-6">
-                <div className="text-xs font-medium text-gray-500 mb-1">
+                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                   {m.role === 'assistant' ? 'Interviewer' : 'Candidate'}
                 </div>
-                <div className="text-gray-900 whitespace-pre-wrap">{m.content}</div>
+                <div className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{m.content}</div>
               </li>
             ))}
           </ul>

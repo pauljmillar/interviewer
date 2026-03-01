@@ -9,7 +9,7 @@ export default async function SignInPage({ searchParams }: Props) {
   const next = typeof params?.next === 'string' && params.next.startsWith('/') ? params.next : undefined;
   return (
     <div className="min-h-[80vh] flex items-center justify-center p-4">
-      <SignIn fallbackRedirectUrl={next ?? '/admin'} signUpUrl="/sign-up" />
+      <SignIn fallbackRedirectUrl={next ?? '/admin/positions'} signUpUrl="/sign-up" />
     </div>
   );
 }

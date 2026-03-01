@@ -15,9 +15,16 @@ const isProtectedApiRoute = createRouteMatcher([
 ]);
 
 /** Public: candidate interview by shareable link; no auth required. */
-function isInstancesByTokenRoute(req: Request): boolean {
+function isPublicInstanceRoute(req: Request): boolean {
   const url = new URL(req.url);
-  return url.pathname.startsWith('/api/instances/by-token/');
+  const path = url.pathname;
+  // By-token: load interview by shareable link
+  if (path.startsWith('/api/instances/by-token/')) return true;
+  // Session: candidate fetches/updates session (GET and PATCH)
+  if (/^\/api\/instances\/[^/]+\/session$/.test(path)) return true;
+  // Recording: candidate uploads recording (POST only; GET is admin)
+  if (req.method === 'POST' && /^\/api\/instances\/[^/]+\/recording$/.test(path)) return true;
+  return false;
 }
 
 export default clerkMiddleware(async (auth, req) => {
@@ -25,7 +32,7 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next();
   }
   if (isAdminRoute(req)) await auth.protect();
-  if (isProtectedApiRoute(req) && !isInstancesByTokenRoute(req)) await auth.protect();
+  if (isProtectedApiRoute(req) && !isPublicInstanceRoute(req)) await auth.protect();
 });
 
 export const config = {

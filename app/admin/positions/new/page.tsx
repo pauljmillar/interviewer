@@ -209,7 +209,7 @@ export default function NewPositionPage() {
               {error}
             </p>
           )}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 mb-6">
             <h2 className="text-base font-medium text-gray-800 mb-3">Upload Job Description</h2>
             <p className="text-sm text-gray-600 mb-3">
               Upload a .txt file or paste the job description below. We&apos;ll generate screening questions for you.
@@ -297,7 +297,7 @@ export default function NewPositionPage() {
               {error}
             </p>
           )}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Position name</label>
               <input
@@ -359,7 +359,7 @@ export default function NewPositionPage() {
               {error}
             </p>
           )}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Template</label>
               <select
@@ -426,7 +426,7 @@ export default function NewPositionPage() {
               {error}
             </p>
           )}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Position name</label>
               <input

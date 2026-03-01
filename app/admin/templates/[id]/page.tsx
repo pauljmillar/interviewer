@@ -239,12 +239,12 @@ export default function TemplateDetailPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
-        <Link href="/admin/templates" className="text-sm text-gray-500 hover:text-gray-700">
+        <Link href="/admin/templates" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
           ← Back to templates
         </Link>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h1 className="text-xl font-semibold text-gray-800 mb-2">Template details</h1>
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6">
+        <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Template details</h1>
         {isBuiltIn && (
           <p className="mb-4 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
             Built-in templates cannot be edited or deleted. Create a custom template (e.g. from a position) to edit questions.

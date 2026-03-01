@@ -133,6 +133,30 @@ export const INTERVIEW_TEMPLATES: InterviewTemplate[] = [
       },
     ],
   },
+  {
+    id: 'demo-walkthrough',
+    name: 'Try our interview (demo)',
+    intro: "Welcome! This is a short demo so you can see how our AI interviewer works. I'll ask a few questions and explain the process as we go. You can type your answers or use the microphone—whatever you prefer.",
+    conclusion: "That's the end of the demo. Thanks for trying it! You can create your own interview by pasting a job description on the home page, or sign up to manage positions and review results.",
+    reminder: "No pressure—this is just a demo. Feel free to answer so we can continue, or you can close the tab anytime.",
+    questions: [
+      {
+        mainQuestion: "First, what's your name? (This is just for the demo—we use it to personalize the experience.)",
+        subTopics: [],
+        mode: 4,
+      },
+      {
+        mainQuestion: "In a real interview, we'd ask questions based on the job description. Here we're keeping it simple: what's one thing you look for in a great workplace?",
+        subTopics: [],
+        mode: 4,
+      },
+      {
+        mainQuestion: "You've seen how it works: we ask, you answer by typing or voice, and the AI can evaluate and move on or ask follow-ups. Anything you'd like to ask about the process before we wrap up?",
+        subTopics: [],
+        mode: 4,
+      },
+    ],
+  },
 ];
 
 export function getTemplateById(id: string): InterviewTemplate | undefined {

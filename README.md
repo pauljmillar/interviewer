@@ -69,7 +69,7 @@ npm run dev
 
 ## Project structure
 
-- `app/` — Next.js app router: pages and API routes (`/api/chat`, `/api/analyze-jd`, `/api/jd/extract`, `/api/demo/create`, `/api/demo/create-instance`, `/api/demo/claim`, `/api/review-historical`, `/api/biography`, `/api/wordcount`).
+- `app/` — Next.js app router: pages and API routes (`/api/chat`, `/api/analyze-jd`, `/api/jd/extract`, `/api/demo/create`, `/api/demo/create-instance`, `/api/demo/try-interview`, `/api/demo/claim`, `/api/review-historical`, `/api/biography`, `/api/wordcount`).
 - `components/` — React UI (ChatInterface, ConfigPanel, MessageBubble, landing HeroInput, etc.).
 - `lib/` — OpenAI chat and tools (evaluateAnswer, analyzeJobDescription, checkAnswer, detectDisengagement, reviewForContradiction), JD extractors (PDF, DOCX, HTML), persistence, voice.
 - `lib/constants/` — Built-in templates, JD extract limits (`jdExtract.ts`), demo org and cookie (`demo.ts`).

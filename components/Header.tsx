@@ -22,6 +22,12 @@ const publicNav = [
   { href: '/about', label: 'About' },
 ] as const;
 
+const landingNav = [
+  { href: '#approach', label: 'Approach' },
+  { href: '#pricing', label: 'Pricing' },
+  { href: '#get-started', label: 'Get Started' },
+] as const;
+
 function isAdminPath(pathname: string): boolean {
   return pathname.startsWith('/admin');
 }
@@ -29,30 +35,60 @@ function isAdminPath(pathname: string): boolean {
 export default function Header({ hasClerk = true }: HeaderProps) {
   const pathname = usePathname();
   const isLanding = pathname === '/';
+  /** Same top nav as landing (logo + Approach, Pricing, Get Started) on landing and admin. */
+  const useLandingNav = isLanding || isAdminPath(pathname);
 
   return (
     <header
-      className={`sticky top-0 z-30 flex items-center justify-between gap-4 px-4 py-3 border-b ${isLanding ? 'bg-black border-neutral-900 ml-56 w-[calc(100%-14rem)]' : 'bg-neutral-900 border-neutral-800'}`}
+      className={`sticky top-0 z-30 flex items-center justify-between gap-4 px-4 py-3 ${useLandingNav ? 'bg-black' : 'bg-neutral-900'}`}
     >
-      {/* Left: logo (hidden on landing; shown in left nav) */}
-      <div className="flex-shrink-0 min-w-0 w-1/3 flex justify-start">
-        {!isLanding && (
-          <Link
-            href="/"
-            className="text-lg font-semibold text-white truncate hover:text-gray-200 transition-colors"
+      {/* Left: title (and public nav only when not using landing nav) */}
+      <div className={`flex-shrink-0 min-w-0 flex items-center ${useLandingNav ? 'w-1/3 justify-start' : ''}`}>
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-lg font-semibold text-white truncate hover:text-gray-200 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#e86711"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="flex-shrink-0"
+            aria-hidden
           >
-            Candice AI
-          </Link>
+            <path d="M2 13a2 2 0 0 0 2-2V7a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0V4a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0v-4a2 2 0 0 1 2-2" />
+          </svg>
+          Candice AI
+        </Link>
+        {!useLandingNav && (
+          <nav
+            className="hidden sm:flex items-center justify-center gap-1 flex-1 min-w-0 ml-6"
+            aria-label="Main navigation"
+          >
+            {publicNav.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="link-roll px-3 py-1.5 text-sm font-medium text-gray-200"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
         )}
       </div>
-
-      {/* Center: nav links (hidden on landing; left nav used there) */}
-      {!isLanding && (
+      {/* Center: Approach, Pricing, Get Started (landing and admin) */}
+      {useLandingNav && (
         <nav
-          className="hidden sm:flex items-center justify-center gap-1 flex-1 min-w-0"
+          className="hidden sm:flex flex-1 items-center justify-center gap-1 min-w-0"
           aria-label="Main navigation"
         >
-          {publicNav.map(({ href, label }) => (
+          {landingNav.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
@@ -63,9 +99,9 @@ export default function Header({ hasClerk = true }: HeaderProps) {
           ))}
         </nav>
       )}
-      {isLanding && <div className="flex-1 min-w-0" aria-hidden />}
+      {!useLandingNav && <div className="flex-1 min-w-0" aria-hidden />}
 
-      {/* Right: auth / admin (or spacer so center nav stays centered) */}
+      {/* Right: auth / admin (w-1/3 on landing so center nav stays visually centered) */}
       {hasClerk ? (
         <div className="flex-shrink-0 flex items-center gap-2 w-1/3 justify-end">
           <SignedOut>
@@ -77,16 +113,14 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 Sign in
               </button>
             </SignInButton>
-            {!isLanding && (
-              <SignUpButton mode="modal">
-                <button
-                  type="button"
-                  className="px-3 py-1.5 text-sm font-medium text-neutral-900 bg-white hover:bg-gray-200 transition-colors"
-                >
-                  Sign up
-                </button>
-              </SignUpButton>
-            )}
+            <SignUpButton mode="modal">
+              <button
+                type="button"
+                className="px-3 py-1.5 text-sm font-medium text-neutral-900 bg-white hover:bg-gray-200 transition-colors"
+              >
+                Sign up
+              </button>
+            </SignUpButton>
           </SignedOut>
           <SignedIn>
             {isAdminPath(pathname) && (
@@ -94,11 +128,16 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 <SuperadminViewAsOrg />
                 <OrganizationSwitcher
                   hidePersonal
-                  afterSelectOrganizationUrl="/admin"
-                  afterCreateOrganizationUrl="/admin"
+                  afterSelectOrganizationUrl="/admin/positions"
+                  afterCreateOrganizationUrl="/admin/positions"
                   appearance={{
                     elements: {
                       rootBox: 'flex items-center',
+                    },
+                    variables: {
+                      colorBackground: '#171717',
+                      colorForeground: '#e5e5e5',
+                      colorPrimaryForeground: '#ffffff',
                     },
                   }}
                 />

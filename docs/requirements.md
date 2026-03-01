@@ -56,6 +56,9 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 - *Implemented* **Demo flow (no account)**  
   Landing hero: paste JD or URL, or upload .txt/.pdf/.docx → submit → `/demo?step=analyzing` → analyze JD → review questions and position name → settings (voice, intro, conclusion, etc.) → enter recipient name → generate shareable interview link. Position and instance are created under a demo org. **Claim**: if the user signs in (or signs up), they can add the demo to their account: from the demo "done" page, "Add to my account" (when already signed in) calls `POST /api/demo/claim` and redirects to `/admin`; or "Sign in" with `?next=/claim-demo` so after login they land on `/claim-demo`, which POSTs to `/api/demo/claim` and redirects to `/admin`. Claim moves the position, its template, and instances from the demo org to the user's org; cookie `demo_claim_id` is cleared.
 
+- *Implemented* **Try our interview (instant demo)**  
+  Landing hero "Try our interview" button: no JD or config. Client calls `POST /api/demo/try-interview` (no body); server creates one interview instance from the shared built-in template `demo-walkthrough` (intro and questions that explain the process), under `DEMO_ORG_ID`, with no position. Returns `shareableUrl`; client opens it in a new tab. One shared template and org; one new instance (and unique link) per click. Works with or without Supabase (file store when DB not configured).
+
 ---
 
 ## Tools and APIs

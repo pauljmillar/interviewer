@@ -1,17 +1,18 @@
 import Link from 'next/link';
 import { GeistSans } from 'geist/font/sans';
-import LeftNav from '@/components/landing/LeftNav';
 import HeroInput from '@/components/landing/HeroInput';
 
 export default function HomePage() {
   return (
     <div className={`${GeistSans.className} min-h-screen bg-black`}>
-      <LeftNav />
-      <div className="pl-56 bg-black min-h-full text-gray-100">
+      <div className="bg-black min-h-full text-gray-100">
         {/* Hero: ChatGPT-like — instruction + chat block, no motion */}
         <section className="px-6 py-20 sm:py-28 max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white tracking-tight mb-10">
-            Share your job description and I&apos;ll plan my interview
+          <h1 className="font-semibold text-white tracking-tight mb-10">
+            <span className="block text-3xl sm:text-4xl lg:text-5xl">Hi, I&apos;m Candice.</span>
+            <span className="block text-xl sm:text-2xl lg:text-3xl text-gray-200 mt-2">
+              I&apos;ll conduct screening interviews with your candidates and pass the best ones to you.
+            </span>
           </h1>
           <HeroInput />
         </section>
