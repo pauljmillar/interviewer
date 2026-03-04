@@ -1,3 +1,6 @@
+@import '@fontsource-variable/inter/index.css';
+@import '@fontsource-variable/bricolage-grotesque/index.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,32 +12,33 @@ html {
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Landing page: all text Deep Obsidian (#0B0E14); primary/secondary/tertiary unchanged for UI */
-  --landing-heading: #0b0e14;
-  --landing-text: #0b0e14;
-  --landing-primary: #788c9e;
-  --landing-secondary: #a5b9c7;
-  --landing-tertiary: #dae6f0;
-  --landing-primary-hover: #657a8b;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --landing-heading: #fafafa;
-    --landing-text: #fafafa;
-    --landing-primary: #8a9caa;
-    --landing-secondary: #b5c5d1;
-    --landing-tertiary: #2a3540;
-    --landing-primary-hover: #9aadbc;
-  }
+  /* Landing: Astroship-style light-only (no dark mode) */
+  --landing-bg: #ffffff;
+  --landing-bg-hero: #ffffff;
+  --landing-bg-section: #ffffff;
+  --landing-bg-section-alt: #f9fafb;
+  --landing-card-bg: #ffffff;
+  --landing-heading: #000000;
+  --landing-text: #374151;
+  --landing-muted: #6b7280;
+  --landing-primary: #000000;
+  --landing-primary-hover: #1f2937;
+  --landing-secondary: #374151;
+  --landing-tertiary: #4b5563;
+  --landing-accent-pink: #6b7280;
+  --landing-border: #e5e7eb;
+  --landing-gradient-hero: none;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Astroship-style font stack for landing */
+.font-landing {
+  font-family: 'Bricolage Grotesque Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer components {

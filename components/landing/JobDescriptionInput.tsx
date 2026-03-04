@@ -5,27 +5,22 @@ import { useRouter } from 'next/navigation';
 
 const DEMO_JD_KEY = 'demo_jd';
 
-async function tryInterview(): Promise<{ shareableUrl: string }> {
-  const res = await fetch('/api/demo/try-interview', { method: 'POST' });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Failed to start demo');
-  if (typeof data.shareableUrl !== 'string') throw new Error('Invalid response');
-  return { shareableUrl: data.shareableUrl };
-}
-
 const MENU_OPTIONS = [
   { id: 'upload', label: 'Upload job description' },
   { id: 'link', label: 'Share link/URL' },
   { id: 'typing', label: 'Start typing' },
 ] as const;
 
-export default function HeroInput() {
+export default function JobDescriptionInput() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
@@ -53,25 +48,6 @@ export default function HeroInput() {
       else inputRef.current?.focus();
     }
   };
-
-  const [uploading, setUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [tryInterviewLoading, setTryInterviewLoading] = useState(false);
-  const [tryInterviewError, setTryInterviewError] = useState<string | null>(null);
-
-  const handleTryInterview = useCallback(async () => {
-    setTryInterviewError(null);
-    setTryInterviewLoading(true);
-    try {
-      const { shareableUrl } = await tryInterview();
-      if (typeof window !== 'undefined') window.open(shareableUrl, '_blank');
-    } catch {
-      setTryInterviewError("Couldn't start demo. Please try again.");
-    } finally {
-      setTryInterviewLoading(false);
-    }
-  }, []);
 
   const looksLikeUrl = (s: string): boolean => {
     const t = s.trim();
@@ -153,14 +129,13 @@ export default function HeroInput() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto relative z-30 flex flex-col sm:flex-row gap-3">
-      {/* Left half: rounded block with single-row textarea + pills */}
-      <div className="flex-1 min-w-0 rounded-2xl bg-landing-card-bg border border-landing-border shadow-sm flex flex-col overflow-visible">
+    <div className="max-w-2xl mx-auto w-full">
+      <div className="rounded-2xl bg-landing-card-bg border border-landing-border shadow-sm flex flex-col overflow-visible">
         <textarea
           ref={inputRef}
           placeholder="Paste or type your job description…"
-          rows={1}
-          className="w-full px-4 py-3 text-sm text-landing-text placeholder:text-landing-muted bg-transparent resize-none focus:outline-none focus:ring-0 min-h-[44px]"
+          rows={3}
+          className="w-full px-4 py-3 text-sm text-landing-text placeholder:text-landing-muted bg-transparent resize-none focus:outline-none focus:ring-0 min-h-[80px]"
           onKeyDown={(e) => {
             if (e.key === 'Escape') closeMenu();
           }}
@@ -210,33 +185,14 @@ export default function HeroInput() {
             type="button"
             onClick={handleSubmitInput}
             disabled={submitting}
-            className="flex-shrink-0 flex items-center justify-center w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-landing-bg-section-alt hover:bg-landing-border/30 disabled:opacity-50 text-landing-text transition-colors"
+            className="flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-landing-primary text-white font-medium hover:bg-landing-primary-hover disabled:opacity-50 text-sm transition-colors"
             aria-label="Submit"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M12 19V5M5 12l7-7 7 7" />
-            </svg>
+            {submitting ? 'Processing…' : 'Continue'}
           </button>
         </div>
       </div>
-      {/* Right half: Try our interview */}
-      <div className="flex-1 min-w-0 flex flex-col gap-1">
-        <button
-          type="button"
-          onClick={handleTryInterview}
-          disabled={tryInterviewLoading}
-          className="flex-1 min-w-0 flex items-center justify-center rounded-2xl bg-landing-card-bg border border-landing-border shadow-sm hover:bg-landing-bg-section-alt disabled:opacity-50 text-landing-text text-sm font-medium transition-colors px-4 min-h-[44px]"
-        >
-          {tryInterviewLoading ? 'Opening…' : 'Try our interview'}
-        </button>
-        {tryInterviewError && (
-          <p className="text-sm text-red-500 truncate" role="alert">
-            {tryInterviewError}
-          </p>
-        )}
-      </div>
 
-      {/* Upload job description modal */}
       {uploadModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-landing-heading/60">
           <div
