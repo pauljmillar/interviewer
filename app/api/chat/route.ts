@@ -3,9 +3,22 @@ import { generateChatResponse, ChatRequest } from '@/lib/openai/chat';
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ChatRequest = await request.json();
-    
-    const { messages, currentQuestionIndex, questions, coveredSubTopics, currentQuestionWordCount, discoveryContext, userRepliesForCurrentQuestion, includeDebug, intro, conclusion, reminder, reminderAlreadyShown } = body;
+    const body = await request.json() as ChatRequest & { stream?: boolean };
+    const {
+      messages,
+      currentQuestionIndex,
+      questions,
+      coveredSubTopics,
+      currentQuestionWordCount,
+      discoveryContext,
+      userRepliesForCurrentQuestion,
+      includeDebug,
+      intro,
+      conclusion,
+      reminder,
+      reminderAlreadyShown,
+      stream: wantStream,
+    } = body;
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -28,7 +41,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await generateChatResponse({
+    const chatRequest: ChatRequest = {
       messages,
       currentQuestionIndex,
       questions,
@@ -41,8 +54,35 @@ export async function POST(request: NextRequest) {
       conclusion,
       reminder,
       reminderAlreadyShown: !!reminderAlreadyShown,
-    });
+    };
 
+    if (wantStream) {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            const streamSink = (delta: string) => {
+              controller.enqueue(encoder.encode(JSON.stringify({ type: 'delta', text: delta }) + '\n'));
+            };
+            const result = await generateChatResponse(chatRequest, { streamSink });
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'done', result }) + '\n'));
+          } catch (err) {
+            console.error('Chat stream error:', err);
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'error', error: err instanceof Error ? err.message : 'Internal server error' }) + '\n'));
+          } finally {
+            controller.close();
+          }
+        },
+      });
+      return new NextResponse(stream, {
+        headers: {
+          'Content-Type': 'application/x-ndjson',
+          'Cache-Control': 'no-store',
+        },
+      });
+    }
+
+    const result = await generateChatResponse(chatRequest);
     return NextResponse.json(result);
   } catch (error) {
     console.error('Chat API error:', error);

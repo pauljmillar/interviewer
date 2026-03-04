@@ -12,6 +12,21 @@ function countWords(text: string): number {
   return text.trim().split(/\s+/).filter((w) => w.length > 0).length;
 }
 
+/** Hardcoded intro spoken via browser TTS immediately (no round trip) while session refetch + chat run. */
+function getPreSpokenIntroText(instance: InterviewInstanceRecord): string {
+  const recruiter = instance.recruiterName?.trim() || 'the hiring team';
+  const company = instance.companyName?.trim() || 'the company';
+  return `Hi, I'm Candice. I'm working with ${recruiter} at ${company} to help them work through a large list of candidates. The most qualified candidates will be passed along to ${recruiter} to continue to the next steps of the interview process.`;
+}
+
+/** Split text into sentences (by . ! ?) for chunked TTS. */
+function splitSentences(text: string): string[] {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+  const parts = trimmed.split(/(?<=[.!?])\s+/);
+  return parts.map((p) => p.trim()).filter(Boolean);
+}
+
 function formatElapsed(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
@@ -92,6 +107,8 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   /** Why the recorder was stopped: 'pause' = show Resume; 'complete' = interview ended. */
   const recordingStopReasonRef = useRef<'pause' | 'complete'>('complete');
   const sessionIdRef = useRef<string>(currentSession.id);
+  /** Length of the first sentence we spoke during streaming (so we can speak the remainder in chunks). */
+  const firstSentenceLengthRef = useRef<number>(0);
 
   const questions = instance.questions;
   const voiceId = instance.voice ?? 'alloy';
@@ -107,6 +124,18 @@ export default function CandidateChat({ instance, session: initialSession, onSes
       setIsVoiceAvailable(sttRef.current?.isAvailable() ?? false);
       ttsRef.current.setVoiceByTtsId(voiceId);
     }
+  }, [voiceId]);
+
+  // Pre-warm TTS connection so the first real request is faster
+  useEffect(() => {
+    const t = setTimeout(() => {
+      fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: 'Hi', voice: voiceId }),
+      }).catch(() => {});
+    }, 800);
+    return () => clearTimeout(t);
   }, [voiceId]);
 
   const uploadRecordingSegments = useCallback(
@@ -235,10 +264,57 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     }
   }, [allQuestionsCovered]);
 
+  /** Play one segment of TTS (API or browser) and return a Promise that resolves when playback ends. */
+  const playSegment = useCallback(
+    (text: string): Promise<void> => {
+      const truncated = text.trim().slice(0, 4096);
+      if (!truncated) return Promise.resolve();
+      return new Promise((resolve) => {
+        const done = () => resolve();
+        fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: truncated, voice: voiceId }),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error('TTS failed');
+            return res.blob();
+          })
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.onended = () => {
+              URL.revokeObjectURL(url);
+              done();
+            };
+            audio.onerror = () => {
+              URL.revokeObjectURL(url);
+              done();
+            };
+            return audio.play();
+          })
+          .then(() => {
+            // Promise resolves in onended
+          })
+          .catch(() => {
+            if (ttsRef.current?.isAvailable()) {
+              ttsRef.current.speak(truncated);
+              setTimeout(done, Math.max(truncated.length * 50, 2000));
+            } else {
+              done();
+            }
+          });
+      });
+    },
+    [voiceId]
+  );
+
   /** Speak using OpenAI TTS (same as template sample); fall back to browser TTS if API fails. */
   const speakResponse = useCallback(
     async (text: string) => {
       if (!text.trim()) return;
+      // Cancel any pre-spoken intro (or other ongoing speech) before playing this response
+      ttsRef.current?.stop();
       const truncated = text.trim().slice(0, 4096);
       try {
         const res = await fetch('/api/tts', {
@@ -265,6 +341,23 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     [voiceId]
   );
 
+  /** Speak text in sentence chunks: first segment plays immediately, rest queue. */
+  const speakResponseChunked = useCallback(
+    async (text: string) => {
+      if (!text.trim()) return;
+      ttsRef.current?.stop();
+      const sentences = splitSentences(text);
+      if (sentences.length === 0) {
+        await playSegment(text);
+        return;
+      }
+      for (const sentence of sentences) {
+        await playSegment(sentence);
+      }
+    },
+    [playSegment]
+  );
+
   const getCurrentElapsedSeconds = useCallback(() => {
     return elapsedAtLoad + Math.floor((Date.now() - loadTimeRef.current) / 1000);
   }, [elapsedAtLoad]);
@@ -279,11 +372,18 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   // Start the conversation with intro/first question when the session has no messages yet.
   // If the initial load returned 0 messages (e.g. stale read), re-fetch once before starting;
   // if the server has messages we hydrate from it and never overwrite the DB.
+  // Pre-spoken intro: play a hardcoded greeting via browser TTS immediately (no round trip) while refetch + chat run.
   useEffect(() => {
     if (messages.length > 0 || questions.length === 0) return;
 
     let cancelled = false;
     setIsLoading(true);
+
+    // Start pre-spoken intro immediately so voice begins while refetch and chat run
+    const preSpokenIntro = getPreSpokenIntroText(instance);
+    if (ttsRef.current?.isAvailable()) {
+      ttsRef.current.speak(preSpokenIntro);
+    }
 
     (async () => {
       try {
@@ -303,6 +403,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                 })()
               : [];
           if (refetchedMessages.length > 0 && !cancelled) {
+            ttsRef.current?.stop(); // stop pre-spoken intro when hydrating existing session
             setMessages(
               refetchedMessages.map((m: { role?: string; content?: string; timestamp?: string }) => ({
                 role: m.role ?? 'user',
@@ -340,37 +441,90 @@ export default function CandidateChat({ instance, session: initialSession, onSes
             conclusion: instance.conclusion,
             reminder: instance.reminder,
             reminderAlreadyShown: currentSession.reminderAlreadyShown ?? false,
+            stream: true,
           }),
         });
 
         if (!response.ok) throw new Error('Failed to start conversation');
-        const data = await response.json();
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error('No response body');
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let accumulatedContent = '';
+        let firstSentenceSpoken = false;
+        const firstSentencePattern = /^([^.!?]*[.!?])\s*/;
+        let streamComplete = false;
+
+        while (!streamComplete && !cancelled) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const parsed = JSON.parse(line) as { type: string; text?: string; result?: { response: string; discoveryContext?: DiscoveryContext; reminderShown?: boolean }; error?: string };
+              if (parsed.type === 'delta' && typeof parsed.text === 'string') {
+                accumulatedContent += parsed.text;
+                const firstMessage: Message = {
+                  role: 'assistant',
+                  content: accumulatedContent,
+                  timestamp: new Date(),
+                };
+                setMessages([firstMessage]);
+                if (!firstSentenceSpoken) {
+                  const match = accumulatedContent.match(firstSentencePattern);
+                  if (match) {
+                    firstSentenceSpoken = true;
+                    const firstSentence = match[1].trim();
+                    firstSentenceLengthRef.current = firstSentence.length;
+                    speakResponse(firstSentence);
+                  }
+                }
+              } else if (parsed.type === 'done' && parsed.result) {
+                const data = parsed.result;
+                const fullContent = data.response ?? accumulatedContent;
+                const firstMessage: Message = {
+                  role: 'assistant',
+                  content: fullContent,
+                  timestamp: new Date(),
+                };
+                setMessages([firstMessage]);
+                if (data.discoveryContext) setDiscoveryContext(data.discoveryContext);
+                if (firstSentenceSpoken) {
+                  const remainder = fullContent.slice(firstSentenceLengthRef.current).trim();
+                  if (remainder) speakResponseChunked(remainder);
+                } else {
+                  speakResponseChunked(fullContent);
+                }
+                const updatedSession: SessionRecord = {
+                  ...currentSession,
+                  messages: [firstMessage].map((m) => ({
+                    role: m.role,
+                    content: m.content,
+                    timestamp: m.timestamp instanceof Date ? m.timestamp.toISOString() : undefined,
+                  })),
+                  currentQuestionIndex: 0,
+                  reminderAlreadyShown: data.reminderShown ?? currentSession.reminderAlreadyShown,
+                  elapsedSeconds: 0,
+                };
+                await persistSession(updatedSession);
+                setCurrentSession(updatedSession);
+                streamComplete = true;
+                break;
+              } else if (parsed.type === 'error') {
+                throw new Error(parsed.error ?? 'Stream error');
+              }
+            } catch (e) {
+              if (e instanceof SyntaxError) continue;
+              throw e;
+            }
+          }
+        }
 
         if (cancelled) return;
-
-        const firstMessage: Message = {
-          role: 'assistant',
-          content: data.response,
-          timestamp: new Date(),
-        };
-        setMessages([firstMessage]);
-        if (data.discoveryContext) setDiscoveryContext(data.discoveryContext);
-
-        const updatedSession: SessionRecord = {
-          ...currentSession,
-          messages: [firstMessage].map((m) => ({
-            role: m.role,
-            content: m.content,
-            timestamp: m.timestamp instanceof Date ? m.timestamp.toISOString() : undefined,
-          })),
-          currentQuestionIndex: 0,
-          reminderAlreadyShown: data.reminderShown ?? currentSession.reminderAlreadyShown,
-          elapsedSeconds: 0,
-        };
-        await persistSession(updatedSession);
-        setCurrentSession(updatedSession);
-
-        speakResponse(data.response);
       } catch (err) {
         if (!cancelled) {
           console.error('Error starting conversation:', err);
@@ -384,7 +538,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     return () => {
       cancelled = true;
     };
-  }, [speakResponse]); // Run once on mount when messages are empty and questions exist
+  }, [speakResponse, speakResponseChunked, instance]); // Run once on mount when messages are empty and questions exist
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -509,7 +663,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
       }
       if (data.allQuestionsCovered) setAllQuestionsCovered(true);
 
-      speakResponse(data.response);
+      speakResponseChunked(data.response);
 
       const nextIndex =
         data.questionCovered && currentQuestionIndex < questions.length - 1

@@ -98,6 +98,10 @@ export interface InterviewInstanceRecord {
   reminder?: string;
   /** TTS voice id (e.g. OpenAI: alloy, echo, fable, onyx, nova, shimmer). Copied from template on create; optional override. */
   voice?: string;
+  /** Optional recruiter name for pre-spoken intro (e.g. "working with X at Y"). Set when shareable link is created. */
+  recruiterName?: string;
+  /** Optional company name for pre-spoken intro. Set when shareable link is created. */
+  companyName?: string;
 }
 
 /** One sitting / one continuous conversation. */

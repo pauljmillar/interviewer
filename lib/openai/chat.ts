@@ -55,9 +55,40 @@ function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(word => word.length > 0).length;
 }
 
+export type StreamSink = (delta: string) => void;
+
+/** Run a single completion; when streamSink is provided, streams content deltas and returns full content. */
+async function runCompletion(
+  params: {
+    model: string;
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
+    temperature?: number;
+    max_tokens?: number;
+  },
+  streamSink?: StreamSink
+): Promise<string> {
+  if (streamSink) {
+    const stream = await openai.chat.completions.create({
+      ...params,
+      stream: true,
+    });
+    let full = '';
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content ?? '';
+      full += delta;
+      streamSink(delta);
+    }
+    return full;
+  }
+  const completion = await openai.chat.completions.create(params);
+  return completion.choices[0]?.message?.content ?? '';
+}
+
 export async function generateChatResponse(
-  request: ChatRequest
+  request: ChatRequest,
+  options?: { streamSink?: StreamSink }
 ): Promise<ChatResponse> {
+  const streamSink = options?.streamSink;
   const { 
     messages, 
     currentQuestionIndex, 
@@ -191,16 +222,21 @@ export async function generateChatResponse(
   // --- Mode 1: Screening — check-answer tool; no hints; always move on ---
   if (mode === 1) {
     if (!lastUserMessage) {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [
-          { role: 'system', content: 'You are a formal interviewer. Ask only this question, nothing else: ' + currentQuestion.mainQuestion },
-          ...messages,
-        ],
-        temperature: 0.3,
-        max_tokens: 80,
-      });
-      let response = completion.choices[0]?.message?.content || currentQuestion.mainQuestion;
+      if (streamSink && isFirstMessage && intro?.trim()) {
+        streamSink(intro.trim() + '\n\n');
+      }
+      let response = await runCompletion(
+        {
+          model: 'gpt-4',
+          messages: [
+            { role: 'system', content: 'You are a formal interviewer. Ask only this question, nothing else: ' + currentQuestion.mainQuestion },
+            ...messages,
+          ],
+          temperature: 0.3,
+          max_tokens: 80,
+        },
+        streamSink
+      ) || currentQuestion.mainQuestion;
       if (isFirstMessage && intro?.trim()) {
         response = intro.trim() + '\n\n' + response;
       }
@@ -230,16 +266,21 @@ export async function generateChatResponse(
   // --- Mode 2: Right answer + hints — check-answer tool; if wrong, return hint and do not advance ---
   if (mode === 2) {
     if (!lastUserMessage) {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [
-          { role: 'system', content: 'You are a professional interviewer. Ask only this question, nothing else: ' + currentQuestion.mainQuestion },
-          ...messages,
-        ],
-        temperature: 0.3,
-        max_tokens: 80,
-      });
-      let response = completion.choices[0]?.message?.content || currentQuestion.mainQuestion;
+      if (streamSink && isFirstMessage && intro?.trim()) {
+        streamSink(intro.trim() + '\n\n');
+      }
+      let response = await runCompletion(
+        {
+          model: 'gpt-4',
+          messages: [
+            { role: 'system', content: 'You are a professional interviewer. Ask only this question, nothing else: ' + currentQuestion.mainQuestion },
+            ...messages,
+          ],
+          temperature: 0.3,
+          max_tokens: 80,
+        },
+        streamSink
+      ) || currentQuestion.mainQuestion;
       if (isFirstMessage && intro?.trim()) {
         response = intro.trim() + '\n\n' + response;
       }
@@ -273,16 +314,21 @@ export async function generateChatResponse(
   // --- Mode 3: List only, no content-based follow-up; optional single followUpPrompt ---
   if (mode === 3) {
     if (!lastUserMessage) {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [
-          { role: 'system', content: 'You are an interviewer. Ask only this question, nothing else: ' + currentQuestion.mainQuestion },
-          ...messages,
-        ],
-        temperature: 0.3,
-        max_tokens: 80,
-      });
-      let response = completion.choices[0]?.message?.content || currentQuestion.mainQuestion;
+      if (streamSink && isFirstMessage && intro?.trim()) {
+        streamSink(intro.trim() + '\n\n');
+      }
+      let response = await runCompletion(
+        {
+          model: 'gpt-4',
+          messages: [
+            { role: 'system', content: 'You are an interviewer. Ask only this question, nothing else: ' + currentQuestion.mainQuestion },
+            ...messages,
+          ],
+          temperature: 0.3,
+          max_tokens: 80,
+        },
+        streamSink
+      ) || currentQuestion.mainQuestion;
       if (isFirstMessage && intro?.trim()) {
         response = intro.trim() + '\n\n' + response;
       }
@@ -329,16 +375,21 @@ ${contradictionContext}
 
 Be conversational but direct. If a contradiction was flagged above, note it calmly and ask for clarification. Otherwise acknowledge and move on. Keep your response concise (2-3 sentences).`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages,
-      ],
-      temperature: 0.5,
-      max_tokens: 150,
-    });
-    let response = completion.choices[0]?.message?.content || "Thanks. Let's move on.";
+    if (streamSink && isFirstMessage && !lastUserMessage && intro?.trim()) {
+      streamSink(intro.trim() + '\n\n');
+    }
+    let response = await runCompletion(
+      {
+        model: 'gpt-4',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages,
+        ],
+        temperature: 0.5,
+        max_tokens: 150,
+      },
+      streamSink
+    ) || "Thanks. Let's move on.";
     if (isFirstMessage && !lastUserMessage && intro?.trim()) {
       response = intro.trim() + '\n\n' + response;
     }
@@ -438,17 +489,21 @@ ${isFirstMessage
   }
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages,
-      ],
-      temperature: 0.7,
-      max_tokens: isFirstMessage ? 150 : 100, // Shorter responses to encourage one question at a time
-    });
-
-    let response = completion.choices[0]?.message?.content || 'I apologize, I didn\'t catch that. Could you tell me more?';
+    if (streamSink && isFirstMessage && intro?.trim()) {
+      streamSink(intro.trim() + '\n\n');
+    }
+    let response = await runCompletion(
+      {
+        model: 'gpt-4',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages,
+        ],
+        temperature: 0.7,
+        max_tokens: isFirstMessage ? 150 : 100, // Shorter responses to encourage one question at a time
+      },
+      streamSink
+    ) || 'I apologize, I didn\'t catch that. Could you tell me more?';
     if (isFirstMessage && intro?.trim()) {
       response = intro.trim() + '\n\n' + response;
     }
