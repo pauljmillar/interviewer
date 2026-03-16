@@ -30,6 +30,26 @@ html {
   --landing-gradient-hero: none;
 }
 
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --landing-bg: #0f172a;
+  --landing-bg-hero: #0f172a;
+  --landing-bg-section: #1e293b;
+  --landing-bg-section-alt: #0f172a;
+  --landing-card-bg: #1e293b;
+  --landing-heading: #f1f5f9;
+  --landing-text: #cbd5e1;
+  --landing-muted: #94a3b8;
+  --landing-primary: #e2e8f0;
+  --landing-primary-hover: #ffffff;
+  --landing-secondary: #cbd5e1;
+  --landing-tertiary: #94a3b8;
+  --landing-accent-pink: #94a3b8;
+  --landing-border: #334155;
+  --landing-gradient-hero: none;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

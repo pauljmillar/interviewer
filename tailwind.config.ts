@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: 'media',
+  darkMode: 'class',
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,9 +9,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        landing: ['Bricolage Grotesque Variable', 'Inter Variable', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",

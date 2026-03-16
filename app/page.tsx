@@ -48,15 +48,15 @@ function FeatureIconCheck({ className }: { className?: string }) {
 
 export default function HomePage() {
   return (
-    <div className="font-landing min-h-screen bg-white text-gray-700">
+    <div className="font-landing min-h-screen bg-landing-bg text-landing-text">
       {/* Hero: Astroship two-column, image + text + two buttons */}
-      <section className="relative border-b border-gray-200">
+      <section className="relative border-b border-landing-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-20">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
               <Image
-                src="/images/landing/hero-candice.png"
-                alt="Person relaxing while interviews run in the background — Candice handles screening so you can focus on what matters"
+                src="/images/landing/cta-interview-lines.png"
+                alt="AI interviewers screening candidates"
                 width={500}
                 height={400}
                 className="w-full h-auto"
@@ -64,17 +64,17 @@ export default function HomePage() {
               />
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
-              <h1 className="text-4xl sm:text-5xl font-bold text-black tracking-tight">
-                Hi, I&apos;m Candice.
+              <h1 className="text-4xl sm:text-5xl font-bold text-landing-heading tracking-tight">
+                Candice can interview your candidates
               </h1>
-              <p className="mt-4 text-lg text-gray-600 max-w-xl">
-                I&apos;ll conduct screening interviews with your candidates and pass the best ones to you.
-              </p>
+              <h3 className="mt-4 text-lg font-normal text-landing-muted max-w-xl">
+                Our AI agents will meet with your candidates, conduct a customizable screening interview, and rank them for you to take the next steps
+              </h3>
               <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <TryInterviewButton />
                 <Link
                   href="/start"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-white border-2 border-black text-black font-medium hover:bg-gray-100 transition-colors"
+                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-landing-bg border-2 border-landing-heading text-landing-heading font-medium hover:opacity-80 transition-opacity"
                 >
                   Add job description
                 </Link>
@@ -84,35 +84,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Logos: Works with your technologies / Trusted by */}
-      <section className="border-b border-gray-200 py-8 sm:py-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <p className="text-center text-sm font-medium text-gray-500 mb-6">
-            Works with your technologies
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Image
-                key={i}
-                src="/images/landing/logo-placeholder.svg"
-                alt=""
-                width={120}
-                height={32}
-                className="opacity-60 h-8 w-auto"
-                aria-hidden
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Features */}
-      <section id="features" className="py-16 sm:py-20 bg-white">
+      <section id="features" className="py-16 sm:py-20 bg-landing-bg-section-alt border-t border-landing-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-black text-center">
+          <h2 className="text-3xl font-bold text-landing-heading text-center">
             Everything you need to screen candidates
           </h2>
-          <p className="mt-4 text-gray-600 text-center max-w-2xl mx-auto">
+          <p className="mt-4 text-landing-muted text-center max-w-2xl mx-auto">
             Structured interviews, job-description-first setup, and tools that scale with your team.
           </p>
           <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -125,12 +103,12 @@ export default function HomePage() {
               { title: 'Fair & consistent', description: 'Role-based interviews so every candidate gets the same bar.', Icon: FeatureIconCheck },
             ].map(({ title, description, Icon }) => (
               <div key={title} className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-black" aria-hidden>
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-landing-bg-section flex items-center justify-center text-landing-heading" aria-hidden>
                   <Icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-black mb-1">{title}</h3>
-                  <p className="text-sm text-gray-600">{description}</p>
+                  <h3 className="text-lg font-semibold text-landing-heading mb-1">{title}</h3>
+                  <p className="text-sm text-landing-muted">{description}</p>
                 </div>
               </div>
             ))}
@@ -138,30 +116,100 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Approach */}
+      <section id="approach" className="py-16 sm:py-20 bg-landing-bg border-t border-landing-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 className="text-3xl font-bold text-landing-heading text-center">
+            Approach
+          </h2>
+          <p className="mt-4 text-landing-muted text-center max-w-2xl mx-auto">
+            We run job-description-first: you share a JD, we generate a tailored interview plan. Every candidate gets the same questions and rubrics so you can compare fairly and move quickly to the next step.
+          </p>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-16 sm:py-20 bg-landing-bg-section-alt border-t border-landing-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 className="text-3xl font-bold text-landing-heading text-center">
+            Pricing
+          </h2>
+          <p className="mt-4 text-landing-muted text-center max-w-2xl mx-auto mb-12">
+            Plans to fit your team. Start with free screenings, then scale as you grow.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="rounded-xl border border-landing-border bg-landing-card-bg p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-lg font-semibold text-landing-heading">Free</h3>
+              <p className="mt-1 text-landing-muted text-sm">3 free interviews</p>
+              <p className="mt-3 text-sm text-landing-muted flex-1">Try it now!</p>
+              <Link
+                href="/start"
+                className="mt-6 inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-landing-primary text-white text-sm font-medium hover:bg-landing-primary-hover transition-colors"
+              >
+                Get started
+              </Link>
+            </div>
+            <div className="rounded-xl border border-landing-border bg-landing-card-bg p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-lg font-semibold text-landing-heading">Ad Hoc</h3>
+              <p className="mt-1 text-landing-muted text-sm">$3 per interview</p>
+              <p className="mt-3 text-sm text-landing-muted flex-1">Up to 10 customizable questions and AI ranking/recommendation.</p>
+              <Link
+                href="/sign-up"
+                className="mt-6 inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-landing-primary text-white text-sm font-medium hover:bg-landing-primary-hover transition-colors"
+              >
+                Get started
+              </Link>
+            </div>
+            <div className="rounded-xl border border-landing-border bg-landing-card-bg p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-lg font-semibold text-landing-heading">Pro</h3>
+              <p className="mt-1 text-landing-muted text-sm">$60/month</p>
+              <p className="mt-3 text-sm text-landing-muted flex-1">Up to 75 interviews, intelligent next round scheduling.</p>
+              <Link
+                href="/sign-up"
+                className="mt-6 inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-landing-primary text-white text-sm font-medium hover:bg-landing-primary-hover transition-colors"
+              >
+                Get started
+              </Link>
+            </div>
+            <div className="rounded-xl border border-landing-border bg-landing-card-bg p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-lg font-semibold text-landing-heading">Enterprise</h3>
+              <p className="mt-1 text-landing-muted text-sm">$120/month</p>
+              <p className="mt-3 text-sm text-landing-muted flex-1">200 interviews, HR Chatbot of candidate skills, next round scheduling and follow-up template.</p>
+              <Link
+                href="/sign-up"
+                className="mt-6 inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-landing-primary text-white text-sm font-medium hover:bg-landing-primary-hover transition-colors"
+              >
+                Contact us
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="py-16 sm:py-20 bg-gray-50 border-t border-gray-200">
+      <section className="py-16 sm:py-20 bg-landing-bg border-t border-landing-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="text-center lg:text-left">
-              <h2 className="text-3xl font-bold text-black">
-                Build faster hiring.
+            <div className="text-center lg:text-right lg:order-1">
+              <h2 className="text-3xl font-bold text-landing-heading">
+                Hire faster.
               </h2>
-              <p className="mt-4 text-gray-600 max-w-xl mx-auto lg:mx-0">
-                Pull in a job description and run screening interviews in minutes with Candice.
+              <p className="mt-4 text-landing-muted max-w-xl mx-auto lg:ml-auto lg:mr-0">
+                Send interview links to your candidates in seconds. Get a prioritized list from our AI agents the next day.
               </p>
-              <div className="mt-8">
+              <div className="mt-8 flex justify-center lg:justify-end">
                 <Link
                   href="/start"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-black text-white font-medium hover:bg-gray-800 border-2 border-transparent transition-colors"
+                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-landing-primary text-white font-medium hover:bg-landing-primary-hover border-2 border-transparent transition-colors"
                 >
                   Get Started
                 </Link>
               </div>
             </div>
-            <div className="flex justify-center lg:justify-end">
+            <div className="flex justify-center lg:justify-start lg:order-2">
               <Image
-                src="/images/landing/cta-interview-lines.png"
-                alt="AI interviewers handling candidate lines"
+                src="/images/landing/hero-candice.png"
+                alt="Person relaxing while interviews run in the background — Candice handles screening so you can focus on what matters"
                 width={640}
                 height={480}
                 className="w-full h-auto max-w-xl"
@@ -172,11 +220,11 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-gray-200 text-center text-sm text-gray-500">
+      <footer className="py-8 border-t border-landing-border text-center text-sm text-landing-muted">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <p>Copyright © {new Date().getFullYear()} Candice AI. All rights reserved.</p>
           <p className="mt-1">
-            Made by <a href="https://web3templates.com" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-black underline">Web3Templates</a>
+            Made by <a href="https://web3templates.com" target="_blank" rel="noopener noreferrer" className="text-landing-text hover:text-landing-heading underline">Web3Templates</a>
           </p>
         </div>
       </footer>

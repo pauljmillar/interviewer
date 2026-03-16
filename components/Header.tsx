@@ -12,6 +12,7 @@ import {
   UserButton,
 } from '@clerk/nextjs';
 import SuperadminViewAsOrg from '@/components/admin/SuperadminViewAsOrg';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface HeaderProps {
   hasClerk?: boolean;
@@ -25,8 +26,8 @@ const publicNav = [
 
 const landingNav = [
   { href: '#features', label: 'Features' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/about', label: 'About' },
+  { href: '#pricing', label: 'Pricing' },
+  { href: '#approach', label: 'Approach' },
 ] as const;
 
 function isAdminPath(pathname: string): boolean {
@@ -36,7 +37,7 @@ function isAdminPath(pathname: string): boolean {
 export default function Header({ hasClerk = true }: HeaderProps) {
   const pathname = usePathname();
   const isLanding = pathname === '/';
-  const useLandingNav = isLanding || isAdminPath(pathname);
+  const isAdmin = isAdminPath(pathname);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
@@ -45,22 +46,22 @@ export default function Header({ hasClerk = true }: HeaderProps) {
     closeMobileMenu();
   }, [pathname, closeMobileMenu]);
 
-  const navItems = useLandingNav ? landingNav : publicNav;
+  const navItems = isLanding ? landingNav : isAdmin ? [] : publicNav;
 
-  const headerBg = isLanding ? 'bg-white' : 'bg-white';
-  const headerBorder = isLanding ? 'border-gray-200' : 'border-gray-200';
+  const headerBg = 'bg-white dark:bg-gray-900';
+  const headerBorder = 'border-gray-200 dark:border-gray-700';
   const linkClass = isLanding
-    ? 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-gray-700 hover:text-black transition-colors'
-    : 'link-roll px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-landing-text';
+    ? 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors'
+    : 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors';
 
   return (
     <header
-      className={`sticky top-0 z-30 flex items-center justify-between gap-4 px-4 py-3 border-b ${headerBg} ${headerBorder} ${isLanding ? 'font-landing' : ''}`}
+      className={`sticky top-0 z-30 flex items-center justify-between gap-4 px-4 py-3 border-b font-landing ${headerBg} ${headerBorder}`}
     >
-      <div className={`flex-shrink-0 min-w-0 flex items-center ${useLandingNav ? 'w-1/3 justify-start' : ''}`}>
+      <div className="flex-shrink-0 w-1/3 flex items-center">
         <Link
           href="/"
-          className={`flex items-center gap-2 text-lg font-semibold truncate transition-colors ${isLanding ? 'text-black hover:text-gray-600' : 'text-landing-heading hover:text-landing-muted'}`}
+          className="flex items-center gap-2 text-lg font-semibold truncate transition-colors text-gray-900 hover:text-gray-600 dark:text-gray-100 dark:hover:text-gray-300"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -79,38 +80,32 @@ export default function Header({ hasClerk = true }: HeaderProps) {
           </svg>
           Candice AI
         </Link>
-        {!useLandingNav && (
-          <nav
-            className="hidden sm:flex items-center justify-center gap-1 flex-1 min-w-0 ml-6"
-            aria-label="Main navigation"
-          >
-            {publicNav.map(({ href, label }) => (
-              <Link key={href} href={href} className={linkClass}>
-                {label}
-              </Link>
-            ))}
-          </nav>
-        )}
       </div>
 
-      {useLandingNav && (
-        <nav
-          className="hidden sm:flex flex-1 items-center justify-center gap-1 min-w-0"
-          aria-label="Main navigation"
-        >
-          {landingNav.map(({ href, label }) => (
-            <Link key={href} href={href} className={linkClass}>
-              {label}
+      <nav
+        className="hidden sm:flex flex-1 items-center justify-center gap-1 min-w-0"
+        aria-label="Main navigation"
+      >
+        {navItems.map(({ href, label }) => (
+          <Link key={href} href={href} className={linkClass}>
+            {label}
+          </Link>
+        ))}
+        <SignedIn>
+          {isLanding && (
+            <Link href="/admin" className={linkClass}>
+              Admin
             </Link>
-          ))}
-        </nav>
-      )}
+          )}
+        </SignedIn>
+      </nav>
 
-      <div className="flex sm:hidden flex-1 justify-end">
+      <div className="flex sm:hidden flex-1 justify-end items-center gap-1">
+        <ThemeToggle />
         <button
           type="button"
           onClick={() => setMobileMenuOpen((o) => !o)}
-          className={`flex items-center justify-center w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg ${isLanding ? 'text-black hover:bg-gray-100' : 'text-landing-heading hover:bg-landing-bg-section-alt'}`}
+          className="flex items-center justify-center w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
           aria-expanded={mobileMenuOpen}
           aria-controls="mobile-nav"
           aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
@@ -129,7 +124,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
 
       <div
         id="mobile-nav"
-        className={`sm:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg ${mobileMenuOpen ? 'block' : 'hidden'}`}
+        className={`sm:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-lg ${mobileMenuOpen ? 'block' : 'hidden'}`}
         role="dialog"
         aria-label="Mobile navigation"
       >
@@ -139,14 +134,25 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               key={href}
               href={href}
               onClick={closeMobileMenu}
-              className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 font-medium rounded-lg hover:bg-gray-50"
+              className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               {label}
             </Link>
           ))}
+          <SignedIn>
+            {isLanding && (
+              <Link
+                href="/admin"
+                onClick={closeMobileMenu}
+                className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                Admin
+              </Link>
+            )}
+          </SignedIn>
         </nav>
         {(hasClerk || isLanding) && (
-          <div className="px-4 pb-4 pt-0 flex gap-2 border-t border-gray-200 pt-3">
+          <div className="px-4 pb-4 pt-0 flex gap-2 border-t border-gray-200 dark:border-gray-700 pt-3">
             {hasClerk ? (
               <>
                 <SignedOut>
@@ -154,7 +160,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                     <button
                       type="button"
                       onClick={closeMobileMenu}
-                      className="flex-1 py-3 min-h-[44px] text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      className="flex-1 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       Sign in
                     </button>
@@ -171,11 +177,11 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 </SignedOut>
                 <SignedIn>
                   <div className="flex items-center gap-2 w-full">
-                    {!isAdminPath(pathname) && (
+                    {!isLanding && !isAdminPath(pathname) && (
                       <Link
                         href="/admin"
                         onClick={closeMobileMenu}
-                        className="py-3 min-h-[44px] px-4 text-sm font-medium text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50"
+                        className="py-3 min-h-[44px] px-4 text-sm font-medium text-gray-700 dark:text-gray-200 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
                       >
                         Admin
                       </Link>
@@ -199,16 +205,15 @@ export default function Header({ hasClerk = true }: HeaderProps) {
         )}
       </div>
 
-      {!useLandingNav && <div className="hidden sm:block flex-1 min-w-0" aria-hidden />}
-
       <div className="hidden sm:flex flex-shrink-0 items-center gap-2 w-1/3 justify-end">
+        <ThemeToggle />
         {hasClerk ? (
           <>
             <SignedOut>
               <SignInButton mode="modal">
                 <button
                   type="button"
-                  className={`px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors ${isLanding ? 'text-gray-700 hover:text-black' : 'text-landing-text hover:text-landing-heading'}`}
+                  className={`px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors ${isLanding ? 'text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white' : 'text-landing-text hover:text-landing-heading dark:text-gray-300 dark:hover:text-white'}`}
                 >
                   Sign in
                 </button>
@@ -241,10 +246,10 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                   />
                 </>
               )}
-              {!isAdminPath(pathname) && (
+              {!isAdminPath(pathname) && !isLanding && (
                 <Link
                   href="/admin"
-                  className={`px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors ${isLanding ? 'text-gray-700 hover:text-black' : 'text-landing-text hover:text-landing-heading'}`}
+                  className={`px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-landing-text hover:text-landing-heading`}
                 >
                   Admin
                 </Link>

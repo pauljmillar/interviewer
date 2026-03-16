@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Header from "@/components/Header";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Candice AI",
@@ -24,14 +25,16 @@ export default function RootLayout({
 
   const body = (
     <body className="min-h-screen flex flex-col">
-      {content}
+      <ThemeProvider>
+        {content}
+      </ThemeProvider>
     </body>
   );
 
   if (clerkPublishableKey) {
     return (
       <ClerkProvider publishableKey={clerkPublishableKey}>
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
           {body}
         </html>
       </ClerkProvider>
@@ -39,7 +42,7 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {body}
     </html>
   );
