@@ -239,7 +239,15 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                     afterSelectOrganizationUrl="/admin/positions"
                     afterCreateOrganizationUrl="/admin/positions"
                     appearance={{
-                      elements: { rootBox: 'flex items-center' },
+                      elements: {
+                        rootBox: 'flex items-center',
+                        organizationPreviewMainIdentifier: {
+                          color: isDark ? '#e5e7eb' : '#374151',
+                        },
+                        organizationPreviewSecondaryIdentifier: {
+                          color: isDark ? '#9ca3af' : '#6b7280',
+                        },
+                      },
                       variables: {
                         colorBackground: isDark ? '#1f2937' : '#ffffff',
                         colorForeground: isDark ? '#e5e7eb' : '#374151',
