@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useCallback, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import {
   OrganizationSwitcher,
   SignInButton,
@@ -38,6 +39,8 @@ export default function Header({ hasClerk = true }: HeaderProps) {
   const pathname = usePathname();
   const isLanding = pathname === '/';
   const isAdmin = isAdminPath(pathname);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
@@ -238,8 +241,8 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                     appearance={{
                       elements: { rootBox: 'flex items-center' },
                       variables: {
-                        colorBackground: '#ffffff',
-                        colorForeground: '#374151',
+                        colorBackground: isDark ? '#1f2937' : '#ffffff',
+                        colorForeground: isDark ? '#e5e7eb' : '#374151',
                         colorPrimaryForeground: '#ffffff',
                       },
                     }}
