@@ -200,7 +200,7 @@ export default function HomePage() {
               <div className="mt-8 flex justify-center lg:justify-end">
                 <Link
                   href="/start"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-landing-primary text-white font-medium hover:bg-landing-primary-hover border-2 border-transparent transition-colors"
+                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-black text-white font-medium hover:bg-gray-800 border-2 border-transparent transition-colors"
                 >
                   Get Started
                 </Link>
@@ -223,9 +223,6 @@ export default function HomePage() {
       <footer className="py-8 border-t border-landing-border text-center text-sm text-landing-muted">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <p>Copyright © {new Date().getFullYear()} Candice AI. All rights reserved.</p>
-          <p className="mt-1">
-            Made by <a href="https://web3templates.com" target="_blank" rel="noopener noreferrer" className="text-landing-text hover:text-landing-heading underline">Web3Templates</a>
-          </p>
         </div>
       </footer>
     </div>
