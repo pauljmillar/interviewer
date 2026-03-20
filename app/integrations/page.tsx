@@ -29,13 +29,7 @@ function IconSlack() {
     </svg>
   );
 }
-function IconVideo() {
-  return (
-    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-    </svg>
-  );
-}
+
 function IconCalendar() {
   return (
     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden>
@@ -79,14 +73,6 @@ const categories: Category[] = [
     integrations: [
       { name: 'Slack', description: 'Receive a Slack message when a candidate finishes their interview, including their score and a link to review.', badge: 'coming-soon', icon: <IconSlack /> },
       { name: 'Email', description: 'Automatic email summaries delivered to hiring managers when results are ready.', badge: 'available', icon: <IconSlack /> },
-    ],
-  },
-  {
-    title: 'Video & Recording',
-    subtitle: 'Optionally capture video alongside the AI conversation for richer candidate review.',
-    integrations: [
-      { name: 'Zoom', description: 'Conduct async video interviews via Zoom, with recordings stored and linked to each candidate profile.', badge: 'coming-soon', icon: <IconVideo /> },
-      { name: 'Loom', description: 'Candidates can record a short Loom intro that sits alongside their Candice interview results.', badge: 'coming-soon', icon: <IconVideo /> },
     ],
   },
   {

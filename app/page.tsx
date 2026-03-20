@@ -59,16 +59,16 @@ export default function HomePage() {
                 alt="AI interviewers screening candidates"
                 width={500}
                 height={400}
-                className="w-full h-auto dark:invert dark:mix-blend-screen"
+                className="w-full h-auto"
                 priority
               />
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
               <h1 className="text-5xl sm:text-6xl font-medium tracking-tight leading-tight">
                 <span className="text-landing-heading block">AI screening interviews</span>
-                <span className="text-[#3ECF8E] block">Save 10 hours of your time</span>
+                <span className="text-[#3ECF8E] block">Save 10 hours each week</span>
               </h1>
-              <h3 className="mt-4 text-lg font-normal text-landing-muted max-w-xl">
+              <h3 className="mt-4 text-lg font-normal text-landing-heading max-w-xl">
                 Our AI agents will meet with your candidates, conduct a customizable screening interview, and rank them for you to take the next steps, saving you hours per role, and allow you to screen a much larger pool of candidates to ensure you focus your time on the most qualified.
               </h3>
               <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
@@ -87,28 +87,28 @@ export default function HomePage() {
 
       {/* Features */}
       <section id="features" className="py-16 sm:py-20 bg-landing-bg-section-alt border-t border-landing-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-landing-heading text-center">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <h2 className="text-3xl font-semibold text-landing-heading text-center">
             Everything you need to screen candidates
           </h2>
-          <p className="mt-4 text-landing-muted text-center max-w-2xl mx-auto">
-            Structured interviews, job-description-first setup, and tools that scale with your team.
+          <p className="mt-4 text-landing-muted text-center max-w-xl mx-auto">
+            Candice handles the volume. You handle the decisions.
           </p>
           <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { title: 'Structured interviews', description: 'Consistent questions and scoring so you compare candidates fairly.', Icon: FeatureIconBriefcase },
-              { title: 'Job description first', description: 'Share a JD and we generate a tailored interview plan.', Icon: FeatureIconFile },
-              { title: 'Screening', description: 'Early-stage candidate screening with AI-led questions.', Icon: FeatureIconUsers },
-              { title: 'Templates', description: 'Reusable interview templates for roles and teams.', Icon: FeatureIconTemplate },
-              { title: 'Admin', description: 'Manage positions, instances, and responses in one place.', Icon: FeatureIconSettings },
-              { title: 'Fair & consistent', description: 'Role-based interviews so every candidate gets the same bar.', Icon: FeatureIconCheck },
+              { title: 'JD-first setup', description: 'Upload your job description and Candice generates a tailored interview plan in seconds.', Icon: FeatureIconFile },
+              { title: 'Structured interviews', description: 'Every candidate gets the same questions, scored against the same rubric.', Icon: FeatureIconBriefcase },
+              { title: 'Instant ranking', description: 'AI scores and prioritises candidates so your shortlist is ready by morning.', Icon: FeatureIconCheck },
+              { title: '24/7 availability', description: 'Candidates interview on their own schedule — no coordination needed.', Icon: FeatureIconTemplate },
+              { title: 'Screen more candidates', description: 'Cover 5× the pipeline with the same recruiting effort.', Icon: FeatureIconUsers },
+              { title: 'Fair & consistent', description: 'Standardised rubrics remove inconsistency at the highest-volume stage of hiring.', Icon: FeatureIconSettings },
             ].map(({ title, description, Icon }) => (
               <div key={title} className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-landing-bg-section flex items-center justify-center text-landing-heading" aria-hidden>
-                  <Icon className="w-6 h-6" />
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-landing-bg flex items-center justify-center text-[#3ECF8E]" aria-hidden>
+                  <Icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-landing-heading mb-1">{title}</h3>
+                  <h3 className="text-base font-semibold text-landing-heading mb-1">{title}</h3>
                   <p className="text-sm text-landing-muted">{description}</p>
                 </div>
               </div>
@@ -119,13 +119,27 @@ export default function HomePage() {
 
       {/* Approach */}
       <section id="approach" className="py-16 sm:py-20 bg-landing-bg border-t border-landing-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-landing-heading text-center">
-            Approach
-          </h2>
-          <p className="mt-4 text-landing-muted text-center max-w-2xl mx-auto">
-            We run job-description-first: you share a JD, we generate a tailored interview plan. Every candidate gets the same questions and rubrics so you can compare fairly and move quickly to the next step.
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <h2 className="text-3xl font-semibold text-landing-heading text-center">How it works</h2>
+          <p className="mt-4 text-landing-muted text-center max-w-xl mx-auto">
+            From job description to ranked shortlist — in four steps.
           </p>
+          <div className="mt-12 grid sm:grid-cols-2 gap-8">
+            {[
+              { number: '01', title: 'Upload your JD', description: 'Paste or upload your job description. Candice reads it and generates tailored screening questions automatically.' },
+              { number: '02', title: 'Send interview links', description: 'Share a unique link with each candidate. They complete the interview on their own time — no scheduling.' },
+              { number: '03', title: 'Candice interviews', description: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
+              { number: '04', title: 'Review ranked results', description: 'Log in to find candidates scored and ranked, with notes from each interview ready to act on.' },
+            ].map(({ number, title, description }) => (
+              <div key={number} className="flex gap-5">
+                <span className="text-3xl font-bold text-[#3ECF8E] leading-none flex-shrink-0 w-10">{number}</span>
+                <div>
+                  <h3 className="text-base font-semibold text-landing-heading mb-1">{title}</h3>
+                  <p className="text-sm text-landing-muted">{description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -213,7 +227,7 @@ export default function HomePage() {
                 alt="Person relaxing while interviews run in the background — Candice handles screening so you can focus on what matters"
                 width={640}
                 height={480}
-                className="w-full h-auto max-w-xl dark:invert dark:mix-blend-screen"
+                className="w-full h-auto max-w-xl"
               />
             </div>
           </div>
