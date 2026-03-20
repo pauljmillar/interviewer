@@ -55,7 +55,7 @@ export default function AdminInterviewInstanceDetailPage() {
     return (
       <div className="p-4 max-w-4xl mx-auto">
         <p className="text-red-600 dark:text-red-400">{error ?? 'Not found'}</p>
-        <Link href="/admin/interviews" className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline">
+        <Link href="/admin/interviews" className="mt-4 inline-block text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline">
           Back to interviews
         </Link>
       </div>
@@ -73,7 +73,7 @@ export default function AdminInterviewInstanceDetailPage() {
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 mb-6">
+      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 mb-6">
         <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Interview instance</h1>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
@@ -115,7 +115,7 @@ export default function AdminInterviewInstanceDetailPage() {
                   href={`/api/instances/${id}/recording`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  className="text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline"
                 >
                   View recording
                 </a>
@@ -125,8 +125,8 @@ export default function AdminInterviewInstanceDetailPage() {
         </dl>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 px-6 py-3 border-b border-gray-200 dark:border-gray-600">
+      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg overflow-hidden">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 px-6 py-3 border-b border-gray-200 dark:border-[#2a2a2a]">
           Questions asked and responses given
         </h2>
         {messages.length === 0 ? (

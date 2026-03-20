@@ -54,7 +54,7 @@ export default function InterviewsList() {
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Interview instances</h2>
         <Link
           href="/admin/interviews/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-medium text-sm inline-block"
+          className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium text-sm inline-block"
         >
           Create New
         </Link>
@@ -65,7 +65,7 @@ export default function InterviewsList() {
           <select
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
-            className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 text-sm"
+            className="px-2 py-1 border border-gray-300 dark:border-[#2a2a2a] rounded text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2a2a2a] text-sm"
           >
             <option value="">All</option>
             {positionIds.map((id) => {
@@ -84,9 +84,9 @@ export default function InterviewsList() {
           No interview instances yet. Click Create New to generate shareable links for a position and recipients.
         </p>
       ) : (
-        <div className="overflow-x-auto border border-gray-200 dark:border-gray-600 rounded-lg">
+        <div className="overflow-x-auto border border-gray-200 dark:border-[#2a2a2a] rounded-lg">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
+            <thead className="bg-gray-50 dark:bg-[#2a2a2a]/50">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Recipient</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Position</th>
@@ -96,7 +96,7 @@ export default function InterviewsList() {
                 <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+            <tbody className="bg-white dark:bg-[#1a1a1a] divide-y divide-gray-200 dark:divide-gray-600">
               {instances.map((inst) => {
                 const interviewUrl =
                   typeof window !== 'undefined' && inst.shareableToken
@@ -155,7 +155,7 @@ export default function InterviewsList() {
                     <td className="px-4 py-2 text-right">
                       <Link
                         href={`/admin/interviews/${encodeURIComponent(inst.id)}`}
-                        className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
+                        className="text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline text-sm font-medium"
                       >
                         View
                       </Link>

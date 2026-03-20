@@ -112,9 +112,9 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden mt-6">
+      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg overflow-hidden mt-6">
         {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-2 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+        <div className="flex items-center justify-between flex-wrap gap-2 px-6 py-4 border-b border-gray-200 dark:border-[#2a2a2a]">
           <div>
             <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Analysis</h2>
             {!loading && summary && (
@@ -134,7 +134,7 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
             <button
               type="button"
               onClick={() => setSettingsOpen(true)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium flex items-center gap-1"
+              className="px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-sm font-medium flex items-center gap-1"
               title="Scoring settings"
             >
               <svg
@@ -155,7 +155,7 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
               type="button"
               onClick={handleAnalyze}
               disabled={analyzing || loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none font-medium text-sm flex items-center gap-1"
+              className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:pointer-events-none font-medium text-sm flex items-center gap-1"
             >
               {analyzing ? (
                 <>
@@ -208,7 +208,7 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead className="bg-gray-50 dark:bg-gray-700/50">
+              <thead className="bg-gray-50 dark:bg-[#2a2a2a]/50">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-16">
                     Rank
@@ -227,7 +227,7 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+              <tbody className="bg-white dark:bg-[#1a1a1a] divide-y divide-gray-200 dark:divide-gray-600">
                 {candidates.map((c) => (
                   <CandidateRow
                     key={c.instanceId}
@@ -257,7 +257,7 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
           aria-modal="true"
           aria-labelledby="analysis-settings-title"
         >
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 border border-gray-200 dark:border-gray-600">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 border border-gray-200 dark:border-[#2a2a2a]">
             <h2
               id="analysis-settings-title"
               className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4"
@@ -271,7 +271,7 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
               value={scoringPrompt}
               onChange={(e) => setScoringPrompt(e.target.value)}
               rows={12}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 dark:bg-gray-700 resize-y mb-4 text-sm font-mono"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a] resize-y mb-4 text-sm font-mono"
             />
             {settingsError && (
               <p className="mb-4 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -283,7 +283,7 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
                 type="button"
                 onClick={handleSaveSettings}
                 disabled={settingsSaving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-medium disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
                 {settingsSaving ? 'Saving…' : 'Save'}
               </button>
@@ -293,7 +293,7 @@ export default function AnalysisPanel({ positionId }: AnalysisPanelProps) {
                   if (!settingsSaving) setSettingsOpen(false);
                 }}
                 disabled={settingsSaving}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
                 Cancel
               </button>
@@ -360,7 +360,7 @@ function CandidateRow({
           <button
             type="button"
             onClick={onOpen}
-            className="text-left line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 underline decoration-dotted underline-offset-2 cursor-pointer"
+            className="text-left line-clamp-2 hover:text-[#3ECF8E] dark:hover:text-blue-400 underline decoration-dotted underline-offset-2 cursor-pointer"
           >
             {c.notes ?? 'View details'}
           </button>
@@ -386,9 +386,9 @@ function CandidateDetailModal({
       aria-modal="true"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col border border-gray-200 dark:border-gray-600">
+      <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col border border-gray-200 dark:border-[#2a2a2a]">
         {/* Header */}
-        <div className="flex items-start justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
+        <div className="flex items-start justify-between px-6 py-4 border-b border-gray-200 dark:border-[#2a2a2a] flex-shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
               {c.recipientName ?? 'Candidate'}
@@ -446,7 +446,7 @@ function CandidateDetailModal({
                 {c.questionDetails.map((qd) => (
                   <div
                     key={qd.questionIndex}
-                    className="bg-gray-50 dark:bg-gray-700/50 rounded-lg px-4 py-3"
+                    className="bg-gray-50 dark:bg-[#2a2a2a]/50 rounded-lg px-4 py-3"
                   >
                     <div className="flex items-start justify-between gap-3 mb-1">
                       <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-snug">
@@ -475,7 +475,7 @@ function CandidateDetailModal({
               <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
                 Overall impression
               </h3>
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg px-4 py-3">
+              <div className="bg-gray-50 dark:bg-[#2a2a2a]/50 rounded-lg px-4 py-3">
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
                     Enthusiasm, communication, reliability, professionalism
@@ -495,11 +495,11 @@ function CandidateDetailModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-600 flex-shrink-0">
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-[#2a2a2a] flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-sm"
+            className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] font-medium text-sm"
           >
             Close
           </button>

@@ -60,23 +60,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }, []);
 
   return (
-    <div className="relative flex flex-1 min-h-0 bg-gray-50 dark:bg-gray-900">
+    <div className="relative flex flex-1 min-h-0 bg-gray-50 dark:bg-[#0f0f0f]">
       <aside
         ref={asideRef}
-        className="absolute left-0 top-0 bottom-0 z-10 flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-[width] duration-200 ease-in-out overflow-hidden"
+        className="absolute left-0 top-0 bottom-0 z-10 flex flex-col bg-white dark:bg-[#1a1a1a] border-r border-gray-200 dark:border-[#2a2a2a] transition-[width] duration-200 ease-in-out overflow-hidden"
         style={{ width }}
         onMouseEnter={() => setCollapsed(false)}
         onMouseLeave={() => setCollapsed(true)}
       >
         <Link
           href="/admin"
-          className="w-full flex items-center gap-2 p-3 border-b border-gray-100 dark:border-gray-700 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          className="w-full flex items-center gap-2 p-3 border-b border-gray-100 dark:border-[#2a2a2a] text-left hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors"
           title="Admin home"
         >
           <svg className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
-          {!collapsed && <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Admin</span>}
+          {!collapsed && <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Dashboard</span>}
         </Link>
         <nav className="flex-1 py-2 overflow-y-auto" aria-label="Admin sections">
           {navItems.map(({ href, label, icon }) => {
@@ -89,8 +89,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 href={href}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors ${
                   active
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    ? 'bg-[#3ECF8E]/10 dark:bg-[#3ECF8E]/10 text-[#2dbe7e] dark:text-[#3ECF8E] font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50'
                 }`}
                 title={collapsed ? label : undefined}
               >

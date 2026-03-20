@@ -135,13 +135,13 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 <div className="absolute top-full left-0 mt-1 w-48 rounded-lg border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f] shadow-lg py-1 z-50">
                   <Link
                     href="/products"
-                    className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                   >
                     AI Interviewer
                   </Link>
                   <Link
                     href="/integrations"
-                    className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                   >
                     Integrations
                   </Link>
@@ -157,7 +157,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
         <SignedIn>
           {isLanding && (
             <Link href="/admin" className={linkClass}>
-              Admin
+              Dashboard
             </Link>
           )}
         </SignedIn>
@@ -168,7 +168,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
         <button
           type="button"
           onClick={() => setMobileMenuOpen((o) => !o)}
-          className="flex items-center justify-center w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="flex items-center justify-center w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#2a2a2a]"
           aria-expanded={mobileMenuOpen}
           aria-controls="mobile-nav"
           aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
@@ -198,14 +198,14 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 <Link
                   href="/products"
                   onClick={closeMobileMenu}
-                  className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                 >
                   AI Interviewer
                 </Link>
                 <Link
                   href="/integrations"
                   onClick={closeMobileMenu}
-                  className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                 >
                   Integrations
                 </Link>
@@ -215,7 +215,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 key={href}
                 href={href}
                 onClick={closeMobileMenu}
-                className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
               >
                 {label}
               </Link>
@@ -226,15 +226,15 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               <Link
                 href="/admin"
                 onClick={closeMobileMenu}
-                className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
               >
-                Admin
+                Dashboard
               </Link>
             )}
           </SignedIn>
         </nav>
         {(hasClerk || isLanding) && (
-          <div className="px-4 pb-4 pt-0 flex gap-2 border-t border-gray-200 dark:border-gray-700 pt-3">
+          <div className="px-4 pb-4 pt-0 flex gap-2 border-t border-gray-200 dark:border-[#2a2a2a] pt-3">
             {hasClerk ? (
               <>
                 <SignedOut>
@@ -242,7 +242,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                     <button
                       type="button"
                       onClick={closeMobileMenu}
-                      className="flex-1 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="flex-1 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-[#2a2a2a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                     >
                       Sign in
                     </button>
@@ -263,9 +263,9 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                       <Link
                         href="/admin"
                         onClick={closeMobileMenu}
-                        className="py-3 min-h-[44px] px-4 text-sm font-medium text-gray-700 dark:text-gray-200 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
+                        className="py-3 min-h-[44px] px-4 text-sm font-medium text-gray-700 dark:text-gray-200 rounded-lg border border-gray-300 dark:border-[#2a2a2a] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                       >
-                        Admin
+                        Dashboard
                       </Link>
                     )}
                     <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: 'w-9 h-9' } }} />
@@ -341,7 +341,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                   href="/admin"
                   className={`px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-landing-text hover:text-landing-heading`}
                 >
-                  Admin
+                  Dashboard
                 </Link>
               )}
               <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: 'w-8 h-8' } }} />

@@ -54,14 +54,14 @@ export default function PositionsView() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 flex items-center justify-between flex-wrap gap-2">
+      <div className="p-4 border-b border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] flex-shrink-0 flex items-center justify-between flex-wrap gap-2">
         <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Positions</h1>
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by type:</label>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 text-sm"
+            className="px-2 py-1.5 border border-gray-300 dark:border-[#2a2a2a] rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2a2a2a] text-sm"
           >
             <option value="">All</option>
             <option value="job">job</option>
@@ -70,7 +70,7 @@ export default function PositionsView() {
           </select>
           <Link
             href="/admin/positions/new"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-medium text-sm inline-block"
+            className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium text-sm inline-block"
           >
             Create New
           </Link>
@@ -86,9 +86,9 @@ export default function PositionsView() {
               : 'No positions match the filter.'}
           </p>
         ) : (
-          <div className="overflow-x-auto border border-gray-200 dark:border-gray-600 rounded-lg">
+          <div className="overflow-x-auto border border-gray-200 dark:border-[#2a2a2a] rounded-lg">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead className="bg-gray-50 dark:bg-gray-700/50">
+              <thead className="bg-gray-50 dark:bg-[#2a2a2a]/50">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
@@ -96,13 +96,13 @@ export default function PositionsView() {
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Created</th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+              <tbody className="bg-white dark:bg-[#1a1a1a] divide-y divide-gray-200 dark:divide-gray-600">
                 {filteredPositions.map((p) => (
                   <tr key={p.id}>
                     <td className="px-4 py-2 text-sm">
                       <Link
                         href={`/admin/positions/${p.id}`}
-                        className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                        className="text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline font-medium"
                       >
                         {p.name}
                       </Link>

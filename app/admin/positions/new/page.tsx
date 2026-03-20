@@ -209,14 +209,14 @@ export default function NewPositionPage() {
               {error}
             </p>
           )}
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 mb-6">
+          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 mb-6">
             <h2 className="text-base font-medium text-gray-800 mb-3">Upload Job Description</h2>
             <p className="text-sm text-gray-600 mb-3">
               Upload a .txt file or paste the job description below. We&apos;ll generate screening questions for you.
             </p>
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center mb-3 transition-colors ${
-                jdDropActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'
+                jdDropActive ? 'border-[#3ECF8E] bg-[#3ECF8E]/10' : 'border-gray-300 bg-gray-50'
               }`}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -255,14 +255,14 @@ export default function NewPositionPage() {
               value={jdText}
               onChange={(e) => setJdText(e.target.value)}
               placeholder="Paste job description here..."
-              className="w-full h-40 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 resize-y"
+              className="w-full h-40 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 resize-y"
             />
             <div className="mt-3">
               <button
                 type="button"
                 disabled={!jdText.trim() || jdAnalyzing}
                 onClick={handleGenerateQuestions}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
                 {jdAnalyzing ? 'Generating questions...' : 'Generate questions'}
               </button>
@@ -297,7 +297,7 @@ export default function NewPositionPage() {
               {error}
             </p>
           )}
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 space-y-4">
+          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Position name</label>
               <input
@@ -305,7 +305,7 @@ export default function NewPositionPage() {
                 value={jdPositionName}
                 onChange={(e) => setJdPositionName(e.target.value)}
                 placeholder="e.g. Senior Engineer at Acme"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900"
               />
             </div>
             <div>
@@ -313,7 +313,7 @@ export default function NewPositionPage() {
               <select
                 value={jdPositionType}
                 onChange={(e) => setJdPositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
               >
                 <option value="job">job</option>
                 <option value="biography">biography</option>
@@ -342,7 +342,7 @@ export default function NewPositionPage() {
                 type="button"
                 disabled={!jdPositionName.trim() || !jdGeneratedQuestions?.length || creating}
                 onClick={createPositionFromJd}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
                 {creating ? 'Creating...' : 'Create position'}
               </button>
@@ -359,13 +359,13 @@ export default function NewPositionPage() {
               {error}
             </p>
           )}
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 space-y-4">
+          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Template</label>
               <select
                 value={selectedTemplateId}
                 onChange={(e) => setSelectedTemplateId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
               >
                 <option value="">Choose a template...</option>
                 {allTemplates.map((t) => (
@@ -382,7 +382,7 @@ export default function NewPositionPage() {
                 value={templatePositionName}
                 onChange={(e) => setTemplatePositionName(e.target.value)}
                 placeholder="e.g. Janitor at Company X"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900"
               />
             </div>
             <div>
@@ -390,7 +390,7 @@ export default function NewPositionPage() {
               <select
                 value={templatePositionType}
                 onChange={(e) => setTemplatePositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
               >
                 <option value="job">job</option>
                 <option value="biography">biography</option>
@@ -409,7 +409,7 @@ export default function NewPositionPage() {
                 type="button"
                 disabled={!templatePositionName.trim() || !selectedTemplateId || creating}
                 onClick={createPositionFromTemplate}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
                 {creating ? 'Creating...' : 'Create position'}
               </button>
@@ -426,7 +426,7 @@ export default function NewPositionPage() {
               {error}
             </p>
           )}
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 space-y-4">
+          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Position name</label>
               <input
@@ -434,7 +434,7 @@ export default function NewPositionPage() {
                 value={scratchPositionName}
                 onChange={(e) => setScratchPositionName(e.target.value)}
                 placeholder="e.g. Biography for Grandma Betty"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900"
               />
             </div>
             <div>
@@ -442,7 +442,7 @@ export default function NewPositionPage() {
               <select
                 value={scratchPositionType}
                 onChange={(e) => setScratchPositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
               >
                 <option value="job">job</option>
                 <option value="biography">biography</option>
@@ -457,7 +457,7 @@ export default function NewPositionPage() {
                 value={scratchQuestionsText}
                 onChange={(e) => setScratchQuestionsText(e.target.value)}
                 placeholder="Add questions one per line, or leave blank to add later."
-                className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 resize-y"
+                className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 resize-y"
               />
             </div>
             <div className="flex gap-2 pt-2">
@@ -472,7 +472,7 @@ export default function NewPositionPage() {
                 type="button"
                 disabled={!scratchPositionName.trim() || creating}
                 onClick={createPositionFromScratch}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
                 {creating ? 'Creating...' : 'Create position'}
               </button>

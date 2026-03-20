@@ -229,7 +229,7 @@ export default function TemplateDetailPage() {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <p className="text-red-600">{error || 'Template not found'}</p>
-        <Link href="/admin/templates" className="mt-4 inline-block text-blue-600 hover:underline">
+        <Link href="/admin/templates" className="mt-4 inline-block text-[#3ECF8E] hover:underline">
           Back to templates
         </Link>
       </div>
@@ -243,7 +243,7 @@ export default function TemplateDetailPage() {
           ← Back to templates
         </Link>
       </div>
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6">
+      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6">
         <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Template details</h1>
         {isBuiltIn && (
           <p className="mb-4 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
@@ -263,7 +263,7 @@ export default function TemplateDetailPage() {
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               readOnly={isBuiltIn}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
               placeholder="Template name"
             />
           </div>
@@ -274,7 +274,7 @@ export default function TemplateDetailPage() {
               onChange={(e) => setEditIntro(e.target.value)}
               readOnly={isBuiltIn}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
               placeholder="Shown before the first question"
             />
           </div>
@@ -285,7 +285,7 @@ export default function TemplateDetailPage() {
               onChange={(e) => setEditConclusion(e.target.value)}
               readOnly={isBuiltIn}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
               placeholder="Shown after all questions"
             />
           </div>
@@ -296,7 +296,7 @@ export default function TemplateDetailPage() {
               onChange={(e) => setEditReminder(e.target.value)}
               readOnly={isBuiltIn}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
               placeholder="One-time reminder when interviewee dismisses"
             />
           </div>
@@ -307,7 +307,7 @@ export default function TemplateDetailPage() {
                 <select
                   value={editVoice || ''}
                   onChange={(e) => setEditVoice(e.target.value)}
-                  className="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                  className="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
                   title="Voice used for text-to-speech in candidate interview"
                 >
                   {TTS_VOICES.map((v) => (
@@ -320,7 +320,7 @@ export default function TemplateDetailPage() {
                   type="button"
                   onClick={handleVoicePreview}
                   disabled={voicePreviewPlaying}
-                  className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3ECF8E]"
                   title="Play a short sample of this voice"
                 >
                   {voicePreviewPlaying ? 'Playing…' : 'Play sample'}
@@ -336,7 +336,7 @@ export default function TemplateDetailPage() {
                 <button
                   type="button"
                   onClick={addQuestion}
-                  className="text-sm text-blue-600 hover:underline"
+                  className="text-sm text-[#3ECF8E] hover:underline"
                 >
                   + Add question
                 </button>
@@ -357,7 +357,7 @@ export default function TemplateDetailPage() {
                           <select
                             value={q.mode}
                             onChange={(e) => setQuestionMode(i, parseInt(e.target.value, 10) as InterviewMode)}
-                            className="flex-shrink-0 w-full sm:w-56 px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                            className="flex-shrink-0 w-full sm:w-56 px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
                             title="Question type (1–5)"
                           >
                             {([1, 2, 3, 4, 5] as const).map((m) => (
@@ -372,7 +372,7 @@ export default function TemplateDetailPage() {
                           value={q.mainQuestion}
                           onChange={(e) => setQuestion(i, e.target.value)}
                           readOnly={isBuiltIn}
-                          className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 disabled:bg-gray-100"
+                          className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
                           placeholder="Question text"
                         />
                       </div>
@@ -409,7 +409,7 @@ export default function TemplateDetailPage() {
                           value={q.acceptableAnswers.join('\n')}
                           onChange={(e) => setQuestionAcceptableAnswers(i, e.target.value)}
                           rows={Math.min(4, Math.max(2, q.acceptableAnswers.length + 1))}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900"
                           placeholder="e.g. yes, yeah, I am"
                         />
                       )}
@@ -426,7 +426,7 @@ export default function TemplateDetailPage() {
               type="button"
               onClick={handleSave}
               disabled={saving || !editName.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none font-medium"
+              className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:pointer-events-none font-medium"
             >
               {saving ? 'Saving…' : 'Save changes'}
             </button>

@@ -243,7 +243,7 @@ export default function PositionDetailPage() {
     return (
       <div className="max-w-2xl mx-auto p-6">
         <p className="text-red-600 dark:text-red-400">{error || 'Position not found'}</p>
-        <Link href="/admin/positions" className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline">
+        <Link href="/admin/positions" className="mt-4 inline-block text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline">
           Back to positions
         </Link>
       </div>
@@ -260,7 +260,7 @@ export default function PositionDetailPage() {
           ← Back to positions
         </Link>
       </div>
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-6 mb-6">
+      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 mb-6">
         <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Position details</h1>
         {error && (
           <p className="mb-4 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -276,7 +276,7 @@ export default function PositionDetailPage() {
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100"
                   placeholder="e.g. Senior Engineer at Acme"
                 />
               </div>
@@ -285,7 +285,7 @@ export default function PositionDetailPage() {
                 <select
                   value={editType}
                   onChange={(e) => setEditType(e.target.value as PositionType)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2a2a2a]"
                 >
                   <option value="job">job</option>
                   <option value="biography">biography</option>
@@ -297,7 +297,7 @@ export default function PositionDetailPage() {
                 <select
                   value={editTemplateId}
                   onChange={(e) => setEditTemplateId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2a2a2a]"
                 >
                   <option value="">None</option>
                   {allTemplates.map((t) => (
@@ -316,7 +316,7 @@ export default function PositionDetailPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={saving || !editName.trim()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none font-medium"
+                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:pointer-events-none font-medium"
               >
                 {saving ? 'Saving…' : 'Save changes'}
               </button>
@@ -324,7 +324,7 @@ export default function PositionDetailPage() {
                 type="button"
                 onClick={handleCancelEdit}
                 disabled={saving}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 dark:bg-gray-600 font-medium"
+                className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 dark:bg-gray-600 font-medium"
               >
                 Cancel
               </button>
@@ -362,7 +362,7 @@ export default function PositionDetailPage() {
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-medium"
+                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium"
               >
                 Edit
               </button>
@@ -379,14 +379,14 @@ export default function PositionDetailPage() {
         )}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
-        <div className="flex items-center justify-between flex-wrap gap-2 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg overflow-hidden">
+        <div className="flex items-center justify-between flex-wrap gap-2 px-6 py-4 border-b border-gray-200 dark:border-[#2a2a2a]">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Interview instances</h2>
           {resolvedTemplate ? (
             <button
               type="button"
               onClick={() => setCreateModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-medium text-sm"
+              className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium text-sm"
             >
               Create New
             </button>
@@ -411,7 +411,7 @@ export default function PositionDetailPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead className="bg-gray-50 dark:bg-gray-600 dark:bg-gray-700/50">
+              <thead className="bg-gray-50 dark:bg-gray-600 dark:bg-[#2a2a2a]/50">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">
                     Recipient
@@ -430,7 +430,7 @@ export default function PositionDetailPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+              <tbody className="bg-white dark:bg-[#1a1a1a] divide-y divide-gray-200 dark:divide-gray-600">
                 {instances.map((inst) => {
                   const interviewUrl =
                     typeof window !== 'undefined' && inst.shareableToken
@@ -443,7 +443,7 @@ export default function PositionDetailPage() {
                       <td className="px-4 py-2 text-sm">
                         <Link
                           href={`/admin/interviews/${encodeURIComponent(inst.id)}`}
-                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                          className="text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline font-medium"
                         >
                           {inst.recipientName ?? '—'}
                         </Link>
@@ -487,7 +487,7 @@ export default function PositionDetailPage() {
                                     : interviewUrl;
                                 if (full) navigator.clipboard.writeText(full);
                               }}
-                              className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:border-gray-600 flex-shrink-0"
+                              className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:border-[#2a2a2a] flex-shrink-0"
                               title="Copy link"
                             >
                               Copy
@@ -515,7 +515,7 @@ export default function PositionDetailPage() {
           aria-modal="true"
           aria-labelledby="create-instances-title"
         >
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6 border border-gray-200 dark:border-gray-600">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl max-w-md w-full mx-4 p-6 border border-gray-200 dark:border-[#2a2a2a]">
             <h2 id="create-instances-title" className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
               Create interview instances
             </h2>
@@ -528,7 +528,7 @@ export default function PositionDetailPage() {
               onChange={(e) => setCreateRecipientNames(e.target.value)}
               placeholder="Jane Doe&#10;John Smith"
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 resize-y mb-4"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 resize-y mb-4"
             />
             {createError && (
               <p className="mb-4 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -540,7 +540,7 @@ export default function PositionDetailPage() {
                 type="button"
                 onClick={handleCreateInstances}
                 disabled={createGenerating}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-medium disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
                 {createGenerating ? 'Creating…' : 'Create'}
               </button>
@@ -554,7 +554,7 @@ export default function PositionDetailPage() {
                   }
                 }}
                 disabled={createGenerating}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 dark:bg-gray-600 font-medium disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 dark:bg-gray-600 font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
                 Cancel
               </button>
