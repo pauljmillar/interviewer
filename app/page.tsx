@@ -59,7 +59,7 @@ export default function HomePage() {
                 alt="AI interviewers screening candidates"
                 width={500}
                 height={400}
-                className="w-full h-auto"
+                className="w-full h-auto dark:invert dark:hue-rotate-180"
                 priority
               />
             </div>
@@ -227,7 +227,7 @@ export default function HomePage() {
                 alt="Person relaxing while interviews run in the background — Candice handles screening so you can focus on what matters"
                 width={640}
                 height={480}
-                className="w-full h-auto max-w-xl"
+                className="w-full h-auto max-w-xl dark:invert dark:hue-rotate-180"
               />
             </div>
           </div>
