@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { INTERVIEW_TEMPLATES, getTemplateById } from '@/constants/templates';
 import type { PositionRecord, PositionType, InterviewTemplate } from '@/types';
+import AnalysisPanel from '@/components/admin/AnalysisPanel';
 
 type InstanceStatus = 'not_started' | 'started' | 'completed';
 
@@ -504,6 +505,8 @@ export default function PositionDetailPage() {
           </div>
         )}
       </div>
+
+      <AnalysisPanel positionId={id} />
 
       {createModalOpen && (
         <div

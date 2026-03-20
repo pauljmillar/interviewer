@@ -64,11 +64,12 @@ export default function HomePage() {
               />
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
-              <h1 className="text-4xl sm:text-5xl font-bold text-landing-heading tracking-tight">
-                Candice can interview your candidates
+              <h1 className="text-5xl sm:text-6xl font-medium tracking-tight leading-tight">
+                <span className="text-landing-heading block">AI screening interviews</span>
+                <span className="text-[#3ECF8E] block">Save 10 hours of your time</span>
               </h1>
               <h3 className="mt-4 text-lg font-normal text-landing-muted max-w-xl">
-                Our AI agents will meet with your candidates, conduct a customizable screening interview, and rank them for you to take the next steps
+                Our AI agents will meet with your candidates, conduct a customizable screening interview, and rank them for you to take the next steps, saving you hours per role, and allow you to screen a much larger pool of candidates to ensure you focus your time on the most qualified.
               </h3>
               <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <TryInterviewButton />
@@ -76,7 +77,7 @@ export default function HomePage() {
                   href="/start"
                   className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-landing-bg border-2 border-landing-heading text-landing-heading font-medium hover:opacity-80 transition-opacity"
                 >
-                  Add job description
+                  Upload your JD
                 </Link>
               </div>
             </div>

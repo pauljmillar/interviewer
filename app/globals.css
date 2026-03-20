@@ -21,8 +21,9 @@ html {
   --landing-heading: #000000;
   --landing-text: #374151;
   --landing-muted: #6b7280;
-  --landing-primary: #000000;
-  --landing-primary-hover: #1f2937;
+  --landing-primary: #3ECF8E;
+  --landing-primary-hover: #2dbe7e;
+  --landing-green: #3ECF8E;
   --landing-secondary: #374151;
   --landing-tertiary: #4b5563;
   --landing-accent-pink: #6b7280;
@@ -31,22 +32,23 @@ html {
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --landing-bg: #0f172a;
-  --landing-bg-hero: #0f172a;
-  --landing-bg-section: #1e293b;
-  --landing-bg-section-alt: #0f172a;
-  --landing-card-bg: #1e293b;
-  --landing-heading: #f1f5f9;
-  --landing-text: #cbd5e1;
-  --landing-muted: #94a3b8;
-  --landing-primary: #e2e8f0;
-  --landing-primary-hover: #ffffff;
-  --landing-secondary: #cbd5e1;
-  --landing-tertiary: #94a3b8;
-  --landing-accent-pink: #94a3b8;
-  --landing-border: #334155;
+  --background: #0f0f0f;
+  --foreground: #ededed;
+  --landing-bg: #0f0f0f;
+  --landing-bg-hero: #0f0f0f;
+  --landing-bg-section: #1a1a1a;
+  --landing-bg-section-alt: #0f0f0f;
+  --landing-card-bg: #1c1c1c;
+  --landing-heading: #ededed;
+  --landing-text: #a0a0a0;
+  --landing-muted: #707070;
+  --landing-primary: #3ECF8E;
+  --landing-primary-hover: #2dbe7e;
+  --landing-green: #3ECF8E;
+  --landing-secondary: #a0a0a0;
+  --landing-tertiary: #707070;
+  --landing-accent-pink: #707070;
+  --landing-border: #2a2a2a;
   --landing-gradient-hero: none;
 }
 
@@ -58,7 +60,7 @@ body {
 
 /* Astroship-style font stack for landing */
 .font-landing {
-  font-family: 'Bricolage Grotesque Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer components {

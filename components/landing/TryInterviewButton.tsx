@@ -33,9 +33,9 @@ export default function TryInterviewButton() {
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-black text-white font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors border-2 border-transparent"
+        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-landing-primary hover:bg-landing-primary-hover text-white font-medium disabled:opacity-50 transition-colors border-2 border-transparent"
       >
-        {loading ? 'Opening…' : 'Try our interview'}
+        {loading ? 'Opening…' : "See what it's like"}
       </button>
       {error && (
         <p className="text-sm text-red-500" role="alert">

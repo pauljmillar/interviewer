@@ -27,6 +27,7 @@ const config: Config = {
           "primary-hover": "var(--landing-primary-hover)",
           "accent-pink": "var(--landing-accent-pink)",
           border: "var(--landing-border)",
+          green: "var(--landing-green)",
         },
       },
       backgroundImage: {

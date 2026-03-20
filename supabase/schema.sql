@@ -85,3 +85,25 @@ ALTER TABLE sessions ADD COLUMN IF NOT EXISTS recording_key TEXT;
 -- Migration for tts_voice (run if tables existed before voice was added):
 -- ALTER TABLE interview_templates ADD COLUMN IF NOT EXISTS tts_voice TEXT;
 -- ALTER TABLE interview_instances ADD COLUMN IF NOT EXISTS tts_voice TEXT;
+
+-- Per-candidate AI scores for a position
+CREATE TABLE IF NOT EXISTS candidate_scores (
+  id            TEXT PRIMARY KEY,
+  position_id   TEXT NOT NULL,
+  instance_id   TEXT NOT NULL UNIQUE,
+  org_id        TEXT NOT NULL,
+  overall_score INTEGER NOT NULL,
+  question_scores JSONB NOT NULL DEFAULT '[]',
+  notes         TEXT,
+  analyzed_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_scores_position ON candidate_scores(position_id);
+CREATE INDEX IF NOT EXISTS idx_scores_instance ON candidate_scores(instance_id);
+
+-- Per-position scoring prompt (Settings)
+CREATE TABLE IF NOT EXISTS position_analysis_settings (
+  position_id   TEXT PRIMARY KEY,
+  org_id        TEXT NOT NULL,
+  scoring_prompt TEXT NOT NULL,
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import {
   OrganizationSwitcher,
@@ -26,6 +26,7 @@ const publicNav = [
 ] as const;
 
 const landingNav = [
+  { href: '/products', label: 'Products' },
   { href: '#features', label: 'Features' },
   { href: '#pricing', label: 'Pricing' },
   { href: '#approach', label: 'Approach' },
@@ -42,17 +43,37 @@ export default function Header({ hasClerk = true }: HeaderProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
+  const productsRef = useRef<HTMLDivElement>(null);
 
   const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
 
   useEffect(() => {
     closeMobileMenu();
+    setProductsOpen(false);
   }, [pathname, closeMobileMenu]);
+
+  useEffect(() => {
+    function handleOutsideClick(e: MouseEvent) {
+      if (productsRef.current && !productsRef.current.contains(e.target as Node)) {
+        setProductsOpen(false);
+      }
+    }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') setProductsOpen(false);
+    }
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
 
   const navItems = isLanding ? landingNav : isAdmin ? [] : publicNav;
 
-  const headerBg = 'bg-white dark:bg-gray-900';
-  const headerBorder = 'border-gray-200 dark:border-gray-700';
+  const headerBg = 'bg-white dark:bg-[#0f0f0f]';
+  const headerBorder = 'border-gray-200 dark:border-[#2a2a2a]';
   const linkClass = isLanding
     ? 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors'
     : 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors';
@@ -76,7 +97,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="flex-shrink-0"
+            className="flex-shrink-0 text-[#3ECF8E]"
             aria-hidden
           >
             <path d="M2 13a2 2 0 0 0 2-2V7a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0V4a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0v-4a2 2 0 0 1 2-2" />
@@ -89,11 +110,50 @@ export default function Header({ hasClerk = true }: HeaderProps) {
         className="hidden sm:flex flex-1 items-center justify-center gap-1 min-w-0"
         aria-label="Main navigation"
       >
-        {navItems.map(({ href, label }) => (
-          <Link key={href} href={href} className={linkClass}>
-            {label}
-          </Link>
-        ))}
+        {navItems.map(({ href, label }) =>
+          label === 'Products' ? (
+            <div
+              key="products"
+              ref={productsRef}
+              className="relative"
+              onMouseEnter={() => setProductsOpen(true)}
+              onMouseLeave={() => setProductsOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setProductsOpen((o) => !o)}
+                className={`${linkClass} gap-1`}
+                aria-expanded={productsOpen}
+                aria-haspopup="true"
+              >
+                Products
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                  <path d="M2 4l4 4 4-4" />
+                </svg>
+              </button>
+              {productsOpen && (
+                <div className="absolute top-full left-0 mt-1 w-48 rounded-lg border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f] shadow-lg py-1 z-50">
+                  <Link
+                    href="/products"
+                    className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    AI Interviewer
+                  </Link>
+                  <Link
+                    href="/integrations"
+                    className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    Integrations
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link key={href} href={href} className={linkClass}>
+              {label}
+            </Link>
+          )
+        )}
         <SignedIn>
           {isLanding && (
             <Link href="/admin" className={linkClass}>
@@ -127,21 +187,40 @@ export default function Header({ hasClerk = true }: HeaderProps) {
 
       <div
         id="mobile-nav"
-        className={`sm:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-lg ${mobileMenuOpen ? 'block' : 'hidden'}`}
+        className={`sm:hidden absolute top-full left-0 right-0 bg-white dark:bg-[#0f0f0f] border-b border-gray-200 dark:border-[#2a2a2a] shadow-lg ${mobileMenuOpen ? 'block' : 'hidden'}`}
         role="dialog"
         aria-label="Mobile navigation"
       >
         <nav className="flex flex-col px-4 py-3" aria-label="Main navigation">
-          {navItems.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={closeMobileMenu}
-              className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              {label}
-            </Link>
-          ))}
+          {navItems.map(({ href, label }) =>
+            label === 'Products' ? (
+              <div key="products-mobile">
+                <Link
+                  href="/products"
+                  onClick={closeMobileMenu}
+                  className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  AI Interviewer
+                </Link>
+                <Link
+                  href="/integrations"
+                  onClick={closeMobileMenu}
+                  className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  Integrations
+                </Link>
+              </div>
+            ) : (
+              <Link
+                key={href}
+                href={href}
+                onClick={closeMobileMenu}
+                className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                {label}
+              </Link>
+            )
+          )}
           <SignedIn>
             {isLanding && (
               <Link
