@@ -49,38 +49,24 @@ function FeatureIconCheck({ className }: { className?: string }) {
 export default function HomePage() {
   return (
     <div className="font-landing min-h-screen bg-landing-bg text-landing-text">
-      {/* Hero: Astroship two-column, image + text + two buttons */}
+      {/* Hero: centered text + buttons */}
       <section className="relative border-b border-landing-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-20">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="order-2 lg:order-1">
-              <Image
-                src="/images/landing/cta-interview-lines.png"
-                alt="AI interviewers screening candidates"
-                width={500}
-                height={400}
-                className="w-full h-auto dark:contrast-[0.882] dark:invert dark:hue-rotate-180"
-                priority
-              />
-            </div>
-            <div className="order-1 lg:order-2 text-center lg:text-left">
-              <h1 className="text-5xl sm:text-6xl font-medium tracking-tight leading-tight">
-                <span className="text-landing-heading block">AI screening interviews</span>
-                <span className="text-[#3ECF8E] block">Save 10 hours each week</span>
-              </h1>
-              <h3 className="mt-4 text-lg font-normal text-landing-heading max-w-xl">
-                Our AI agents will meet with your candidates, conduct a customizable screening interview, and rank them for you to take the next steps, saving you hours per role, and allow you to screen a much larger pool of candidates to ensure you focus your time on the most qualified.
-              </h3>
-              <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <TryInterviewButton />
-                <Link
-                  href="/start"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-landing-bg border-2 border-landing-heading text-landing-heading font-medium hover:opacity-80 transition-opacity"
-                >
-                  Upload your JD
-                </Link>
-              </div>
-            </div>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 md:py-24 text-center">
+          <h1 className="text-5xl sm:text-6xl font-medium tracking-tight leading-tight">
+            <span className="text-landing-heading block">AI screening interviews</span>
+            <span className="text-[#3ECF8E] block">Save 10 hours each week</span>
+          </h1>
+          <p className="mt-5 text-lg font-normal text-landing-heading max-w-2xl mx-auto">
+            Our AI agents will meet with your candidates, conduct a customizable screening interview, and rank them for you to take the next steps, saving you hours per role, and allow you to screen a much larger pool of candidates to ensure you focus your time on the most qualified.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+            <TryInterviewButton />
+            <Link
+              href="/start"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-landing-bg border-2 border-landing-heading text-landing-heading font-medium hover:opacity-80 transition-opacity"
+            >
+              Upload your JD
+            </Link>
           </div>
         </div>
       </section>
@@ -124,21 +110,30 @@ export default function HomePage() {
           <p className="mt-4 text-landing-muted text-center max-w-xl mx-auto">
             From job description to ranked shortlist — in four steps.
           </p>
-          <div className="mt-12 grid sm:grid-cols-2 gap-8">
-            {[
-              { number: '01', title: 'Upload your JD', description: 'Paste or upload your job description. Candice reads it and generates tailored screening questions automatically.' },
-              { number: '02', title: 'Send interview links', description: 'Share a unique link with each candidate. They complete the interview on their own time — no scheduling.' },
-              { number: '03', title: 'Candice interviews', description: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
-              { number: '04', title: 'Review ranked results', description: 'Log in to find candidates scored and ranked, with notes from each interview ready to act on.' },
-            ].map(({ number, title, description }) => (
-              <div key={number} className="flex gap-5">
-                <span className="text-3xl font-bold text-[#3ECF8E] leading-none flex-shrink-0 w-10">{number}</span>
-                <div>
-                  <h3 className="text-base font-semibold text-landing-heading mb-1">{title}</h3>
-                  <p className="text-sm text-landing-muted">{description}</p>
+          <div className="mt-12 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <Image
+              src="/images/landing/cta-interview-lines.png"
+              alt="AI interviewers screening candidates"
+              width={500}
+              height={400}
+              className="w-full h-auto dark:contrast-[0.882] dark:invert dark:hue-rotate-180"
+            />
+            <div className="flex flex-col gap-8">
+              {[
+                { number: '01', title: 'Upload your JD', description: 'Paste or upload your job description. Candice reads it and generates tailored screening questions automatically.' },
+                { number: '02', title: 'Send interview links', description: 'Share a unique link with each candidate. They complete the interview on their own time — no scheduling.' },
+                { number: '03', title: 'Candice interviews', description: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
+                { number: '04', title: 'Review ranked results', description: 'Log in to find candidates scored and ranked, with notes from each interview ready to act on.' },
+              ].map(({ number, title, description }) => (
+                <div key={number} className="flex gap-5">
+                  <span className="text-3xl font-bold text-[#3ECF8E] leading-none flex-shrink-0 w-10">{number}</span>
+                  <div>
+                    <h3 className="text-base font-semibold text-landing-heading mb-1">{title}</h3>
+                    <p className="text-sm text-landing-muted">{description}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
