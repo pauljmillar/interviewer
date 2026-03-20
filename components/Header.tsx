@@ -27,9 +27,9 @@ const publicNav = [
 
 const landingNav = [
   { href: '/ai-interviewer', label: 'Products' },
-  { href: '#features', label: 'Features' },
-  { href: '#pricing', label: 'Pricing' },
-  { href: '#approach', label: 'Approach' },
+  { href: '/#features', label: 'Features' },
+  { href: '/#pricing', label: 'Pricing' },
+  { href: '/#approach', label: 'Approach' },
 ] as const;
 
 function isAdminPath(pathname: string): boolean {
@@ -38,7 +38,7 @@ function isAdminPath(pathname: string): boolean {
 
 export default function Header({ hasClerk = true }: HeaderProps) {
   const pathname = usePathname();
-  const isLanding = pathname === '/';
+  const isLanding = pathname === '/' || pathname === '/ai-interviewer' || pathname === '/integrations';
   const isAdmin = isAdminPath(pathname);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
