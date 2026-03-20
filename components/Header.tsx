@@ -20,13 +20,13 @@ interface HeaderProps {
 }
 
 const publicNav = [
-  { href: '/products', label: 'Products' },
+  { href: '/ai-interviewer', label: 'Products' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/about', label: 'About' },
 ] as const;
 
 const landingNav = [
-  { href: '/products', label: 'Products' },
+  { href: '/ai-interviewer', label: 'Products' },
   { href: '#features', label: 'Features' },
   { href: '#pricing', label: 'Pricing' },
   { href: '#approach', label: 'Approach' },
@@ -132,19 +132,21 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 </svg>
               </button>
               {productsOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 rounded-lg border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f] shadow-lg py-1 z-50">
-                  <Link
-                    href="/products"
-                    className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                  >
-                    AI Interviewer
-                  </Link>
-                  <Link
-                    href="/integrations"
-                    className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                  >
-                    Integrations
-                  </Link>
+                <div className="absolute top-full left-0 pt-1 w-52 z-50">
+                  <div className="rounded-lg border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f] shadow-lg py-1">
+                    <Link
+                      href="/ai-interviewer"
+                      className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                    >
+                      AI Interviewer
+                    </Link>
+                    <Link
+                      href="/integrations"
+                      className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                    >
+                      Integrations
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
@@ -196,7 +198,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
             label === 'Products' ? (
               <div key="products-mobile">
                 <Link
-                  href="/products"
+                  href="/ai-interviewer"
                   onClick={closeMobileMenu}
                   className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                 >
