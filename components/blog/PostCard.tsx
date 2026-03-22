@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ThumbnailImage from '@/components/blog/ThumbnailImage';
 import type { BlogPost } from '@/lib/server/supabaseBlogStore';
 
 interface PostCardProps {
@@ -21,9 +22,8 @@ export default function PostCard({ post }: PostCardProps) {
     >
       <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-[#3ECF8E]/20 to-[#3ECF8E]/5">
         {post.thumbnailKey ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={`/api/blog/image?key=${encodeURIComponent(post.thumbnailKey)}`}
+          <ThumbnailImage
+            thumbnailKey={post.thumbnailKey}
             alt={post.title}
             className="w-full h-full object-cover"
           />

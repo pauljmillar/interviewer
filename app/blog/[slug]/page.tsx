@@ -1,7 +1,10 @@
+export const dynamic = 'force-dynamic';
+
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createServerSupabase } from '@/lib/supabase/server';
 import { getPostBySlug } from '@/lib/server/supabaseBlogStore';
+import ThumbnailImage from '@/components/blog/ThumbnailImage';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -40,10 +43,9 @@ export default async function BlogPostPage({ params }: Props) {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{post.title}</h1>
         {date && <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">{date}</p>}
         {post.thumbnailKey && (
-          <div className="mb-8 rounded-lg overflow-hidden aspect-video">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/blog/image?key=${encodeURIComponent(post.thumbnailKey)}`}
+          <div className="mb-8 rounded-lg overflow-hidden aspect-video bg-gradient-to-br from-[#3ECF8E]/20 to-[#3ECF8E]/5">
+            <ThumbnailImage
+              thumbnailKey={post.thumbnailKey}
               alt={post.title}
               className="w-full h-full object-cover"
             />

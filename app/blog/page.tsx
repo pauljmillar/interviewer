@@ -2,6 +2,8 @@ import { createServerSupabase } from '@/lib/supabase/server';
 import { listPosts } from '@/lib/server/supabaseBlogStore';
 import PostCard from '@/components/blog/PostCard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Blog | Candice AI',
   description: 'Articles and updates from the Candice AI team.',
