@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScreenAI — Design System (Retro)</title>
+
+<style>
+:root {
+
+  /* ── Brand Palette — Retro 70s ──────────────────────────────────── */
+  /* Source colors (use these names in design files)                   */
+  --indigo:     #0B0835;   /* deepest background                       */
+  --ocean:      #0C5679;   /* dark teal-blue — midtone                 */
+  --teal:       #3F8A8C;   /* muted retro teal — primary cool accent   */
+  --red:        #E5340B;   /* retro vermillion — primary hot accent     */
+  --amber:      #F28A0F;   /* golden amber — secondary warm accent      */
+  --cream:      #FFE7BD;   /* warm cream — primary text / highlight     */
+
+  /* ── Backgrounds ───────────────────────────────────────────────── */
+  --bg-void:    #0B0835;              /* source color                  */
+  --bg-base:    #0d0c3d;             /* body — very slightly lighter   */
+  --bg-surface: #0f1248;             /* cards & panels                 */
+  --bg-raised:  #131862;             /* elevated components            */
+  --bg-overlay: rgba(11,8,53,0.96);  /* gradient scrim behind text    */
+
+  /* ── Primary accent — Amber ────────────────────────────────────── */
+  --amber-glow:  rgba(242,138,15,0.22);
+  --amber-dim:   rgba(242,138,15,0.50);
+  --amber-ghost: rgba(242,138,15,0.10);
+  --amber-trace: rgba(242,138,15,0.05);  /* grid lines                */
+
+  /* ── Hot accent — Red ──────────────────────────────────────────── */
+  --red-glow:    rgba(229,52,11,0.28);
+  --red-dim:     rgba(229,52,11,0.50);
+  --red-ghost:   rgba(229,52,11,0.10);
+
+  /* ── Cool accent — Teal ────────────────────────────────────────── */
+  --teal-glow:   rgba(63,138,140,0.20);
+  --teal-dim:    rgba(63,138,140,0.50);
+  --teal-ghost:  rgba(63,138,140,0.10);
+  --teal-trace:  rgba(63,138,140,0.07);
+
+  /* ── Text — warm cream on deep indigo ──────────────────────────── */
+  --text-primary:   #FFE7BD;
+  --text-secondary: rgba(255,231,189,0.68);
+  --text-muted:     rgba(255,231,189,0.42);
+  --text-ghost:     rgba(255,231,189,0.08);
+  --text-accent:    #F28A0F;          /* amber — primary accent text   */
+  --text-accent-dim:rgba(242,138,15,0.55);
+  --text-hot:       #E5340B;          /* red — hot accent text         */
+  --text-cool:      #3F8A8C;          /* teal — cool accent text       */
+
+  /* ── Typography — LARGER scale ─────────────────────────────────── */
+  --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --text-ghost-hero: 96px;   /* was 72px — ghost badge, w800, tracking -4px */
+  --text-display:    72px;   /* was 58px — hero title, w700, tracking -2px  */
+  --text-xl:         32px;   /* was 24px — section headings, w600           */
+  --text-lg:         22px;   /* was 18px — score / stat, w700               */
+  --text-base:       16px;   /* was 14px — subtitle / body, w300            */
+  --text-eyebrow:    13px;   /* was 11px — label / eyebrow, w400            */
+  --text-label:      11px;   /* was 10px — badge labels, w400               */
+  --text-micro:      10px;   /* was 9px  — annotations, w500                */
+
+  /* ── Spacing — base grid 50px, unchanged ───────────────────────── */
+  --grid:   50px;
+  --sp-1:    4px;
+  --sp-2:    8px;
+  --sp-3:   12px;
+  --sp-4:   14px;
+  --sp-5:   16px;
+  --sp-6:   24px;
+  --sp-8:   32px;
+  --sp-10:  40px;
+  --sp-12:  48px;
+  --sp-13:  52px;
+  --sp-section: 50px 52px;
+
+  /* ── Shape ──────────────────────────────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:  12px;
+  --radius-full: 9999px;
+
+  /* ── Borders — amber structural, teal decorative ───────────────── */
+  --border-subtle: 0.8px solid rgba(242,138,15,0.22);
+  --border-card:   0.8px solid rgba(242,138,15,0.38);
+  --border-strong: 1px   solid rgba(242,138,15,0.65);
+  --border-teal:   0.8px solid rgba(63,138,140,0.40);
+  --border-red:    0.8px solid rgba(229,52,11,0.45);
+
+  /* ── Elevation / Glow ───────────────────────────────────────────── */
+  --glow-amber:  0 0 28px rgba(242,138,15,0.28),
+                 0 0  8px rgba(242,138,15,0.16);
+  --glow-red:    0 0 28px rgba(229,52,11,0.30),
+                 0 0  8px rgba(229,52,11,0.18);
+  --glow-teal:   0 0 28px rgba(63,138,140,0.22);
+  --glow-card:   0 0 40px rgba(242,138,15,0.08);
+
+  /* ── Transitions ────────────────────────────────────────────────── */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration: 220ms;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   BASE RESET & PAGE
+   ════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  background: var(--bg-base);
+  min-height: 100vh;
+  /* Teal grid — retro blueprint feel */
+  background-image:
+    linear-gradient(rgba(63,138,140,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63,138,140,0.07) 1px, transparent 1px);
+  background-size: var(--grid) var(--grid);
+  /* Grain overlay */
+  position: relative;
+}
+
+/* Grain texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.032;
+  mix-blend-mode: overlay;
+}
+
+/* Scanlines */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 2px,
+    rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 3px
+  );
+}
+
+/* ── Page layout ───────────────────────────────────────────────────── */
+.page { max-width: 1080px; margin: 0 auto; padding: 80px var(--sp-13); position: relative; z-index: 1; }
+
+.section {
+  margin-bottom: 90px;
+  padding-bottom: 90px;
+  border-bottom: var(--border-subtle);
+}
+.section:last-child { border-bottom: none; }
+
+/* ── Section header ─────────────────────────────────────────────────── */
+.section-label {
+  font-size: var(--text-eyebrow);
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--amber);
+  opacity: 0.9;
+  margin-bottom: var(--sp-4);
+}
+.section-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  margin-bottom: 48px;
+}
+
+/* ── Swatch grid ────────────────────────────────────────────────────── */
+.swatch-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+.swatch { display: flex; flex-direction: column; gap: 10px; width: 160px; }
+.swatch-chip { height: 80px; border-radius: var(--radius-md); border: var(--border-subtle); }
+.swatch-name  { font-size: var(--text-micro); letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+.swatch-value { font-size: 11px; color: var(--text-muted); opacity: 0.7; font-family: 'Courier New', monospace; }
+
+/* ── Type specimens ─────────────────────────────────────────────────── */
+.type-row {
+  display: flex; align-items: baseline; gap: 32px;
+  padding: 28px 0;
+  border-bottom: 1px solid rgba(242,138,15,0.07);
+}
+.type-row:last-child { border-bottom: none; }
+.type-meta { width: 200px; flex-shrink: 0; }
+.type-meta-name { font-size: var(--text-micro); letter-spacing: 2px; text-transform: uppercase; color: var(--amber); opacity: 0.75; }
+.type-meta-spec { font-size: 11px; color: var(--text-muted); opacity: 0.6; margin-top: 5px; line-height: 1.7; font-family: 'Courier New', monospace; }
+
+/* TYPE STYLES */
+.t-ghost {
+  font-size: var(--text-ghost-hero);
+  font-weight: 800;
+  color: var(--text-primary);
+  opacity: 0.07;
+  line-height: 1;
+  letter-spacing: -4px;
+}
+.t-display {
+  font-size: var(--text-display);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+.t-display .accent { color: var(--red); }
+.t-xl {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+.t-lg {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--amber);
+}
+.t-body {
+  font-size: var(--text-base);
+  font-weight: 300;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.t-eyebrow {
+  font-size: var(--text-eyebrow);
+  font-weight: 400;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--teal);
+  opacity: 0.9;
+}
+.t-label {
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-accent-dim);
+}
+.t-micro {
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-accent-dim);
+  opacity: 0.7;
+}
+
+/* ── COMPONENT: Button ──────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font);
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  border: none;
+  white-space: nowrap;
+}
+.btn-primary {
+  padding: 15px 30px;
+  background: var(--red);
+  color: var(--cream);
+}
+.btn-primary:hover {
+  background: #f03d12;
+  box-shadow: var(--glow-red);
+  transform: translateY(-1px);
+}
+.btn-ghost {
+  padding: 14px 29px;
+  background: var(--teal-ghost);
+  color: var(--teal);
+  border: var(--border-teal);
+}
+.btn-ghost:hover {
+  background: rgba(63,138,140,0.18);
+  box-shadow: var(--glow-teal);
+  transform: translateY(-1px);
+}
+.btn-amber {
+  padding: 14px 29px;
+  background: var(--amber-ghost);
+  color: var(--amber);
+  border: var(--border-card);
+}
+.btn-amber:hover {
+  background: rgba(242,138,15,0.16);
+  box-shadow: var(--glow-amber);
+  transform: translateY(-1px);
+}
+.btn-text {
+  padding: 14px 4px;
+  background: transparent;
+  color: var(--text-muted);
+}
+.btn-text:hover { color: var(--amber); }
+
+/* ── COMPONENT: Card ────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-surface);
+  border: var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 30px 30px 26px;
+  position: relative;
+  box-shadow: var(--glow-card);
+  transition: box-shadow var(--duration) var(--ease);
+}
+.card:hover {
+  box-shadow: 0 0 48px rgba(242,138,15,0.14);
+}
+/* Top-edge amber accent bar */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 24px; right: 24px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--amber), transparent);
+  opacity: 0.5;
+}
+.card-label {
+  font-size: var(--text-micro);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+  opacity: 0.85;
+  margin-bottom: 10px;
+}
+.card-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.card-body {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ── COMPONENT: Score Badge ─────────────────────────────────────────── */
+.score-badge {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--amber-ghost);
+  border: var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+}
+.score-badge .score-num {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+}
+.score-badge .score-rank {
+  font-size: var(--text-micro);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── COMPONENT: Tag / Chip ──────────────────────────────────────────── */
+.tag {
+  display: inline-block;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: var(--border-subtle);
+  color: var(--text-muted);
+  background: var(--amber-trace);
+}
+.tag-red   { color: var(--red);   border-color: rgba(229,52,11,0.45);   background: var(--red-ghost);   }
+.tag-amber { color: var(--amber); border-color: rgba(242,138,15,0.40);  background: var(--amber-ghost); }
+.tag-teal  { color: var(--teal);  border-color: rgba(63,138,140,0.40);  background: var(--teal-ghost);  }
+
+/* ── COMPONENT: Input ───────────────────────────────────────────────── */
+.input-wrap { position: relative; }
+.input-label {
+  display: block;
+  font-size: var(--text-micro);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-accent-dim);
+  margin-bottom: 8px;
+}
+.input {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  outline: none;
+  transition: border-color var(--duration) var(--ease),
+              box-shadow  var(--duration) var(--ease);
+}
+.input::placeholder { color: var(--text-muted); }
+.input:focus {
+  border-color: rgba(242,138,15,0.55);
+  box-shadow: 0 0 0 3px rgba(242,138,15,0.08);
+}
+
+/* ── COMPONENT: Ghost number ────────────────────────────────────────── */
+.ghost-number {
+  font-size: var(--text-ghost-hero);
+  font-weight: 800;
+  color: var(--cream);
+  opacity: 0.07;
+  line-height: 1;
+  letter-spacing: -4px;
+  pointer-events: none; user-select: none;
+}
+
+/* ── COMPONENT: Stat block ──────────────────────────────────────────── */
+.stat { display: flex; flex-direction: column; gap: 6px; }
+.stat-value {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -2px;
+  line-height: 1;
+}
+.stat-value .accent { color: var(--amber); }
+.stat-value .hot    { color: var(--red); }
+.stat-label {
+  font-size: var(--text-micro);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── COMPONENT: Waveform ────────────────────────────────────────────── */
+.waveform { display: flex; align-items: center; gap: 2px; height: 40px; }
+.wave-bar { width: 3px; border-radius: 2px; opacity: 0.3; }
+.wave-bar-amber { background: var(--amber); }
+.wave-bar-red   { background: var(--red); }
+
+/* ── LAYOUT: Grids ──────────────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+/* ── LAYOUT: Hero block ─────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  background: var(--bg-void);
+  border: var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  padding: var(--sp-section);
+  background-image:
+    linear-gradient(rgba(63,138,140,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63,138,140,0.07) 1px, transparent 1px);
+  background-size: var(--grid) var(--grid);
+}
+/* Amber glow — top-right (warm retro spot) */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--amber-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+/* Red glow — bottom-left */
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -70px; left: -70px;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--red-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Utility ────────────────────────────────────────────────────────── */
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.gap-8  { gap: 8px; }
+.gap-20 { gap: 20px; }
+.mt-8   { margin-top: 8px; }
+.mt-16  { margin-top: 16px; }
+.mt-24  { margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── PAGE HEADER ─────────────────────────────────────────────── -->
+  <header class="section" style="padding-bottom:60px; margin-bottom:60px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <p class="t-eyebrow" style="margin-bottom:16px;">Design System v1.0 — Retro</p>
+        <h1 class="t-display">SCREEN<span class="accent">AI</span></h1>
+        <p class="t-body" style="margin-top:12px;">Visual language &nbsp;·&nbsp; Tokens &amp; Components</p>
+      </div>
+      <div style="text-align:right;">
+        <div class="ghost-number">DS</div>
+        <p class="t-label" style="margin-top:4px;">ScreenAI Brand</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── 1. COLOR ─────────────────────────────────────────────────── -->
+  <section class="section">
+    <p class="section-label">01</p>
+    <h2 class="section-title">Color System</h2>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Source Palette</p>
+    <div class="swatch-grid" style="margin-bottom:48px;">
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#0B0835;"></div>
+        <div class="swatch-name">Indigo</div>
+        <div class="swatch-value">#0B0835</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#0C5679;"></div>
+        <div class="swatch-name">Ocean</div>
+        <div class="swatch-value">#0C5679</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#3F8A8C;"></div>
+        <div class="swatch-name">Teal</div>
+        <div class="swatch-value">#3F8A8C</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#E5340B;"></div>
+        <div class="swatch-name">Red</div>
+        <div class="swatch-value">#E5340B</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#F28A0F;"></div>
+        <div class="swatch-name">Amber</div>
+        <div class="swatch-value">#F28A0F</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#FFE7BD; border-color:rgba(242,138,15,0.3);"></div>
+        <div class="swatch-name">Cream</div>
+        <div class="swatch-value">#FFE7BD</div>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Backgrounds</p>
+    <div class="swatch-grid" style="margin-bottom:48px;">
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#0B0835;"></div>
+        <div class="swatch-name">bg-void</div>
+        <div class="swatch-value">#0B0835</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#0d0c3d;"></div>
+        <div class="swatch-name">bg-base</div>
+        <div class="swatch-value">#0d0c3d</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#0f1248;"></div>
+        <div class="swatch-name">bg-surface</div>
+        <div class="swatch-value">#0f1248</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#131862;"></div>
+        <div class="swatch-name">bg-raised</div>
+        <div class="swatch-value">#131862</div>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Amber — Primary Warm</p>
+    <div class="swatch-grid" style="margin-bottom:48px;">
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#F28A0F;"></div>
+        <div class="swatch-name">amber</div>
+        <div class="swatch-value">#F28A0F</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(242,138,15,0.22);"></div>
+        <div class="swatch-name">amber-glow</div>
+        <div class="swatch-value">rgba(242,138,15,.22)</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(242,138,15,0.10);"></div>
+        <div class="swatch-name">amber-ghost</div>
+        <div class="swatch-value">rgba(242,138,15,.10)</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(242,138,15,0.05);"></div>
+        <div class="swatch-name">amber-trace</div>
+        <div class="swatch-value">rgba(242,138,15,.05)</div>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Red — Hot Accent</p>
+    <div class="swatch-grid" style="margin-bottom:48px;">
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#E5340B;"></div>
+        <div class="swatch-name">red</div>
+        <div class="swatch-value">#E5340B</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(229,52,11,0.28);"></div>
+        <div class="swatch-name">red-glow</div>
+        <div class="swatch-value">rgba(229,52,11,.28)</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(229,52,11,0.10);"></div>
+        <div class="swatch-name">red-ghost</div>
+        <div class="swatch-value">rgba(229,52,11,.10)</div>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Teal — Cool Accent</p>
+    <div class="swatch-grid" style="margin-bottom:48px;">
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#3F8A8C;"></div>
+        <div class="swatch-name">teal</div>
+        <div class="swatch-value">#3F8A8C</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#0C5679;"></div>
+        <div class="swatch-name">ocean</div>
+        <div class="swatch-value">#0C5679</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(63,138,140,0.20);"></div>
+        <div class="swatch-name">teal-glow</div>
+        <div class="swatch-value">rgba(63,138,140,.20)</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(63,138,140,0.10);"></div>
+        <div class="swatch-name">teal-ghost</div>
+        <div class="swatch-value">rgba(63,138,140,.10)</div>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Text — Warm Cream on Deep Indigo</p>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-chip" style="background:#FFE7BD;"></div>
+        <div class="swatch-name">text-primary</div>
+        <div class="swatch-value">#FFE7BD</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(255,231,189,0.68);"></div>
+        <div class="swatch-name">text-secondary</div>
+        <div class="swatch-value">rgba(255,231,189,.68)</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(255,231,189,0.42);"></div>
+        <div class="swatch-name">text-muted</div>
+        <div class="swatch-value">rgba(255,231,189,.42)</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-chip" style="background:rgba(255,231,189,0.08);"></div>
+        <div class="swatch-name">text-ghost</div>
+        <div class="swatch-value">rgba(255,231,189,.08)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. TYPOGRAPHY ────────────────────────────────────────────── -->
+  <section class="section">
+    <p class="section-label">02</p>
+    <h2 class="section-title">Typography</h2>
+    <p class="t-micro" style="margin-bottom:36px;">Font: 'Helvetica Neue', Helvetica, Arial — scale increased across all levels</p>
+
+    <div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Ghost Hero</div>
+          <div class="type-meta-spec">96px · w800<br>tracking -4px · op .07</div>
+        </div>
+        <span class="t-ghost">01</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Display</div>
+          <div class="type-meta-spec">72px · w700<br>tracking -2px · lh 1</div>
+        </div>
+        <span class="t-display">SCREEN<span class="accent">AI</span></span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">XL Heading</div>
+          <div class="type-meta-spec">32px · w600<br>tracking -0.5px</div>
+        </div>
+        <span class="t-xl">Cast wider. Hire smarter.</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Score / Stat</div>
+          <div class="type-meta-spec">22px · w700<br>color: amber</div>
+        </div>
+        <span class="t-lg">98</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Subtitle / Body</div>
+          <div class="type-meta-spec">16px · w300<br>tracking 2px · uppercase</div>
+        </div>
+        <span class="t-body">Cast wider &nbsp;·&nbsp; Hire smarter</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Eyebrow</div>
+          <div class="type-meta-spec">13px · w400<br>tracking 5px · teal</div>
+        </div>
+        <span class="t-eyebrow">AI Screening Platform</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Label</div>
+          <div class="type-meta-spec">11px · w400<br>tracking 4px · amber dim</div>
+        </div>
+        <span class="t-label">HR Insight Series</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Micro</div>
+          <div class="type-meta-spec">10px · w500<br>tracking 3px · uppercase</div>
+        </div>
+        <span class="t-micro">50+ Candidates</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. SPACING ───────────────────────────────────────────────── -->
+  <section class="section">
+    <p class="section-label">03</p>
+    <h2 class="section-title">Spacing &amp; Grid</h2>
+    <p class="t-micro" style="margin-bottom:36px;">Base grid unit: 50px — same system, larger type creates more breathing room</p>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <script>
+        const sp = [
+          ['--sp-1', '4px', 4], ['--sp-2', '8px', 8], ['--sp-3', '12px', 12],
+          ['--sp-4 (eyebrow→title)', '14px', 14], ['--sp-5', '16px', 16],
+          ['--sp-6', '24px', 24], ['--sp-8', '32px', 32], ['--sp-10', '40px', 40],
+          ['--sp-12 (badge offset)', '48px', 48], ['--sp-13 (section pad)', '52px', 52],
+          ['--grid', '50px', 50],
+        ];
+        sp.forEach(([name, val, px]) => {
+          document.write(`
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="width:200px; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(242,138,15,0.6); font-family:'Courier New',monospace;">${name}</div>
+              <div style="height:10px; width:${px*2}px; background:rgba(242,138,15,0.30); border-radius:2px;"></div>
+              <div style="font-size:10px; color:rgba(255,231,189,0.35); font-family:'Courier New',monospace;">${val}</div>
+            </div>
+          `);
+        });
+      </script>
+    </div>
+  </section>
+
+  <!-- ── 4. COMPONENTS ─────────────────────────────────────────────── -->
+  <section class="section">
+    <p class="section-label">04</p>
+    <h2 class="section-title">Components</h2>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Buttons</p>
+    <div class="row gap-8" style="margin-bottom:48px;">
+      <button class="btn btn-primary">Begin Interview</button>
+      <button class="btn btn-ghost">View Results</button>
+      <button class="btn btn-amber">See Rankings</button>
+      <button class="btn btn-text">Learn more →</button>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px; margin-top:40px;">Tags / Chips</p>
+    <div class="row gap-8" style="margin-bottom:48px;">
+      <span class="tag tag-red">AI-Screened</span>
+      <span class="tag tag-amber">Top Candidate</span>
+      <span class="tag tag-teal">Engineering</span>
+      <span class="tag">Pending</span>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Score Badges</p>
+    <div class="row gap-8" style="margin-bottom:48px;">
+      <div class="score-badge">
+        <span class="score-num">98</span>
+        <span class="score-rank">#1</span>
+      </div>
+      <div class="score-badge">
+        <span class="score-num">91</span>
+        <span class="score-rank">#2</span>
+      </div>
+      <div class="score-badge" style="opacity:0.65;">
+        <span class="score-num">84</span>
+        <span class="score-rank">#3</span>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Cards</p>
+    <div class="grid-3" style="margin-bottom:48px;">
+      <div class="card">
+        <p class="card-label">Time Saved</p>
+        <p class="card-title">10 hrs</p>
+        <p class="card-body">Per open position. No scheduling, no prep, no debrief.</p>
+      </div>
+      <div class="card">
+        <p class="card-label">Wider Net</p>
+        <p class="card-title">50 screens</p>
+        <p class="card-body">Not just the 10 you could manually reach in the same window.</p>
+      </div>
+      <div class="card">
+        <p class="card-label">Output</p>
+        <p class="card-title">Ranked list</p>
+        <p class="card-body">Curated, scored, with video replay for every candidate.</p>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Stat Blocks</p>
+    <div class="grid-4" style="margin-bottom:48px;">
+      <div class="stat">
+        <span class="stat-value">10<span class="accent">h</span></span>
+        <span class="stat-label">Saved per role</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">50<span class="accent">+</span></span>
+        <span class="stat-label">Candidates screened</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">$<span class="hot">500</span></span>
+        <span class="stat-label">Cost / unfilled day</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">0<span class="accent">h</span></span>
+        <span class="stat-label">Scheduling conflicts</span>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Inputs</p>
+    <div class="grid-2" style="max-width:640px; margin-bottom:48px;">
+      <div class="input-wrap">
+        <label class="input-label">Candidate Email</label>
+        <input class="input" type="email" placeholder="jane@company.com">
+      </div>
+      <div class="input-wrap">
+        <label class="input-label">Job Title</label>
+        <input class="input" type="text" placeholder="Senior Engineer">
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Waveform — Amber / Red alternating</p>
+    <div class="waveform">
+      <script>
+        const bc = 48;
+        for (let i=0; i<bc; i++) {
+          const amp = Math.abs(Math.sin(i*0.42) * Math.exp(-Math.abs(i - bc/2)*0.06));
+          const h = Math.max(3, amp * 34);
+          const op = 0.22 + amp * 0.70;
+          const cls = i % 3 === 0 ? 'wave-bar-red' : 'wave-bar-amber';
+          document.write(`<div class="wave-bar ${cls}" style="height:${h}px; opacity:${op.toFixed(2)};"></div>`);
+        }
+      </script>
+    </div>
+  </section>
+
+  <!-- ── 5. LAYOUT PATTERNS ────────────────────────────────────────── -->
+  <section class="section">
+    <p class="section-label">05</p>
+    <h2 class="section-title">Layout Patterns</h2>
+
+    <p class="t-eyebrow" style="margin-bottom:22px; font-size:10px;">Hero — dual glow (amber top-right · red bottom-left)</p>
+    <div class="hero" style="margin-bottom:48px; min-height:280px;">
+      <div style="position:absolute; top:var(--sp-12); right:var(--sp-13); text-align:right; z-index:1;">
+        <div class="ghost-number">01</div>
+        <p class="t-label" style="margin-top:4px;">HR Insight Series</p>
+      </div>
+      <div style="padding-top:24px; padding-bottom:80px; position:relative; z-index:1;">
+        <p class="t-eyebrow" style="margin-bottom:16px;">AI Screening Platform</p>
+        <h1 class="t-display">THE HIDDEN <span class="accent">COST</span></h1>
+        <p class="t-body" style="margin-top:12px;">of Screening Interviews &nbsp;·&nbsp; It's not just an hour of your time</p>
+      </div>
+      <div style="position:absolute; bottom:0; left:0; right:0; padding:36px var(--sp-13) 28px; background:linear-gradient(to top, rgba(11,8,53,0.96) 60%, transparent); z-index:1;">
+        <div class="row gap-8">
+          <span class="tag tag-red">AI-Screened</span>
+          <span class="tag tag-amber">5 min read</span>
+          <span class="tag tag-teal">March 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="t-eyebrow" style="margin-bottom:14px; font-size:10px;">Text Scrim — Retro</p>
+    <div style="background:var(--bg-surface); border-radius:var(--radius-md); overflow:hidden; border:var(--border-subtle); height:80px; position:relative; margin-bottom:48px;">
+      <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(11,8,53,0.96) 60%, transparent);"></div>
+      <div style="position:absolute; bottom:16px; left:20px;">
+        <p class="t-micro">linear-gradient(to top, rgba(11,8,53,0.96) 60%, transparent)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6. EFFECTS ───────────────────────────────────────────────── -->
+  <section class="section">
+    <p class="section-label">06</p>
+    <h2 class="section-title">Background Effects</h2>
+    <div class="grid-2" style="gap:20px;">
+      <div>
+        <p class="t-eyebrow" style="margin-bottom:14px; font-size:10px;">Grid — Teal Blueprint</p>
+        <div style="height:140px; border-radius:var(--radius-md); border:var(--border-subtle);
+          background-image:
+            linear-gradient(rgba(63,138,140,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(63,138,140,0.07) 1px, transparent 1px);
+          background-size:50px 50px; background-color:#0B0835;">
+        </div>
+        <p class="type-meta-spec" style="margin-top:8px; color:rgba(255,231,189,0.3);">grid color: rgba(63,138,140,0.07)</p>
+      </div>
+      <div>
+        <p class="t-eyebrow" style="margin-bottom:14px; font-size:10px;">Amber Glow</p>
+        <div style="height:140px; border-radius:var(--radius-md); border:var(--border-card);
+          background: radial-gradient(circle at 50% 50%, rgba(242,138,15,0.22) 0%, rgba(242,138,15,0.07) 50%, transparent 70%);
+          background-color:#0B0835; box-shadow:0 0 28px rgba(242,138,15,0.20);">
+        </div>
+        <p class="type-meta-spec" style="margin-top:8px; color:rgba(255,231,189,0.3);">var(--glow-amber)</p>
+      </div>
+      <div>
+        <p class="t-eyebrow" style="margin-bottom:14px; font-size:10px;">Red Glow</p>
+        <div style="height:140px; border-radius:var(--radius-md); border:var(--border-red);
+          background: radial-gradient(circle at 30% 70%, rgba(229,52,11,0.28) 0%, transparent 65%);
+          background-color:#0B0835; box-shadow:0 0 28px rgba(229,52,11,0.22);">
+        </div>
+        <p class="type-meta-spec" style="margin-top:8px; color:rgba(255,231,189,0.3);">var(--glow-red) · bottom-left</p>
+      </div>
+      <div>
+        <p class="t-eyebrow" style="margin-bottom:14px; font-size:10px;">Teal Glow</p>
+        <div style="height:140px; border-radius:var(--radius-md); border:var(--border-teal);
+          background: radial-gradient(circle at 70% 30%, rgba(63,138,140,0.20) 0%, transparent 60%);
+          background-color:#0B0835; box-shadow:0 0 28px rgba(63,138,140,0.18);">
+        </div>
+        <p class="type-meta-spec" style="margin-top:8px; color:rgba(255,231,189,0.3);">var(--glow-teal) · top-right</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. COPY-PASTE TOKENS ──────────────────────────────────────── -->
+  <section class="section">
+    <p class="section-label">07</p>
+    <h2 class="section-title">Copy-Paste Tokens</h2>
+    <p class="t-body" style="margin-bottom:28px;">Drop this :root block into your stylesheet</p>
+    <div style="background:var(--bg-void); border:var(--border-subtle); border-radius:var(--radius-md); padding:32px 36px; overflow-x:auto;">
+      <pre style="font-family:'Courier New',monospace; font-size:11px; line-height:2.0; color:rgba(255,231,189,0.45);">
+<span style="color:#3F8A8C;">:root</span> {
+  <span style="color:rgba(63,138,140,0.7);">/* Source palette */</span>
+  --indigo: <span style="color:#F28A0F;">#0B0835</span>;
+  --ocean:  <span style="color:#F28A0F;">#0C5679</span>;
+  --teal:   <span style="color:#F28A0F;">#3F8A8C</span>;
+  --red:    <span style="color:#F28A0F;">#E5340B</span>;
+  --amber:  <span style="color:#F28A0F;">#F28A0F</span>;
+  --cream:  <span style="color:#F28A0F;">#FFE7BD</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Backgrounds */</span>
+  --bg-void:    <span style="color:#F28A0F;">#0B0835</span>;
+  --bg-base:    <span style="color:#F28A0F;">#0d0c3d</span>;
+  --bg-surface: <span style="color:#F28A0F;">#0f1248</span>;
+  --bg-raised:  <span style="color:#F28A0F;">#131862</span>;
+  --bg-overlay: <span style="color:#F28A0F;">rgba(11,8,53,0.96)</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Amber */</span>
+  --amber-glow:  <span style="color:#F28A0F;">rgba(242,138,15,0.22)</span>;
+  --amber-ghost: <span style="color:#F28A0F;">rgba(242,138,15,0.10)</span>;
+  --amber-trace: <span style="color:#F28A0F;">rgba(242,138,15,0.05)</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Red */</span>
+  --red-glow:    <span style="color:#F28A0F;">rgba(229,52,11,0.28)</span>;
+  --red-ghost:   <span style="color:#F28A0F;">rgba(229,52,11,0.10)</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Teal */</span>
+  --teal-glow:   <span style="color:#F28A0F;">rgba(63,138,140,0.20)</span>;
+  --teal-ghost:  <span style="color:#F28A0F;">rgba(63,138,140,0.10)</span>;
+  --teal-trace:  <span style="color:#F28A0F;">rgba(63,138,140,0.07)</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Text */</span>
+  --text-primary:   <span style="color:#F28A0F;">#FFE7BD</span>;
+  --text-secondary: <span style="color:#F28A0F;">rgba(255,231,189,0.68)</span>;
+  --text-muted:     <span style="color:#F28A0F;">rgba(255,231,189,0.42)</span>;
+  --text-ghost:     <span style="color:#F28A0F;">rgba(255,231,189,0.08)</span>;
+  --text-accent:    <span style="color:#F28A0F;">#F28A0F</span>;   <span style="color:rgba(63,138,140,0.5);">/* amber */</span>
+  --text-hot:       <span style="color:#F28A0F;">#E5340B</span>;   <span style="color:rgba(63,138,140,0.5);">/* red   */</span>
+  --text-cool:      <span style="color:#F28A0F;">#3F8A8C</span>;   <span style="color:rgba(63,138,140,0.5);">/* teal  */</span>
+
+  <span style="color:rgba(63,138,140,0.7);">/* Type scale — ALL SIZES INCREASED */</span>
+  --font:            <span style="color:#F28A0F;">'Helvetica Neue', Helvetica, Arial, sans-serif</span>;
+  --text-ghost-hero: <span style="color:#F28A0F;">96px</span>;
+  --text-display:    <span style="color:#F28A0F;">72px</span>;
+  --text-xl:         <span style="color:#F28A0F;">32px</span>;
+  --text-lg:         <span style="color:#F28A0F;">22px</span>;
+  --text-base:       <span style="color:#F28A0F;">16px</span>;
+  --text-eyebrow:    <span style="color:#F28A0F;">13px</span>;
+  --text-label:      <span style="color:#F28A0F;">11px</span>;
+  --text-micro:      <span style="color:#F28A0F;">10px</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Spacing — unchanged */</span>
+  --grid: <span style="color:#F28A0F;">50px</span>;  --sp-4: <span style="color:#F28A0F;">14px</span>;  --sp-12: <span style="color:#F28A0F;">48px</span>;  --sp-13: <span style="color:#F28A0F;">52px</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Borders */</span>
+  --border-subtle: <span style="color:#F28A0F;">0.8px solid rgba(242,138,15,0.22)</span>;
+  --border-card:   <span style="color:#F28A0F;">0.8px solid rgba(242,138,15,0.38)</span>;
+  --border-teal:   <span style="color:#F28A0F;">0.8px solid rgba(63,138,140,0.40)</span>;
+  --border-red:    <span style="color:#F28A0F;">0.8px solid rgba(229,52,11,0.45)</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Glow */</span>
+  --glow-amber: <span style="color:#F28A0F;">0 0 28px rgba(242,138,15,0.28), 0 0 8px rgba(242,138,15,0.16)</span>;
+  --glow-red:   <span style="color:#F28A0F;">0 0 28px rgba(229,52,11,0.30),  0 0 8px rgba(229,52,11,0.18)</span>;
+  --glow-teal:  <span style="color:#F28A0F;">0 0 28px rgba(63,138,140,0.22)</span>;
+  --glow-card:  <span style="color:#F28A0F;">0 0 40px rgba(242,138,15,0.08)</span>;
+
+  <span style="color:rgba(63,138,140,0.7);">/* Motion */</span>
+  --ease: <span style="color:#F28A0F;">cubic-bezier(0.16, 1, 0.3, 1)</span>;  --duration: <span style="color:#F28A0F;">220ms</span>;
+}</pre>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

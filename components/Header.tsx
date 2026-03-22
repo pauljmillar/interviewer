@@ -50,6 +50,17 @@ export default function Header({ hasClerk = true }: HeaderProps) {
 
   const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
 
+  const handleHashClick = useCallback((e: React.MouseEvent, href: string) => {
+    if (href.startsWith('/#')) {
+      const id = href.slice(2);
+      const el = document.getElementById(id);
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, []);
+
   useEffect(() => {
     closeMobileMenu();
     setProductsOpen(false);
@@ -74,20 +85,20 @@ export default function Header({ hasClerk = true }: HeaderProps) {
 
   const navItems = isLanding ? landingNav : isAdmin ? [] : publicNav;
 
-  const headerBg = 'bg-white dark:bg-[#0f0f0f]';
-  const headerBorder = 'border-gray-200 dark:border-[#2a2a2a]';
+  const headerBg = isLanding ? '' : 'bg-white dark:bg-[#0f0f0f]';
+  const headerBorder = isLanding ? '' : 'border-gray-200 dark:border-[#2a2a2a]';
   const linkClass = isLanding
-    ? 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors'
+    ? 'retro-nav-link'
     : 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors';
 
   return (
     <header
-      className={`sticky top-0 z-30 flex items-center justify-between gap-4 px-4 py-3 border-b font-landing ${headerBg} ${headerBorder}`}
+      className={`sticky top-0 z-30 flex items-center justify-between gap-4 px-4 py-3 border-b font-landing ${headerBg} ${headerBorder} ${isLanding ? 'retro-header' : ''}`}
     >
       <div className="flex-shrink-0 w-1/3 flex items-center">
         <Link
           href="/"
-          className="flex items-center gap-2 text-lg font-semibold truncate transition-colors text-gray-900 hover:text-gray-600 dark:text-gray-100 dark:hover:text-gray-300"
+          className={isLanding ? 'retro-logo flex items-center gap-2 truncate' : 'flex items-center gap-2 text-lg font-semibold truncate transition-colors text-gray-900 hover:text-gray-600 dark:text-gray-100 dark:hover:text-gray-300'}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +110,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="flex-shrink-0 text-[#3ECF8E]"
+            className={`flex-shrink-0 ${isLanding ? 'text-[#E5340B]' : 'text-[#3ECF8E]'}`}
             aria-hidden
           >
             <path d="M2 13a2 2 0 0 0 2-2V7a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0V4a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0v-4a2 2 0 0 1 2-2" />
@@ -135,16 +146,16 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               </button>
               {productsOpen && (
                 <div className="absolute top-full left-0 pt-1 w-52 z-50">
-                  <div className="rounded-lg border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f] shadow-lg py-1">
+                  <div className={isLanding ? 'rounded-lg border retro-dropdown shadow-lg py-1' : 'rounded-lg border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f] shadow-lg py-1'}>
                     <Link
                       href="/ai-interviewer"
-                      className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                      className={isLanding ? 'retro-dropdown-item' : 'block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}
                     >
                       AI Interviewer
                     </Link>
                     <Link
                       href="/integrations"
-                      className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                      className={isLanding ? 'retro-dropdown-item' : 'block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}
                     >
                       Integrations
                     </Link>
@@ -153,18 +164,11 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               )}
             </div>
           ) : (
-            <Link key={href} href={href} className={linkClass}>
+            <Link key={href} href={href} className={linkClass} onClick={(e) => handleHashClick(e, href)}>
               {label}
             </Link>
           )
         )}
-        <SignedIn>
-          {isLanding && (
-            <Link href="/admin" className={linkClass}>
-              Dashboard
-            </Link>
-          )}
-        </SignedIn>
       </nav>
 
       <div className="flex sm:hidden flex-1 justify-end items-center gap-1">
@@ -218,24 +222,13 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               <Link
                 key={href}
                 href={href}
-                onClick={closeMobileMenu}
+                onClick={(e) => { handleHashClick(e, href); closeMobileMenu(); }}
                 className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
               >
                 {label}
               </Link>
             )
           )}
-          <SignedIn>
-            {isLanding && (
-              <Link
-                href="/admin"
-                onClick={closeMobileMenu}
-                className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-              >
-                Dashboard
-              </Link>
-            )}
-          </SignedIn>
         </nav>
         {(hasClerk || isLanding) && (
           <div className="px-4 pb-4 pt-0 flex gap-2 border-t border-gray-200 dark:border-[#2a2a2a] pt-3">
@@ -263,7 +256,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 </SignedOut>
                 <SignedIn>
                   <div className="flex items-center gap-2 w-full">
-                    {!isLanding && !isAdminPath(pathname) && (
+                    {!isAdminPath(pathname) && (
                       <Link
                         href="/admin"
                         onClick={closeMobileMenu}
@@ -299,7 +292,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               <SignInButton mode="modal">
                 <button
                   type="button"
-                  className={`px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors ${isLanding ? 'text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white' : 'text-landing-text hover:text-landing-heading dark:text-gray-300 dark:hover:text-white'}`}
+                  className={isLanding ? 'retro-sign-in' : `px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-landing-text hover:text-landing-heading dark:text-gray-300 dark:hover:text-white`}
                 >
                   Sign in
                 </button>
@@ -307,7 +300,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               <SignUpButton mode="modal">
                 <button
                   type="button"
-                  className={`px-4 py-2.5 min-h-[44px] text-sm font-medium text-white rounded-lg border-2 border-transparent transition-colors ${isLanding ? 'bg-black hover:bg-gray-800' : 'bg-landing-primary hover:bg-landing-primary-hover'}`}
+                  className={isLanding ? 'retro-sign-up' : `px-4 py-2.5 min-h-[44px] text-sm font-medium text-white rounded-lg border-2 border-transparent transition-colors bg-landing-primary hover:bg-landing-primary-hover`}
                 >
                   Sign up
                 </button>
@@ -340,10 +333,10 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                   />
                 </>
               )}
-              {!isAdminPath(pathname) && !isLanding && (
+              {!isAdminPath(pathname) && (
                 <Link
                   href="/admin"
-                  className={`px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-landing-text hover:text-landing-heading`}
+                  className={isLanding ? 'retro-nav-link' : `px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-landing-text hover:text-landing-heading`}
                 >
                   Dashboard
                 </Link>
