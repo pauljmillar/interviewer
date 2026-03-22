@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import Header from "@/components/Header";
+import ConditionalHeader from "@/components/ConditionalHeader";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   const content = (
     <>
-      <Header hasClerk={!!clerkPublishableKey} />
+      <ConditionalHeader hasClerk={!!clerkPublishableKey} />
       <main className="flex-1 flex flex-col">{children}</main>
     </>
   );

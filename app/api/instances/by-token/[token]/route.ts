@@ -4,6 +4,8 @@ import {
   getLatestSession,
   createSession,
 } from '@/lib/server/instanceStoreAdapter';
+import { createServerSupabase } from '@/lib/supabase/server';
+import { getOrgSettings } from '@/lib/server/supabaseOrgSettings';
 
 export async function GET(
   _request: NextRequest,
@@ -38,7 +40,27 @@ export async function GET(
       createdNewSession: createdNew,
     });
 
-    return NextResponse.json({ instance, session });
+    // Fetch org settings for branding (non-fatal if unavailable)
+    let orgSettings: { companyName: string | null; hasLogo: boolean; privacyPolicyUrl: string | null } = {
+      companyName: null,
+      hasLogo: false,
+      privacyPolicyUrl: null,
+    };
+    try {
+      const supabase = createServerSupabase();
+      if (supabase && instance.orgId) {
+        const settings = await getOrgSettings(supabase, instance.orgId);
+        orgSettings = {
+          companyName: settings?.companyName ?? null,
+          hasLogo: !!settings?.logoKey,
+          privacyPolicyUrl: settings?.privacyPolicyUrl ?? null,
+        };
+      }
+    } catch {
+      // Silently degrade — branding is non-critical
+    }
+
+    return NextResponse.json({ instance, session, orgSettings });
   } catch (error) {
     console.error('GET /api/instances/by-token error:', error);
     return NextResponse.json(

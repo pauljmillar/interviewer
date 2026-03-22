@@ -489,6 +489,22 @@ ${isFirstMessage
   }
 
   try {
+    // When intro is provided on the very first message, skip the LLM call.
+    // The intro already covers the opening; just ask the question verbatim so
+    // the LLM doesn't prepend its own greeting on top of the intro text.
+    if (isFirstMessage && intro?.trim() && !lastUserMessage) {
+      const fullResponse = intro.trim() + '\n\n' + currentQuestion.mainQuestion;
+      if (streamSink) streamSink(fullResponse);
+      return {
+        response: fullResponse,
+        questionCovered: false,
+        allQuestionsCovered: false,
+        discoveryContext: updatedDiscoveryContext,
+        followUpQuestions: discoveryFollowUps,
+        ...debugPayload(),
+      };
+    }
+
     if (streamSink && isFirstMessage && intro?.trim()) {
       streamSink(intro.trim() + '\n\n');
     }
@@ -508,8 +524,10 @@ ${isFirstMessage
       response = intro.trim() + '\n\n' + response;
     }
 
-    // Determine if we've covered the current question
-    const questionCovered = shouldMoveOn;
+    // Determine if we've covered the current question.
+    // Require an actual user reply — shouldMoveOn alone can be true on the first turn
+    // (no subTopics, no wordCountThreshold) which would skip straight to the conclusion.
+    const questionCovered = shouldMoveOn && !!lastUserMessage;
 
     // Check if all questions are covered
     // We're done if we're on the last question (or beyond) and it's covered

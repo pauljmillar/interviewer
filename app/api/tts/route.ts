@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
       voice: voice as 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer',
       input: text,
       response_format: 'mp3',
+      speed: 1.15,
     });
 
     const buffer = Buffer.from(await response.arrayBuffer());

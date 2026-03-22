@@ -136,22 +136,12 @@ export const INTERVIEW_TEMPLATES: InterviewTemplate[] = [
   {
     id: 'demo-walkthrough',
     name: 'Try our interview (demo)',
-    intro: "Welcome! This is a short demo so you can see how our AI interviewer works. I'll ask a few questions and explain the process as we go. You can type your answers or use the microphone—whatever you prefer.",
+    intro: "Hi there — this is generally the experience that one of your candidates will have in an AI screening interview. The email they've received will have described the process in advance, so they have some idea of what to expect. Then they'll be asked to confirm that they are ok being recorded, as you had to do. The videos are available for you to review, though it is not required. The main goal of Candice AI is to save you time. After each interview, we'll provide a summary, score, and ranking, so you may want to briefly review the video only of the highest ranked candidate(s). To give you the feel of the question and answer format, let's move on to a question.",
     conclusion: "That's the end of the demo. Thanks for trying it! You can create your own interview by pasting a job description on the home page, or sign up to manage positions and review results.",
     reminder: "No pressure—this is just a demo. Feel free to answer so we can continue, or you can close the tab anytime.",
     questions: [
       {
-        mainQuestion: "First, what's your name? (This is just for the demo—we use it to personalize the experience.)",
-        subTopics: [],
-        mode: 4,
-      },
-      {
-        mainQuestion: "In a real interview, we'd ask questions based on the job description. Here we're keeping it simple: what's one thing you look for in a great workplace?",
-        subTopics: [],
-        mode: 4,
-      },
-      {
-        mainQuestion: "You've seen how it works: we ask, you answer by typing or voice, and the AI can evaluate and move on or ask follow-ups. Anything you'd like to ask about the process before we wrap up?",
+        mainQuestion: "How many screening interviews do you schedule each month, on average?",
         subTopics: [],
         mode: 4,
       },

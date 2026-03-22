@@ -5,25 +5,7 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { INTERVIEW_TEMPLATES, getTemplateById } from '@/constants/templates';
 import type { PositionRecord, PositionType, InterviewTemplate } from '@/types';
-import AnalysisPanel from '@/components/admin/AnalysisPanel';
-
-type InstanceStatus = 'not_started' | 'started' | 'completed';
-
-type InstanceRow = {
-  id: string;
-  recipientName?: string;
-  status: InstanceStatus;
-  createdAt: string;
-  durationSeconds?: number;
-  shareableToken?: string;
-};
-
-function formatDuration(seconds: number | undefined, status: InstanceStatus): string {
-  if (status === 'not_started' || seconds == null || seconds <= 0) return '—';
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}m ${s}s`;
-}
+import AnalysisPanel, { type InstanceRow } from '@/components/admin/AnalysisPanel';
 
 export default function PositionDetailPage() {
   const router = useRouter();
@@ -97,7 +79,7 @@ export default function PositionDetailPage() {
       const data = await res.json();
       setInstances(
         Array.isArray(data)
-          ? data.map((d: { id: string; recipientName?: string; status: InstanceStatus; createdAt: string; durationSeconds?: number; shareableToken?: string }) => ({
+          ? data.map((d: { id: string; recipientName?: string; status: InstanceRow['status']; createdAt: string; durationSeconds?: number; shareableToken?: string }) => ({
               id: d.id,
               recipientName: d.recipientName,
               status: d.status,
@@ -261,7 +243,22 @@ export default function PositionDetailPage() {
         </Link>
       </div>
       <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 mb-6">
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Position details</h1>
+        <div className="flex items-start justify-between mb-6">
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Position details</h1>
+          {!isEditing && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              title="Edit position"
+              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
+                <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
+              </svg>
+            </button>
+          )}
+        </div>
         {error && (
           <p className="mb-4 text-sm text-red-600 dark:text-red-400" role="alert">
             {error}
@@ -332,181 +329,41 @@ export default function PositionDetailPage() {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="px-4 py-2 border border-red-600 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50 disabled:pointer-events-none font-medium"
+                className="ml-auto px-4 py-2 border border-red-600 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50 disabled:pointer-events-none font-medium"
               >
                 {deleting ? 'Deleting…' : 'Delete position'}
               </button>
             </div>
           </>
         ) : (
-          <>
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="font-medium text-gray-500 dark:text-gray-400">Name</dt>
-                <dd className="text-gray-900 dark:text-gray-100">{position.name}</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-gray-500 dark:text-gray-400">Type</dt>
-                <dd className="text-gray-900 dark:text-gray-100">{position.type ?? 'job'}</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-gray-500 dark:text-gray-400">Template</dt>
-                <dd className="text-gray-900 dark:text-gray-100">{templateName ?? 'None'}</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-gray-500 dark:text-gray-400">Created</dt>
-                <dd className="text-gray-900 dark:text-gray-100">{new Date(position.createdAt).toLocaleString()}</dd>
-              </div>
-            </dl>
-            <div className="mt-6 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="px-4 py-2 border border-red-600 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50 disabled:pointer-events-none font-medium"
-              >
-                {deleting ? 'Deleting…' : 'Delete position'}
-              </button>
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <dt className="font-medium text-gray-500 dark:text-gray-400">Name</dt>
+              <dd className="text-gray-900 dark:text-gray-100">{position.name}</dd>
             </div>
-          </>
+            <div>
+              <dt className="font-medium text-gray-500 dark:text-gray-400">Type</dt>
+              <dd className="text-gray-900 dark:text-gray-100">{position.type ?? 'job'}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-gray-500 dark:text-gray-400">Template</dt>
+              <dd className="text-gray-900 dark:text-gray-100">{templateName ?? 'None'}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-gray-500 dark:text-gray-400">Created</dt>
+              <dd className="text-gray-900 dark:text-gray-100">{new Date(position.createdAt).toLocaleString()}</dd>
+            </div>
+          </dl>
         )}
       </div>
 
-      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg overflow-hidden">
-        <div className="flex items-center justify-between flex-wrap gap-2 px-6 py-4 border-b border-gray-200 dark:border-[#2a2a2a]">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Interview instances</h2>
-          {resolvedTemplate ? (
-            <button
-              type="button"
-              onClick={() => setCreateModalOpen(true)}
-              className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium text-sm"
-            >
-              Create New
-            </button>
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Add a template to this position to create interview instances.
-            </p>
-          )}
-        </div>
-        {instancesError && (
-          <p className="px-6 py-2 text-sm text-red-600 dark:text-red-400" role="alert">
-            {instancesError}
-          </p>
-        )}
-        {instancesLoading ? (
-          <p className="p-6 text-gray-500 dark:text-gray-400">Loading instances...</p>
-        ) : instances.length === 0 ? (
-          <p className="p-6 text-gray-600 dark:text-gray-300">
-            No interview instances yet.
-            {resolvedTemplate ? ' Click Create New to add recipients.' : ''}
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead className="bg-gray-50 dark:bg-gray-600 dark:bg-[#2a2a2a]/50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">
-                    Recipient
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">
-                    Status
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">
-                    Created
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">
-                    Duration
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase">
-                    Interview link
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-[#1a1a1a] divide-y divide-gray-200 dark:divide-gray-600">
-                {instances.map((inst) => {
-                  const interviewUrl =
-                    typeof window !== 'undefined' && inst.shareableToken
-                      ? `${window.location.origin}/interview/${inst.shareableToken}`
-                      : inst.shareableToken
-                        ? `/interview/${inst.shareableToken}`
-                        : null;
-                  return (
-                    <tr key={inst.id}>
-                      <td className="px-4 py-2 text-sm">
-                        <Link
-                          href={`/admin/interviews/${encodeURIComponent(inst.id)}`}
-                          className="text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline font-medium"
-                        >
-                          {inst.recipientName ?? '—'}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2 text-sm">
-                        <span
-                          className={
-                            inst.status === 'completed'
-                              ? 'text-green-600 dark:text-green-400'
-                              : inst.status === 'started'
-                                ? 'text-amber-600 dark:text-amber-400'
-                                : 'text-gray-500 dark:text-gray-400'
-                          }
-                        >
-                          {inst.status.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">
-                        {new Date(inst.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">
-                        {formatDuration(inst.durationSeconds, inst.status)}
-                      </td>
-                      <td className="px-4 py-2 text-sm">
-                        {interviewUrl ? (
-                          <span className="inline-flex items-center gap-2">
-                            <span
-                              className="truncate max-w-[200px] sm:max-w-[280px] text-gray-700 dark:text-gray-300"
-                              title={interviewUrl}
-                            >
-                              {interviewUrl.length > 45
-                                ? `${interviewUrl.slice(0, 42)}…`
-                                : interviewUrl}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const full =
-                                  typeof window !== 'undefined' && inst.shareableToken
-                                    ? `${window.location.origin}/interview/${inst.shareableToken}`
-                                    : interviewUrl;
-                                if (full) navigator.clipboard.writeText(full);
-                              }}
-                              className="px-2 py-0.5 text-xs bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 dark:border-[#2a2a2a] flex-shrink-0"
-                              title="Copy link"
-                            >
-                              Copy
-                            </button>
-                          </span>
-                        ) : (
-                          <span className="text-gray-400 dark:text-gray-500">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <AnalysisPanel positionId={id} />
+      <AnalysisPanel
+        positionId={id}
+        instances={instances}
+        instancesLoading={instancesLoading}
+        onCreateNew={() => setCreateModalOpen(true)}
+        hasTemplate={!!resolvedTemplate}
+      />
 
       {createModalOpen && (
         <div

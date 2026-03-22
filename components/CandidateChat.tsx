@@ -33,12 +33,19 @@ function formatElapsed(seconds: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+interface OrgData {
+  companyName: string | null;
+  hasLogo: boolean;
+  privacyPolicyUrl: string | null;
+}
+
 interface CandidateChatProps {
   instance: InterviewInstanceRecord;
   session: SessionRecord;
   onSessionUpdate?: (session: SessionRecord) => void;
   /** When true, start camera+mic recording on mount (if interview not already completed); stop and upload on completion. */
   startRecording?: boolean;
+  orgSettings?: OrgData | null;
 }
 
 /** Normalize messages from API (array or JSON string) to Message[]. */
@@ -70,7 +77,7 @@ function normalizeMessages(raw: unknown): Message[] {
   return out;
 }
 
-export default function CandidateChat({ instance, session: initialSession, onSessionUpdate, startRecording = false }: CandidateChatProps) {
+export default function CandidateChat({ instance, session: initialSession, onSessionUpdate, startRecording = false, orgSettings }: CandidateChatProps) {
   const [messages, setMessages] = useState<Message[]>(() => normalizeMessages(initialSession.messages));
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(initialSession.currentQuestionIndex);
   const [coveredSubTopics, setCoveredSubTopics] = useState(initialSession.coveredSubTopics);
@@ -92,6 +99,8 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const [elapsedTick, setElapsedTick] = useState(() => Date.now());
   /** Typewriter: number of characters to show for the last assistant message (0 = not yet started). */
   const [typewriterLength, setTypewriterLength] = useState(0);
+  /** Help/FAQ modal open state. */
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -309,39 +318,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     [voiceId]
   );
 
-  /** Speak using OpenAI TTS (same as template sample); fall back to browser TTS if API fails. */
-  const speakResponse = useCallback(
-    async (text: string) => {
-      if (!text.trim()) return;
-      // Cancel any pre-spoken intro (or other ongoing speech) before playing this response
-      ttsRef.current?.stop();
-      const truncated = text.trim().slice(0, 4096);
-      try {
-        const res = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: truncated, voice: voiceId }),
-        });
-        if (res.ok) {
-          const blob = await res.blob();
-          const url = URL.createObjectURL(blob);
-          const audio = new Audio(url);
-          audio.onended = () => URL.revokeObjectURL(url);
-          audio.onerror = () => URL.revokeObjectURL(url);
-          await audio.play();
-          return;
-        }
-      } catch {
-        // fall through to browser TTS
-      }
-      if (ttsRef.current?.isAvailable()) {
-        ttsRef.current.speak(truncated);
-      }
-    },
-    [voiceId]
-  );
-
-  /** Speak text in sentence chunks: first segment plays immediately, rest queue. */
+  /** Speak text in sentence chunks with prefetch: fetches the next sentence while the current one plays. */
   const speakResponseChunked = useCallback(
     async (text: string) => {
       if (!text.trim()) return;
@@ -351,11 +328,46 @@ export default function CandidateChat({ instance, session: initialSession, onSes
         await playSegment(text);
         return;
       }
-      for (const sentence of sentences) {
-        await playSegment(sentence);
+
+      const fetchBlob = (sentence: string): Promise<Blob | null> =>
+        fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: sentence.trim().slice(0, 4096), voice: voiceId }),
+        })
+          .then((r) => (r.ok ? r.blob() : null))
+          .catch(() => null);
+
+      const playBlob = (blob: Blob): Promise<void> => {
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        return new Promise((resolve) => {
+          const cleanup = () => { URL.revokeObjectURL(url); resolve(); };
+          audio.onended = cleanup;
+          audio.onerror = cleanup;
+          audio.play().catch(cleanup);
+        });
+      };
+
+      // Kick off first fetch immediately
+      let currentBlobPromise = fetchBlob(sentences[0]);
+
+      for (let i = 0; i < sentences.length; i++) {
+        // Start prefetching next sentence concurrently while we await current
+        const nextBlobPromise = i + 1 < sentences.length ? fetchBlob(sentences[i + 1]) : null;
+
+        const blob = await currentBlobPromise;
+        if (blob) {
+          await playBlob(blob);
+        } else if (ttsRef.current?.isAvailable()) {
+          ttsRef.current.speak(sentences[i]);
+          await new Promise<void>((r) => setTimeout(r, Math.max(sentences[i].length * 50, 2000)));
+        }
+
+        if (nextBlobPromise) currentBlobPromise = nextBlobPromise;
       }
     },
-    [playSegment]
+    [voiceId, playSegment]
   );
 
   const getCurrentElapsedSeconds = useCallback(() => {
@@ -455,6 +467,8 @@ export default function CandidateChat({ instance, session: initialSession, onSes
         let firstSentenceSpoken = false;
         const firstSentencePattern = /^([^.!?]*[.!?])\s*/;
         let streamComplete = false;
+        // Track first-sentence playback so the remainder waits for it to finish
+        let firstSentencePlayback: Promise<void> | null = null;
 
         while (!streamComplete && !cancelled) {
           const { done, value } = await reader.read();
@@ -480,7 +494,10 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                     firstSentenceSpoken = true;
                     const firstSentence = match[1].trim();
                     firstSentenceLengthRef.current = firstSentence.length;
-                    speakResponse(firstSentence);
+                    // Stop any pre-spoken browser TTS, then play first sentence.
+                    // Store the promise so the remainder waits for this to finish.
+                    ttsRef.current?.stop();
+                    firstSentencePlayback = playSegment(firstSentence);
                   }
                 }
               } else if (parsed.type === 'done' && parsed.result) {
@@ -495,7 +512,12 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                 if (data.discoveryContext) setDiscoveryContext(data.discoveryContext);
                 if (firstSentenceSpoken) {
                   const remainder = fullContent.slice(firstSentenceLengthRef.current).trim();
-                  if (remainder) speakResponseChunked(remainder);
+                  if (remainder) {
+                    // Only start the remainder after the first sentence finishes playing
+                    (firstSentencePlayback ?? Promise.resolve()).then(() => {
+                      if (!cancelled) speakResponseChunked(remainder);
+                    });
+                  }
                 } else {
                   speakResponseChunked(fullContent);
                 }
@@ -538,7 +560,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     return () => {
       cancelled = true;
     };
-  }, [speakResponse, speakResponseChunked, instance]); // Run once on mount when messages are empty and questions exist
+  }, [speakResponseChunked, playSegment, instance]); // Run once on mount when messages are empty and questions exist
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -548,33 +570,37 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
   const lastIsAssistant = lastMessage?.role === 'assistant';
   const lastAssistantContent = lastIsAssistant ? lastMessage!.content : '';
+  // Ref so the interval always reads the latest streamed content without re-running the effect
+  const lastAssistantContentRef = useRef('');
+  lastAssistantContentRef.current = lastAssistantContent;
 
   useEffect(() => {
-    if (!lastIsAssistant || !lastAssistantContent) {
+    if (!lastIsAssistant) {
       setTypewriterLength(0);
       return;
     }
     setTypewriterLength(0);
-    const fullLength = lastAssistantContent.length;
     const wordDelayMs = 45;
-    let intervalId: ReturnType<typeof setInterval>;
-
-    const advance = () => {
+    const intervalId = setInterval(() => {
       setTypewriterLength((prev) => {
-        if (prev >= fullLength) {
-          clearInterval(intervalId);
-          return prev;
-        }
-        const nextSpace = lastAssistantContent.indexOf(' ', prev);
-        const nextEnd = nextSpace === -1 ? fullLength : nextSpace + 1;
-        return Math.min(nextEnd, fullLength);
+        const content = lastAssistantContentRef.current;
+        if (!content || prev >= content.length) return prev;
+        const nextSpace = content.indexOf(' ', prev);
+        const nextEnd = nextSpace === -1 ? content.length : nextSpace + 1;
+        return Math.min(nextEnd, content.length);
       });
-    };
-
-    advance(); // show first word immediately
-    intervalId = setInterval(advance, wordDelayMs);
+    }, wordDelayMs);
+    // Show first word immediately
+    setTypewriterLength(() => {
+      const content = lastAssistantContentRef.current;
+      if (!content) return 0;
+      const nextSpace = content.indexOf(' ');
+      return nextSpace === -1 ? content.length : nextSpace + 1;
+    });
     return () => clearInterval(intervalId);
-  }, [messages.length, lastIsAssistant, lastAssistantContent]);
+  // Only reset the typewriter when a genuinely new message is added, not on streaming updates
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length, lastIsAssistant]);
 
   // When the last message content changes (new message), we already reset in the effect above.
   // Ensure we never show more than current message length in case of rapid updates.
@@ -730,65 +756,146 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     }
   };
 
+  const faqItems = [
+    {
+      q: 'Is this a real interview?',
+      a: `Yes. Candice is an AI assistant conducting a real screening interview on behalf of ${instance.companyName || 'the hiring team'}. Your responses are reviewed by the recruiting team.`,
+    },
+    {
+      q: 'Can I start over?',
+      a: 'You cannot restart the interview yourself. If you encountered a technical issue, please reach out to the recruiter who sent you the link.',
+    },
+    {
+      q: 'How can I learn more about the role?',
+      a: `Check the company's website or reply to the email you received from the recruiter${instance.recruiterName ? ` (${instance.recruiterName})` : ''}. Candice is focused on the interview itself and cannot answer detailed questions about compensation or team structure.`,
+    },
+    {
+      q: 'When can I expect to hear back?',
+      a: 'Typically within a few business days of completing the interview. The hiring team will review your responses and follow up directly.',
+    },
+    {
+      q: 'What happens with my responses?',
+      a: 'Your answers and the interview transcript are shared only with the hiring team at the company that invited you. They are used solely for candidate evaluation.',
+    },
+    {
+      q: 'Can I type instead of speaking?',
+      a: 'Absolutely. You can type your answers in the text box at the bottom of the screen. Press Enter to send, or Shift+Enter for a new line.',
+    },
+  ];
+
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <div className="flex flex-col flex-1 min-h-0">
-        <header className="bg-white border-b shadow-sm p-4 flex-shrink-0">
-          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-            <h1 className="text-xl font-bold text-gray-800">
-              {instance.name}
-            </h1>
-            <div className="flex items-center gap-3">
+    <>
+      <div className="font-landing flex flex-col h-screen bg-landing-bg">
+        {/* Interview-specific header: Candice logo, company + job title, recording controls, timer, help */}
+        <header className="bg-landing-bg border-b border-landing-border px-4 py-3 flex-shrink-0">
+          <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Candice AI brand */}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-[#3ECF8E]"
+                  aria-hidden
+                >
+                  <path d="M2 13a2 2 0 0 0 2-2V7a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0V4a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0v-4a2 2 0 0 1 2-2" />
+                </svg>
+                <span className="text-sm font-semibold text-landing-heading whitespace-nowrap">Candice AI</span>
+              </div>
+              {/* Divider + company logo + company/job info */}
+              {(orgSettings?.companyName || orgSettings?.hasLogo || instance.companyName || instance.name) && (
+                <>
+                  <span className="text-landing-border select-none hidden sm:block">|</span>
+                  <div className="flex items-center gap-2 min-w-0 hidden sm:flex">
+                    {orgSettings?.hasLogo && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`/api/org/logo/${instance.orgId}`}
+                        alt={orgSettings.companyName ?? instance.companyName ?? 'Company logo'}
+                        className="h-7 w-auto object-contain flex-shrink-0"
+                      />
+                    )}
+                    <div className="min-w-0">
+                    {(orgSettings?.companyName || instance.companyName) && (
+                      <p className="text-xs font-medium text-landing-muted uppercase tracking-widest truncate leading-none">
+                        {orgSettings?.companyName ?? instance.companyName}
+                      </p>
+                    )}
+                    <p className="text-sm font-medium text-landing-heading truncate leading-snug">
+                      {instance.name}
+                    </p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
               {isInterviewRecording && (
-                <span className="flex items-center gap-1.5 text-xs font-medium text-red-600" role="status" aria-live="polite">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-red-500" role="status" aria-live="polite">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
                   </span>
-                  Recording
+                  Rec
                 </span>
               )}
               {isInterviewRecording && !isInterviewRecordingPaused && (
                 <button
                   type="button"
                   onClick={handlePauseRecording}
-                  className="px-3 py-1.5 text-xs font-medium rounded-md bg-amber-100 text-amber-800 hover:bg-amber-200"
+                  className="px-2.5 py-1 text-xs font-medium rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50"
                 >
-                  Pause recording
+                  Pause
                 </button>
               )}
               {isInterviewRecordingPaused && (
                 <button
                   type="button"
                   onClick={handleResumeRecording}
-                  className="px-3 py-1.5 text-xs font-medium rounded-md bg-green-100 text-green-800 hover:bg-green-200"
+                  className="px-2.5 py-1 text-xs font-medium rounded-md bg-[#3ECF8E]/10 text-[#2dbe7e] hover:bg-[#3ECF8E]/20"
                 >
-                  Resume recording
+                  Resume
                 </button>
               )}
-              <div className="text-sm font-medium text-gray-500 tabular-nums" aria-label="Elapsed time">
+              <div className="text-sm font-medium text-landing-muted tabular-nums" aria-label="Elapsed time">
                 {formatElapsed(displayedElapsedSeconds)}
               </div>
+              <button
+                type="button"
+                onClick={() => setHelpOpen(true)}
+                className="px-3 py-1.5 text-xs font-medium rounded-md border border-landing-border text-landing-muted hover:text-landing-heading hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+                aria-label="Help and FAQ"
+              >
+                Help
+              </button>
             </div>
           </div>
         </header>
 
         {isRecording && (
-          <div className="bg-red-600 text-white px-4 py-3 flex items-center justify-center gap-3 flex-shrink-0" role="status" aria-live="polite">
+          <div className="bg-red-600 text-white px-4 py-2.5 flex items-center justify-center gap-3 flex-shrink-0 text-sm" role="status" aria-live="polite">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
               <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
             </span>
-            <span className="font-semibold">Recording…</span>
-            <span className="text-red-200 text-sm">Click Stop when finished.</span>
+            <span className="font-semibold">Listening…</span>
+            <span className="text-red-200">Click Stop when finished.</span>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col">
-          <div className="max-w-4xl mx-auto w-full">
+        {/* Scrollable messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-6">
+          <div className="max-w-3xl mx-auto w-full">
             {messages.length === 0 && !isLoading && (
-              <div className="text-center text-gray-500 mt-8">
-                Starting conversation...
+              <div className="text-center text-landing-muted mt-8 text-sm">
+                Starting conversation…
               </div>
             )}
             {messages.map((message, index) => {
@@ -807,10 +914,10 @@ export default function CandidateChat({ instance, session: initialSession, onSes
             })}
             {isLoading && (
               <div className="flex justify-start mb-4">
-                <div className="bg-blue-100 text-blue-900 rounded-lg px-4 py-2">
+                <div className="bg-white dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#2a2a2a] text-landing-muted rounded-lg px-4 py-2 text-sm">
                   <div className="flex items-center gap-2">
                     <div className="animate-pulse">●</div>
-                    <span>Thinking...</span>
+                    <span>Thinking…</span>
                   </div>
                 </div>
               </div>
@@ -819,31 +926,33 @@ export default function CandidateChat({ instance, session: initialSession, onSes
           </div>
         </div>
 
-        <div className="bg-white border-t p-4">
-          <div className="max-w-4xl mx-auto">
+        {/* Input bar — anchored to bottom */}
+        <div className="flex-shrink-0 bg-landing-bg border-t border-landing-border px-4 py-3">
+          <div className="max-w-3xl mx-auto">
+
             <div className="flex gap-2 items-end">
-              <div className="flex-1 relative">
-                <textarea
-                  ref={inputRef}
-                  onKeyDown={handleTextInput}
-                  placeholder={
-                    isRecording
-                      ? 'Listening...'
-                      : isVoiceAvailable
-                      ? 'Type or use voice...'
-                      : 'Type your response...'
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-gray-900"
-                  rows={2}
-                  disabled={isLoading || isRecording}
-                />
-              </div>
+              <textarea
+                ref={inputRef}
+                onKeyDown={handleTextInput}
+                placeholder={
+                  isRecording
+                    ? 'Listening…'
+                    : isVoiceAvailable
+                    ? 'Type or use voice…'
+                    : 'Type your response…'
+                }
+                className="flex-1 px-4 py-3 border border-gray-300 dark:border-[#2a2a2a] dark:bg-[#1c1c1c] dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] resize-none text-gray-900 text-sm leading-5"
+                rows={1}
+                disabled={isLoading || isRecording}
+              />
               {isVoiceAvailable && (
                 <button
                   onClick={handleVoiceInput}
                   disabled={isLoading}
-                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                    isRecording ? 'bg-red-600 text-white hover:bg-red-700 animate-pulse' : 'bg-green-600 text-white hover:bg-green-700'
+                  className={`px-5 py-3 rounded-lg font-medium text-sm transition-colors flex-shrink-0 ${
+                    isRecording
+                      ? 'bg-red-600 text-white hover:bg-red-700 animate-pulse'
+                      : 'bg-[#3ECF8E] text-white hover:bg-[#2dbe7e]'
                   }`}
                 >
                   {isRecording ? 'Stop' : '🎤 Voice'}
@@ -858,14 +967,61 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                   }
                 }}
                 disabled={isLoading || isRecording}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="px-5 py-3 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] transition-colors font-medium text-sm disabled:bg-gray-300 disabled:cursor-not-allowed flex-shrink-0"
               >
                 Send
               </button>
             </div>
+            <p className="mt-2 text-center text-xs text-landing-muted">
+              <a
+                href={orgSettings?.privacyPolicyUrl ?? '/privacy'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                Privacy policy
+              </a>
+            </p>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Help / FAQ modal */}
+      {helpOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+          onClick={(e) => { if (e.target === e.currentTarget) setHelpOpen(false); }}
+        >
+          <div className="bg-white dark:bg-[#1c1c1c] rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-semibold text-landing-heading">Help &amp; FAQ</h2>
+              <button
+                type="button"
+                onClick={() => setHelpOpen(false)}
+                className="text-landing-muted hover:text-landing-heading transition-colors text-xl leading-none"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="space-y-5">
+              {faqItems.map(({ q, a }) => (
+                <div key={q}>
+                  <p className="text-sm font-semibold text-landing-heading">{q}</p>
+                  <p className="mt-1 text-sm text-landing-muted leading-relaxed">{a}</p>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setHelpOpen(false)}
+              className="mt-6 w-full py-2.5 rounded-lg bg-[#3ECF8E] text-white font-medium text-sm hover:bg-[#2dbe7e] transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
