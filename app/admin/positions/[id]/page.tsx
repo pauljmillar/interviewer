@@ -25,7 +25,8 @@ export default function PositionDetailPage() {
   const [instancesLoading, setInstancesLoading] = useState(false);
   const [instancesError, setInstancesError] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [createRecipientNames, setCreateRecipientNames] = useState('');
+  const [candidates, setCandidates] = useState<{ name: string; email: string }[]>([{ name: '', email: '' }]);
+  const [sendEmails, setSendEmails] = useState(true);
   const [createGenerating, setCreateGenerating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -79,13 +80,15 @@ export default function PositionDetailPage() {
       const data = await res.json();
       setInstances(
         Array.isArray(data)
-          ? data.map((d: { id: string; recipientName?: string; status: InstanceRow['status']; createdAt: string; durationSeconds?: number; shareableToken?: string }) => ({
+          ? data.map((d: { id: string; recipientName?: string; status: InstanceRow['status']; createdAt: string; durationSeconds?: number; shareableToken?: string; recipientEmail?: string; emailSentAt?: string | null }) => ({
               id: d.id,
               recipientName: d.recipientName,
               status: d.status,
               createdAt: d.createdAt,
               durationSeconds: d.durationSeconds,
               shareableToken: d.shareableToken,
+              recipientEmail: d.recipientEmail,
+              emailSentAt: d.emailSentAt,
             }))
           : []
       );
@@ -153,18 +156,16 @@ export default function PositionDetailPage() {
 
   const handleCreateInstances = async () => {
     if (!position || !resolvedTemplate) return;
-    const names = createRecipientNames
-      .split(/[\n,]+/)
-      .map((n) => n.trim())
-      .filter(Boolean);
-    if (names.length === 0) {
-      setCreateError('Enter at least one recipient name (one per line or comma-separated).');
+    const validCandidates = candidates.filter((c) => c.name.trim());
+    if (validCandidates.length === 0) {
+      setCreateError('Enter at least one recipient name.');
       return;
     }
     setCreateError(null);
     setCreateGenerating(true);
     try {
-      for (const recipientName of names) {
+      const createdIds: { id: string; hasEmail: boolean }[] = [];
+      for (const candidate of validCandidates) {
         const res = await fetch('/api/instances', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -173,7 +174,8 @@ export default function PositionDetailPage() {
             name: position.name,
             positionId: position.id,
             templateId: resolvedTemplate.id,
-            recipientName,
+            recipientName: candidate.name.trim(),
+            recipientEmail: candidate.email.trim() || undefined,
             questions: resolvedTemplate.questions,
             intro: resolvedTemplate.intro,
             conclusion: resolvedTemplate.conclusion,
@@ -182,11 +184,22 @@ export default function PositionDetailPage() {
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || `Failed for ${recipientName}`);
+          throw new Error(data.error || `Failed for ${candidate.name}`);
+        }
+        const data = await res.json();
+        createdIds.push({ id: data.instance.id, hasEmail: !!candidate.email.trim() });
+      }
+      if (sendEmails) {
+        for (const { id: instanceId, hasEmail } of createdIds) {
+          if (!hasEmail) continue;
+          await fetch(`/api/instances/${instanceId}/send-email`, {
+            method: 'POST',
+            credentials: 'include',
+          });
         }
       }
       setCreateModalOpen(false);
-      setCreateRecipientNames('');
+      setCandidates([{ name: '', email: '' }]);
       loadInstances();
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : 'Failed to create instances');
@@ -372,21 +385,88 @@ export default function PositionDetailPage() {
           aria-modal="true"
           aria-labelledby="create-instances-title"
         >
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl max-w-md w-full mx-4 p-6 border border-gray-200 dark:border-[#2a2a2a]">
-            <h2 id="create-instances-title" className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6 border border-gray-200 dark:border-[#2a2a2a]">
+            <h2 id="create-instances-title" className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-1">
               Create interview instances
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Position: {position.name}</p>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Recipient names (one per line or comma-separated)
-            </label>
-            <textarea
-              value={createRecipientNames}
-              onChange={(e) => setCreateRecipientNames(e.target.value)}
-              placeholder="Jane Doe&#10;John Smith"
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 resize-y mb-4"
-            />
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Position: {position.name}</p>
+
+            <table className="w-full text-sm mb-3">
+              <thead>
+                <tr>
+                  <th className="text-left font-medium text-gray-600 dark:text-gray-400 pb-1 pr-2">Name</th>
+                  <th className="text-left font-medium text-gray-600 dark:text-gray-400 pb-1 pr-2">
+                    Email <span className="font-normal text-gray-400 dark:text-gray-500">(optional)</span>
+                  </th>
+                  <th className="w-8" />
+                </tr>
+              </thead>
+              <tbody>
+                {candidates.map((c, i) => (
+                  <tr key={i}>
+                    <td className="pr-2 pb-2">
+                      <input
+                        type="text"
+                        value={c.name}
+                        onChange={(e) => {
+                          const next = candidates.map((r, j) => j === i ? { ...r, name: e.target.value } : r);
+                          setCandidates(next);
+                        }}
+                        placeholder="Jane Doe"
+                        className="w-full px-3 py-1.5 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+                      />
+                    </td>
+                    <td className="pr-2 pb-2">
+                      <input
+                        type="email"
+                        value={c.email}
+                        onChange={(e) => {
+                          const next = candidates.map((r, j) => j === i ? { ...r, email: e.target.value } : r);
+                          setCandidates(next);
+                        }}
+                        placeholder="jane@example.com"
+                        className="w-full px-3 py-1.5 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+                      />
+                    </td>
+                    <td className="pb-2">
+                      {candidates.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setCandidates(candidates.filter((_, j) => j !== i))}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          aria-label="Remove row"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <button
+              type="button"
+              onClick={() => setCandidates([...candidates, { name: '', email: '' }])}
+              className="text-sm text-[#3ECF8E] hover:underline mb-4"
+            >
+              + Add another
+            </button>
+
+            {candidates.some((c) => c.email.trim()) && (
+              <div className="mb-4">
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-700 dark:text-gray-300">
+                  <input
+                    type="checkbox"
+                    checked={sendEmails}
+                    onChange={(e) => setSendEmails(e.target.checked)}
+                    className="accent-[#3ECF8E]"
+                  />
+                  Send invite emails now
+                </label>
+              </div>
+            )}
+
             {createError && (
               <p className="mb-4 text-sm text-red-600 dark:text-red-400" role="alert">
                 {createError}
@@ -406,7 +486,7 @@ export default function PositionDetailPage() {
                 onClick={() => {
                   if (!createGenerating) {
                     setCreateModalOpen(false);
-                    setCreateRecipientNames('');
+                    setCandidates([{ name: '', email: '' }]);
                     setCreateError(null);
                   }
                 }}

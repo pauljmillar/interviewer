@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
     website: settings?.website ?? null,
     privacyPolicyUrl: settings?.privacyPolicyUrl ?? null,
     hasLogo: !!settings?.logoKey,
+    fromEmail: settings?.fromEmail ?? null,
+    fromName: settings?.fromName ?? null,
   });
 }
 
@@ -31,12 +33,16 @@ export async function PATCH(request: NextRequest) {
     companyName?: string | null;
     website?: string | null;
     privacyPolicyUrl?: string | null;
+    fromEmail?: string | null;
+    fromName?: string | null;
   };
 
   await saveOrgSettings(supabase, orgId, {
     companyName: body.companyName ?? null,
     website: body.website ?? null,
     privacyPolicyUrl: body.privacyPolicyUrl ?? null,
+    fromEmail: 'fromEmail' in body ? (body.fromEmail ?? null) : undefined,
+    fromName: 'fromName' in body ? (body.fromName ?? null) : undefined,
   });
 
   return NextResponse.json({ ok: true });

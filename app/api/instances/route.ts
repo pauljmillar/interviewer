@@ -11,6 +11,7 @@ type CreateBody = {
   positionId?: string;
   templateId?: string;
   recipientName?: string;
+  recipientEmail?: string;
   questions: Question[];
   intro?: string;
   conclusion?: string;
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
       positionId,
       templateId,
       recipientName,
+      recipientEmail,
       questions,
       intro,
       conclusion,
@@ -65,6 +67,7 @@ export async function POST(request: NextRequest) {
       positionId,
       templateId,
       recipientName,
+      recipientEmail,
       questions,
       intro,
       conclusion,

@@ -8,6 +8,8 @@ interface OrgSettingsData {
   website: string | null;
   privacyPolicyUrl: string | null;
   hasLogo: boolean;
+  fromEmail: string | null;
+  fromName: string | null;
 }
 
 export default function SettingsPage() {
@@ -22,6 +24,9 @@ export default function SettingsPage() {
   const [privacyMode, setPrivacyMode] = useState<'default' | 'custom'>('default');
   const [privacyUrl, setPrivacyUrl] = useState('');
 
+  const [fromEmail, setFromEmail] = useState('');
+  const [fromName, setFromName] = useState('');
+
   const [hasLogo, setHasLogo] = useState(false);
   const [logoKey, setLogoKey] = useState(0); // bump to force <img> refresh
   const [uploading, setUploading] = useState(false);
@@ -35,6 +40,8 @@ export default function SettingsPage() {
         setData(d);
         setCompanyName(d.companyName ?? '');
         setWebsite(d.website ?? '');
+        setFromEmail(d.fromEmail ?? '');
+        setFromName(d.fromName ?? '');
         if (d.privacyPolicyUrl) {
           setPrivacyMode('custom');
           setPrivacyUrl(d.privacyPolicyUrl);
@@ -60,6 +67,8 @@ export default function SettingsPage() {
           companyName: companyName.trim() || null,
           website: website.trim() || null,
           privacyPolicyUrl: privacyMode === 'custom' && privacyUrl.trim() ? privacyUrl.trim() : null,
+          fromEmail: fromEmail.trim() || null,
+          fromName: fromName.trim() || null,
         }),
       });
       if (!res.ok) {
@@ -211,6 +220,32 @@ export default function SettingsPage() {
               className="mt-2 w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
             />
           )}
+        </div>
+
+        {/* Email sender */}
+        <div>
+          <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Email sender
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            Leave blank to use the system default. Custom addresses require a verified domain in your Brevo account.
+          </p>
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={fromName}
+              onChange={(e) => setFromName(e.target.value)}
+              placeholder="Sender name (defaults to system sender)"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+            />
+            <input
+              type="email"
+              value={fromEmail}
+              onChange={(e) => setFromEmail(e.target.value)}
+              placeholder="Sender email (defaults to system sender)"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+            />
+          </div>
         </div>
 
         {/* Save */}

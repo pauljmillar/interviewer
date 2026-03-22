@@ -33,6 +33,7 @@ export async function createInstance(
     templateId?: string;
     positionId?: string;
     recipientName?: string;
+    recipientEmail?: string;
     questions: Question[];
     intro?: string;
     conclusion?: string;
@@ -49,6 +50,7 @@ export async function createInstance(
     templateId: params.templateId,
     positionId: params.positionId,
     recipientName: params.recipientName,
+    recipientEmail: params.recipientEmail,
     shareableToken,
     questions: params.questions,
     createdAt: new Date().toISOString(),
@@ -64,6 +66,7 @@ export async function createInstance(
     template_id: instance.templateId,
     position_id: instance.positionId,
     recipient_name: instance.recipientName,
+    recipient_email: instance.recipientEmail ?? null,
     shareable_token: instance.shareableToken,
     questions: instance.questions,
     intro: instance.intro,
@@ -247,6 +250,18 @@ export async function getInstanceStatus(
   return deriveStatus(latest);
 }
 
+export async function updateInstance(
+  supabase: SupabaseClient,
+  id: string,
+  patch: { emailSentAt?: string | null }
+): Promise<void> {
+  const row: Record<string, unknown> = {};
+  if ('emailSentAt' in patch) row.email_sent_at = patch.emailSentAt ?? null;
+  if (Object.keys(row).length === 0) return;
+  const { error } = await supabase.from('interview_instances').update(row).eq('id', id);
+  if (error) throw error;
+}
+
 export async function createSession(
   supabase: SupabaseClient,
   instanceId: string
@@ -303,6 +318,8 @@ function rowToInstance(row: Record<string, unknown>): InterviewInstanceRecord {
     conclusion: row.conclusion as string | undefined,
     reminder: row.reminder as string | undefined,
     voice: row.tts_voice as string | undefined,
+    recipientEmail: (row.recipient_email as string) ?? undefined,
+    emailSentAt: (row.email_sent_at as string) ?? null,
   };
 }
 

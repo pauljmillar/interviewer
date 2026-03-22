@@ -5,6 +5,8 @@ export interface OrgSettings {
   website: string | null;
   privacyPolicyUrl: string | null; // null = use Candice AI default at /privacy
   logoKey: string | null;          // S3 key, e.g. "logos/org_abc/logo.png"
+  fromEmail: string | null;        // per-org sender email override (falls back to BREVO_FROM_EMAIL)
+  fromName: string | null;         // per-org sender name override (falls back to BREVO_FROM_NAME)
 }
 
 export async function getOrgSettings(
@@ -13,15 +15,36 @@ export async function getOrgSettings(
 ): Promise<OrgSettings | null> {
   const { data, error } = await supabase
     .from('org_settings')
-    .select('company_name, website, privacy_policy_url, logo_key')
+    .select('company_name, website, privacy_policy_url, logo_key, from_email, from_name')
     .eq('org_id', orgId)
     .single();
-  if (error || !data) return null;
+
+  // If the query failed, retry with only the core columns in case the email-sender
+  // columns haven't been migrated yet (from_email / from_name added later).
+  if (error || !data) {
+    const { data: core, error: coreError } = await supabase
+      .from('org_settings')
+      .select('company_name, website, privacy_policy_url, logo_key')
+      .eq('org_id', orgId)
+      .single();
+    if (coreError || !core) return null;
+    return {
+      companyName: (core.company_name as string) ?? null,
+      website: (core.website as string) ?? null,
+      privacyPolicyUrl: (core.privacy_policy_url as string) ?? null,
+      logoKey: (core.logo_key as string) ?? null,
+      fromEmail: null,
+      fromName: null,
+    };
+  }
+
   return {
     companyName: (data.company_name as string) ?? null,
     website: (data.website as string) ?? null,
     privacyPolicyUrl: (data.privacy_policy_url as string) ?? null,
     logoKey: (data.logo_key as string) ?? null,
+    fromEmail: (data.from_email as string) ?? null,
+    fromName: (data.from_name as string) ?? null,
   };
 }
 
@@ -38,6 +61,8 @@ export async function saveOrgSettings(
   if ('website' in settings) row.website = settings.website ?? null;
   if ('privacyPolicyUrl' in settings) row.privacy_policy_url = settings.privacyPolicyUrl ?? null;
   if ('logoKey' in settings) row.logo_key = settings.logoKey ?? null;
+  if ('fromEmail' in settings) row.from_email = settings.fromEmail ?? null;
+  if ('fromName' in settings) row.from_name = settings.fromName ?? null;
 
   const { error } = await supabase
     .from('org_settings')

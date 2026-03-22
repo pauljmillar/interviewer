@@ -19,12 +19,12 @@ export default function RootLayout({
   const content = (
     <>
       <ConditionalHeader hasClerk={!!clerkPublishableKey} />
-      <main className="flex-1 flex flex-col">{children}</main>
+      <main className="flex-1 flex flex-col overflow-y-auto">{children}</main>
     </>
   );
 
   const body = (
-    <body className="min-h-screen flex flex-col">
+    <body className="h-screen overflow-hidden flex flex-col">
       <ThemeProvider>
         {content}
       </ThemeProvider>

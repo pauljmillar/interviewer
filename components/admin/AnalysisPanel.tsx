@@ -11,6 +11,8 @@ export type InstanceRow = {
   createdAt: string;
   durationSeconds?: number;
   shareableToken?: string;
+  recipientEmail?: string;
+  emailSentAt?: string | null;
 };
 
 type MergedRow = InstanceRow & {
@@ -22,6 +24,8 @@ type MergedRow = InstanceRow & {
   questionDetails: RankedCandidate['questionDetails'];
   analyzedAt: string | null;
 };
+
+type EmailSendState = { [instanceId: string]: 'sending' | 'sent' | 'error' };
 
 interface AnalysisPanelProps {
   positionId: string;
@@ -51,6 +55,9 @@ export default function AnalysisPanel({
   const [scoringPrompt, setScoringPrompt] = useState('');
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsError, setSettingsError] = useState<string | null>(null);
+
+  const [emailSendState, setEmailSendState] = useState<EmailSendState>({});
+  const [instanceEmailSentAt, setInstanceEmailSentAt] = useState<{ [instanceId: string]: string }>({});
 
   const loadAnalysis = useCallback(async () => {
     setLoading(true);
@@ -137,6 +144,25 @@ export default function AnalysisPanel({
     navigator.clipboard.writeText(url);
     setCopiedId(inst.id);
     setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  const handleSendEmail = async (inst: InstanceRow) => {
+    setEmailSendState((s) => ({ ...s, [inst.id]: 'sending' }));
+    try {
+      const res = await fetch(`/api/instances/${inst.id}/send-email`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const body = await res.json().catch(() => ({})) as { sentAt?: string; error?: string };
+      if (!res.ok) throw new Error(body.error ?? 'Failed to send');
+      setEmailSendState((s) => ({ ...s, [inst.id]: 'sent' }));
+      if (body.sentAt) {
+        setInstanceEmailSentAt((s) => ({ ...s, [inst.id]: body.sentAt! }));
+      }
+    } catch {
+      setEmailSendState((s) => ({ ...s, [inst.id]: 'error' }));
+      setTimeout(() => setEmailSendState((s) => { const n = { ...s }; delete n[inst.id]; return n; }), 3000);
+    }
   };
 
   const summary = analysisData?.summary;
@@ -310,6 +336,9 @@ export default function AnalysisPanel({
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     Notes
                   </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Email
+                  </th>
                   <th className="px-4 py-2 w-10" aria-label="Copy link" />
                 </tr>
               </thead>
@@ -392,6 +421,46 @@ export default function AnalysisPanel({
                         ) : (
                           <span className="text-gray-400 dark:text-gray-500">—</span>
                         )}
+                      </td>
+                      <td className="px-4 py-2 text-sm">
+                        {!row.recipientEmail ? (
+                          <span className="text-gray-400 dark:text-gray-500">—</span>
+                        ) : (() => {
+                          const sentAt = instanceEmailSentAt[row.id] ?? row.emailSentAt;
+                          const state = emailSendState[row.id];
+                          if (sentAt) {
+                            return (
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-green-600 dark:text-green-400 text-xs whitespace-nowrap">
+                                  Sent {new Date(sentAt).toLocaleDateString()}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendEmail(row)}
+                                  disabled={state === 'sending'}
+                                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-[#3ECF8E] underline disabled:opacity-50"
+                                >
+                                  {state === 'sending' ? 'Sending…' : 'Resend'}
+                                </button>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[120px]" title={row.recipientEmail}>
+                                {row.recipientEmail}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleSendEmail(row)}
+                                disabled={state === 'sending'}
+                                className="text-xs px-2 py-0.5 bg-[#3ECF8E] text-white rounded hover:bg-[#2dbe7e] disabled:opacity-50 whitespace-nowrap"
+                              >
+                                {state === 'sending' ? 'Sending…' : state === 'error' ? 'Error' : 'Send invite'}
+                              </button>
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-2">
                         {row.shareableToken ? (

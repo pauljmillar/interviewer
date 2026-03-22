@@ -85,6 +85,7 @@ export function createInstance(
     templateId?: string;
     positionId?: string;
     recipientName?: string;
+    recipientEmail?: string;
     questions: Question[];
     intro?: string;
     conclusion?: string;
@@ -101,6 +102,7 @@ export function createInstance(
     templateId: params.templateId,
     positionId: params.positionId,
     recipientName: params.recipientName,
+    recipientEmail: params.recipientEmail,
     shareableToken,
     questions: params.questions,
     createdAt: new Date().toISOString(),
@@ -157,6 +159,19 @@ export function saveSession(session: SessionRecord): void {
 
 export function getInstanceStatus(instanceId: string): InstanceStatus {
   return deriveStatus(instanceId);
+}
+
+export function updateInstance(
+  id: string,
+  patch: { emailSentAt?: string | null }
+): void {
+  const instance = instancesById.get(id);
+  if (!instance) return;
+  if ('emailSentAt' in patch) {
+    (instance as InterviewInstanceRecord & { emailSentAt?: string | null }).emailSentAt = patch.emailSentAt ?? null;
+  }
+  instancesById.set(id, instance);
+  persist();
 }
 
 /** Create a new empty session for an instance. Caller should then saveSession after filling. */

@@ -21,6 +21,7 @@ export async function createInstance(
     templateId?: string;
     positionId?: string;
     recipientName?: string;
+    recipientEmail?: string;
     questions: Question[];
     intro?: string;
     conclusion?: string;
@@ -106,4 +107,13 @@ export async function createSession(instanceId: string): Promise<SessionRecord> 
   const sb = useSupabase();
   if (sb) return supabaseStore.createSession(sb, instanceId);
   return Promise.resolve(fileStore.createSession(instanceId));
+}
+
+export async function updateInstance(
+  id: string,
+  patch: { emailSentAt?: string | null }
+): Promise<void> {
+  const sb = useSupabase();
+  if (sb) return supabaseStore.updateInstance(sb, id, patch);
+  fileStore.updateInstance(id, patch);
 }

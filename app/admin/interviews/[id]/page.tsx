@@ -21,6 +21,9 @@ export default function AdminInterviewInstanceDetailPage() {
   const [data, setData] = useState<DetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailSentAt, setEmailSentAt] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -37,7 +40,10 @@ export default function AdminInterviewInstanceDetailPage() {
           return;
         }
         const json = await res.json();
-        if (!cancelled) setData(json);
+        if (!cancelled) {
+          setData(json);
+          setEmailSentAt(json.instance?.emailSentAt ?? null);
+        }
       } catch {
         if (!cancelled) setError('Failed to load');
       } finally {
@@ -48,6 +54,25 @@ export default function AdminInterviewInstanceDetailPage() {
       cancelled = true;
     };
   }, [id]);
+
+  const handleSendEmail = async () => {
+    if (!id) return;
+    setEmailSending(true);
+    setEmailError(null);
+    try {
+      const res = await fetch(`/api/instances/${encodeURIComponent(id)}/send-email`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const body = await res.json().catch(() => ({})) as { sentAt?: string; error?: string };
+      if (!res.ok) throw new Error(body.error ?? 'Failed to send');
+      setEmailSentAt(body.sentAt ?? new Date().toISOString());
+    } catch (e) {
+      setEmailError(e instanceof Error ? e.message : 'Failed to send email');
+    } finally {
+      setEmailSending(false);
+    }
+  };
 
   if (!id) return <p className="p-4 text-gray-500 dark:text-gray-400">Loading...</p>;
   if (loading) return <p className="p-4 text-gray-600 dark:text-gray-400">Loading instance...</p>;
@@ -119,6 +144,30 @@ export default function AdminInterviewInstanceDetailPage() {
                 >
                   View recording
                 </a>
+              </dd>
+            </div>
+          )}
+          {instance.recipientEmail && (
+            <div className="sm:col-span-2">
+              <dt className="font-medium text-gray-500 dark:text-gray-400">Candidate email</dt>
+              <dd className="text-gray-900 dark:text-gray-100 flex items-center gap-3 flex-wrap">
+                <span>{instance.recipientEmail}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {emailSentAt
+                    ? `Invitation sent ${new Date(emailSentAt).toLocaleString()}`
+                    : 'Not sent'}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSendEmail}
+                  disabled={emailSending}
+                  className="px-3 py-1 text-sm bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  {emailSending ? 'Sending…' : emailSentAt ? 'Resend invitation' : 'Send invite'}
+                </button>
+                {emailError && (
+                  <span className="text-sm text-red-600 dark:text-red-400">{emailError}</span>
+                )}
               </dd>
             </div>
           )}

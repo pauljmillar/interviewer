@@ -102,6 +102,10 @@ export interface InterviewInstanceRecord {
   recruiterName?: string;
   /** Optional company name for pre-spoken intro. Set when shareable link is created. */
   companyName?: string;
+  /** Candidate's email address for invitation emails. */
+  recipientEmail?: string;
+  /** ISO timestamp of when the invitation email was last sent. */
+  emailSentAt?: string | null;
 }
 
 /** One sitting / one continuous conversation. */
