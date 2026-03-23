@@ -4,7 +4,7 @@ import { createServerSupabase } from '@/lib/supabase/server';
 import { getOrgSettings, saveOrgSettings } from '@/lib/server/supabaseOrgSettings';
 
 export async function GET(request: NextRequest) {
-  const { orgId } = await getEffectiveOrgId(request);
+  const { orgId, isSuperadmin } = await getEffectiveOrgId(request);
   if (!orgId) return NextResponse.json({ error: 'Organization required' }, { status: 403 });
 
   const supabase = createServerSupabase();
@@ -19,11 +19,13 @@ export async function GET(request: NextRequest) {
     hasLogo: !!settings?.logoKey,
     fromEmail: settings?.fromEmail ?? null,
     fromName: settings?.fromName ?? null,
+    apiAccess: settings?.apiAccess ?? false,
+    isSuperadmin,
   });
 }
 
 export async function PATCH(request: NextRequest) {
-  const { orgId } = await getEffectiveOrgId(request);
+  const { orgId, isSuperadmin } = await getEffectiveOrgId(request);
   if (!orgId) return NextResponse.json({ error: 'Organization required' }, { status: 403 });
 
   const supabase = createServerSupabase();
@@ -35,15 +37,22 @@ export async function PATCH(request: NextRequest) {
     privacyPolicyUrl?: string | null;
     fromEmail?: string | null;
     fromName?: string | null;
+    apiAccess?: boolean;
   };
 
-  await saveOrgSettings(supabase, orgId, {
+  const patch: Parameters<typeof saveOrgSettings>[2] = {
     companyName: body.companyName ?? null,
     website: body.website ?? null,
     privacyPolicyUrl: body.privacyPolicyUrl ?? null,
     fromEmail: 'fromEmail' in body ? (body.fromEmail ?? null) : undefined,
     fromName: 'fromName' in body ? (body.fromName ?? null) : undefined,
-  });
+  };
 
+  // apiAccess is superadmin-only
+  if (isSuperadmin && 'apiAccess' in body) {
+    patch.apiAccess = !!body.apiAccess;
+  }
+
+  await saveOrgSettings(supabase, orgId, patch);
   return NextResponse.json({ ok: true });
 }

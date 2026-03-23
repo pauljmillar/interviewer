@@ -45,6 +45,8 @@ export async function PATCH(
   if (body.summary !== undefined) patch.summary = body.summary;
   if (body.content !== undefined) patch.content = body.content;
   if (body.thumbnailKey !== undefined) patch.thumbnailKey = body.thumbnailKey;
+  if (body.excerpt !== undefined) patch.excerpt = body.excerpt;
+  if (body.coverImageUrl !== undefined) patch.coverImageUrl = body.coverImageUrl;
   if (body.published !== undefined) {
     patch.published = body.published;
     if (body.published && !existing.publishedAt) {

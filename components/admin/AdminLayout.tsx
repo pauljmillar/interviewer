@@ -55,6 +55,26 @@ const navItems: { href: string; label: string; superadminOnly?: boolean; icon: R
       </svg>
     ),
   },
+  {
+    href: '/admin/api-keys',
+    label: 'API Keys',
+    superadminOnly: true,
+    icon: (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/admin/art-config',
+    label: 'Art Config',
+    superadminOnly: true,
+    icon: (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+      </svg>
+    ),
+  },
 ];
 
 interface AdminLayoutProps {
@@ -112,7 +132,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               pathname === href ||
               (href === '/admin/interviews' && pathname.startsWith('/admin/interviews/')) ||
               (href === '/admin/positions' && pathname.startsWith('/admin/positions/')) ||
-              (href === '/admin/blog' && pathname.startsWith('/admin/blog'));
+              (href === '/admin/blog' && pathname.startsWith('/admin/blog')) ||
+              (href === '/admin/api-keys' && pathname.startsWith('/admin/api-keys')) ||
+              (href === '/admin/art-config' && pathname.startsWith('/admin/art-config'));
             return (
               <Link
                 key={href}

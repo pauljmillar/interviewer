@@ -31,6 +31,7 @@ export default function BlogEditorPage() {
   const [slug, setSlug] = useState('');
   const [summary, setSummary] = useState('');
   const [thumbnailKey, setThumbnailKey] = useState<string | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [published, setPublished] = useState(false);
   const [loading, setLoading] = useState(!isNew);
@@ -62,11 +63,14 @@ export default function BlogEditorPage() {
         setPost(p);
         setTitle(p.title);
         setSlug(p.slug);
-        setSummary(p.summary ?? '');
+        setSummary(p.excerpt ?? p.summary ?? '');
         setPublished(p.published);
         setThumbnailKey(p.thumbnailKey);
+        setCoverImageUrl(p.coverImageUrl);
         if (p.thumbnailKey) {
           setThumbnailPreview(`/api/blog/image?key=${encodeURIComponent(p.thumbnailKey)}`);
+        } else if (p.coverImageUrl) {
+          setThumbnailPreview(p.coverImageUrl);
         }
         editor?.commands.setContent(p.content || '');
         setSlugManuallyEdited(true);
@@ -93,7 +97,7 @@ export default function BlogEditorPage() {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, slug, summary, thumbnailKey, published]);
+  }, [title, slug, summary, thumbnailKey, coverImageUrl, published]);
 
   async function uploadImage(file: File): Promise<string> {
     const fd = new FormData();
@@ -129,6 +133,7 @@ export default function BlogEditorPage() {
       // Extract key from url: /api/blog/image?key=...
       const key = decodeURIComponent(url.split('?key=')[1]);
       setThumbnailKey(key);
+      setCoverImageUrl(null); // uploaded thumbnail replaces any API-set coverImageUrl
       setThumbnailPreview(url);
     } catch {
       alert('Thumbnail upload failed');
@@ -156,7 +161,7 @@ export default function BlogEditorPage() {
         const res = await fetch('/api/blog/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, slug, summary: summary || null, content, thumbnailKey }),
+          body: JSON.stringify({ title, slug, summary: summary || null, excerpt: summary || null, content, thumbnailKey, coverImageUrl }),
         });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
@@ -174,7 +179,7 @@ export default function BlogEditorPage() {
         router.replace(`/admin/blog/${newPost.id}`);
       } else {
         // Update
-        const patch: Record<string, unknown> = { title, slug, summary: summary || null, content, thumbnailKey };
+        const patch: Record<string, unknown> = { title, slug, summary: summary || null, excerpt: summary || null, content, thumbnailKey, coverImageUrl };
         if (publish !== undefined) {
           patch.published = publish;
           setPublished(publish);
@@ -194,7 +199,7 @@ export default function BlogEditorPage() {
     } finally {
       setSaving(false);
     }
-  }, [title, slug, summary, thumbnailKey, published, editor, isNew, post, router]);
+  }, [title, slug, summary, thumbnailKey, coverImageUrl, published, editor, isNew, post, router]);
 
   if (loading) {
     return (
@@ -383,7 +388,7 @@ export default function BlogEditorPage() {
                   <img src={thumbnailPreview} alt="Thumbnail" className="w-full h-full object-cover" />
                   <button
                     type="button"
-                    onClick={() => { setThumbnailKey(null); setThumbnailPreview(null); }}
+                    onClick={() => { setThumbnailKey(null); setCoverImageUrl(null); setThumbnailPreview(null); }}
                     className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-black/50 text-white text-xs hover:bg-black/70"
                     aria-label="Remove thumbnail"
                   >

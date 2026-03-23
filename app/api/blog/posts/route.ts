@@ -40,6 +40,8 @@ export async function POST(request: NextRequest) {
     summary: body.summary ?? null,
     content: body.content ?? '',
     thumbnailKey: body.thumbnailKey ?? null,
+    excerpt: body.excerpt ?? null,
+    coverImageUrl: body.coverImageUrl ?? null,
   });
 
   return NextResponse.json({ post }, { status: 201 });

@@ -21,9 +21,10 @@ export default function PostCard({ post }: PostCardProps) {
       className="group block bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
     >
       <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-[#3ECF8E]/20 to-[#3ECF8E]/5">
-        {post.thumbnailKey ? (
+        {(post.thumbnailKey || post.coverImageUrl) ? (
           <ThumbnailImage
             thumbnailKey={post.thumbnailKey}
+            src={post.coverImageUrl}
             alt={post.title}
             className="w-full h-full object-cover"
           />
@@ -45,9 +46,9 @@ export default function PostCard({ post }: PostCardProps) {
         <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-[#3ECF8E] transition-colors">
           {post.title}
         </h2>
-        {post.summary && (
+        {(post.excerpt ?? post.summary) && (
           <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400 line-clamp-3">
-            {post.summary}
+            {post.excerpt ?? post.summary}
           </p>
         )}
         {date && (

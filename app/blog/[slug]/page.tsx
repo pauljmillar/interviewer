@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post || !post.published) return {};
   return {
     title: `${post.title} | Candice AI Blog`,
-    description: post.summary ?? undefined,
+    description: post.excerpt ?? post.summary ?? undefined,
   };
 }
 
@@ -42,10 +42,11 @@ export default async function BlogPostPage({ params }: Props) {
       <article>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{post.title}</h1>
         {date && <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">{date}</p>}
-        {post.thumbnailKey && (
+        {(post.thumbnailKey || post.coverImageUrl) && (
           <div className="mb-8 rounded-lg overflow-hidden aspect-video bg-gradient-to-br from-[#3ECF8E]/20 to-[#3ECF8E]/5">
             <ThumbnailImage
               thumbnailKey={post.thumbnailKey}
+              src={post.coverImageUrl}
               alt={post.title}
               className="w-full h-full object-cover"
             />

@@ -1,5 +1,11 @@
 import Link from 'next/link';
 import RetroTryButton from '@/components/landing/RetroTryButton';
+import ThumbnailImage from '@/components/blog/ThumbnailImage';
+import { createServerSupabase } from '@/lib/supabase/server';
+import { listPosts } from '@/lib/server/supabaseBlogStore';
+import type { BlogPost } from '@/lib/server/supabaseBlogStore';
+
+export const revalidate = 3600;
 
 // ─── Palette (CSS-variable-driven — responds to light/dark mode) ─────────────
 const bgVoid    = 'var(--retro-bg-void)';
@@ -137,9 +143,66 @@ function GhostNumber({ children }: { children: React.ReactNode }) {
   );
 }
 
+function FeatureList({ items }: { items: string[] }) {
+  return (
+    <ul style={{ listStyle: 'none', margin: '0 0 24px', padding: 0, display: 'flex', flexDirection: 'column', gap: 9, flex: 1 }}>
+      {items.map((item) => (
+        <li key={item} style={{ fontFamily: font, fontSize: 13, color: textSecondary, display: 'flex', gap: 10, alignItems: 'flex-start', lineHeight: 1.5 }}>
+          <span style={{ color: teal, flexShrink: 0, fontSize: 11, marginTop: 1 }}>—</span>
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function RetroPostCard({ post }: { post: BlogPost }) {
+  const date = post.publishedAt
+    ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : null;
+  return (
+    <Link href={`/blog/${post.slug}`} className="retro-pricing-card" style={{
+      position: 'relative', height: 268, borderRadius: 8,
+      overflow: 'hidden', display: 'block', textDecoration: 'none',
+      border: borderCard, flexShrink: 0,
+      background: '#1a1a2e',
+    }}>
+      {/* Full-bleed thumbnail */}
+      {(post.thumbnailKey || post.coverImageUrl) ? (
+        <ThumbnailImage thumbnailKey={post.thumbnailKey} src={post.coverImageUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, rgba(63,138,140,0.25) 0%, rgba(242,138,15,0.10) 100%)` }}>
+          <svg width="36" height="36" fill="none" stroke={teal} strokeWidth="1.2" viewBox="0 0 24 24" aria-hidden
+            style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', opacity: 0.20 }}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+      )}
+      {/* Gradient scrim */}
+      <div aria-hidden style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 52%, rgba(0,0,0,0.10) 100%)',
+      }} />
+      {/* Text overlay */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '18px 16px 16px' }}>
+        {date && (
+          <p style={{ fontFamily: font, fontSize: 9, letterSpacing: 2.5, textTransform: 'uppercase' as const, color: 'rgba(242,138,15,0.80)', marginBottom: 6 }}>
+            {date}
+          </p>
+        )}
+        <p className="line-clamp-3" style={{ fontFamily: font, fontSize: 13, fontWeight: 600, color: '#FFE7BD', lineHeight: 1.45, margin: 0 }}>
+          {post.title}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = createServerSupabase();
+  const recentPosts = supabase ? (await listPosts(supabase, true)).slice(0, 4) : [];
   return (
     <>
       {/* Fixed grain overlay */}
@@ -254,6 +317,23 @@ export default function HomePage() {
             </div>
           </section>
 
+          {/* ── RECENT POSTS ──────────────────────────────────────────────── */}
+          {recentPosts.length > 0 && (
+            <section style={{ padding: '60px 0', borderBottom: borderSubtle }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+                <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 5, textTransform: 'uppercase' as const, color: amber, margin: 0 }}>From the blog</p>
+                <Link href="/blog" style={{ fontFamily: font, fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: textMuted, textDecoration: 'none', transition: 'color 220ms' }}>
+                  All posts →
+                </Link>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                {recentPosts.map((post) => (
+                  <RetroPostCard key={post.id} post={post} />
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* ── FEATURES ──────────────────────────────────────────────────── */}
           <section id="features" style={{ padding: '90px 0', borderBottom: borderSubtle }}>
             <SectionLabel n="01" title="Everything you need to screen at scale" />
@@ -301,50 +381,140 @@ export default function HomePage() {
           {/* ── PRICING ───────────────────────────────────────────────────── */}
           <section id="pricing" style={{ padding: '90px 0', borderBottom: borderSubtle }}>
             <SectionLabel n="03" title="Plans to fit your team" />
+
+            {/* ─ No commitment ─────────────────────────────────────────────── */}
+            <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 4, textTransform: 'uppercase' as const, color: textMuted, marginBottom: 14 }}>No commitment</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 40 }}>
+
+              {/* Free */}
+              <div className="retro-pricing-card" style={{ background: bgSurface, border: borderCard, borderRadius: 8, padding: '28px 28px 24px', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 0 40px rgba(242,138,15,0.06)' }}>
+                <div style={{ position: 'absolute', top: 0, left: 24, right: 24, height: 1, background: 'linear-gradient(90deg, transparent, rgba(242,138,15,0.5), transparent)' }} aria-hidden />
+                <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: teal, opacity: 0.85, marginBottom: 8 }}>Plan</p>
+                <p style={{ fontFamily: font, fontSize: 22, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>Free</p>
+                <p style={{ fontFamily: font, fontSize: 32, fontWeight: 700, color: amber, letterSpacing: -1, lineHeight: 1, marginBottom: 4 }}>Free</p>
+                <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: textMuted, marginBottom: 20 }}>Forever · No card required</p>
+                <FeatureList items={[
+                  '1 demo interview instantly — no signup',
+                  '5 real candidate interviews free',
+                  'AI-generated questions',
+                  'Candidate ranking',
+                  'Basic summaries',
+                  '7-day video retention',
+                ]} />
+                <Link href="/start" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: font, fontSize: 13, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', padding: '12px 20px', borderRadius: 8, background: 'rgba(242,138,15,0.10)', color: amber, border: borderCard, textDecoration: 'none', transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)' }}>
+                  Start free
+                </Link>
+              </div>
+
+              {/* Pay as you go */}
+              <div className="retro-pricing-card" style={{ background: bgSurface, border: borderCard, borderRadius: 8, padding: '28px 28px 24px', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 0 40px rgba(242,138,15,0.06)' }}>
+                <div style={{ position: 'absolute', top: 0, left: 24, right: 24, height: 1, background: 'linear-gradient(90deg, transparent, rgba(242,138,15,0.5), transparent)' }} aria-hidden />
+                <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: teal, opacity: 0.85, marginBottom: 8 }}>Plan</p>
+                <p style={{ fontFamily: font, fontSize: 22, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>Pay as you go</p>
+                <p style={{ fontFamily: font, fontSize: 32, fontWeight: 700, color: amber, letterSpacing: -1, lineHeight: 1, marginBottom: 4 }}>$7</p>
+                <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: textMuted, marginBottom: 20 }}>Per completed interview · No subscription</p>
+                <FeatureList items={[
+                  'Great for occasional hiring',
+                  'AI-generated questions',
+                  'Candidate ranking & summaries',
+                  'Additional video retention optional',
+                ]} />
+                <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: font, fontSize: 13, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', padding: '12px 20px', borderRadius: 8, background: 'rgba(242,138,15,0.10)', color: amber, border: borderCard, textDecoration: 'none', transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)' }}>
+                  Get started
+                </Link>
+              </div>
+            </div>
+
+            {/* ─ Monthly subscription ───────────────────────────────────────── */}
+            <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 4, textTransform: 'uppercase' as const, color: textMuted, marginBottom: 14 }}>Monthly subscription</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-              {[
-                { plan: 'Free', price: '—', note: '3 free interviews', features: 'Try it now — no card required.', href: '/start', cta: 'Get started', hot: false },
-                { plan: 'Ad Hoc', price: '$3', note: 'per interview', features: 'Up to 10 customisable questions and AI ranking.', href: '/sign-up', cta: 'Get started', hot: false },
-                { plan: 'Pro', price: '$60', note: 'per month', features: 'Up to 75 interviews, intelligent next-round scheduling.', href: '/sign-up', cta: 'Get started', hot: true },
-                { plan: 'Enterprise', price: '$120', note: 'per month', features: '200 interviews, HR chatbot, next-round scheduling and follow-up templates.', href: '/sign-up', cta: 'Contact us', hot: false },
-              ].map(({ plan, price, note, features, href, cta, hot }) => (
-                <div key={plan} style={{
-                  background: hot ? bgRaised : bgSurface,
-                  border: hot ? `0.8px solid rgba(229,52,11,0.45)` : borderCard,
-                  borderRadius: 8,
-                  padding: '30px 24px 26px',
-                  position: 'relative',
-                  boxShadow: hot ? '0 0 28px rgba(229,52,11,0.15)' : '0 0 40px rgba(242,138,15,0.08)',
-                  display: 'flex', flexDirection: 'column',
-                }}>
-                  <div style={{
-                    position: 'absolute', top: 0, left: 24, right: 24, height: 1,
-                    background: hot
-                      ? 'linear-gradient(90deg, transparent, rgba(229,52,11,0.6), transparent)'
-                      : 'linear-gradient(90deg, transparent, rgba(242,138,15,0.5), transparent)',
-                  }} aria-hidden />
-                  <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: hot ? red : teal, opacity: 0.85, marginBottom: 8 }}>
-                    {hot ? 'Most popular' : 'Plan'}
-                  </p>
-                  <p style={{ fontFamily: font, fontSize: 22, fontWeight: 700, color: textPrimary, marginBottom: 4 }}>{plan}</p>
-                  <p style={{ fontFamily: font, fontSize: 32, fontWeight: 700, color: hot ? red : amber, letterSpacing: -1, lineHeight: 1, marginBottom: 4 }}>{price}</p>
-                  <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: textMuted, marginBottom: 16 }}>{note}</p>
-                  <p style={{ fontFamily: font, fontSize: 15, color: textMuted, lineHeight: 1.7, flex: 1, marginBottom: 24 }}>{features}</p>
-                  <Link href={href} style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: font, fontSize: 13, fontWeight: 600,
-                    letterSpacing: 3, textTransform: 'uppercase',
-                    padding: '12px 20px', borderRadius: 8,
-                    background: hot ? red : 'rgba(242,138,15,0.10)',
-                    color: hot ? cream : amber,
-                    border: hot ? 'none' : borderCard,
-                    textDecoration: 'none',
-                    transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)',
-                  }}>
-                    {cta}
-                  </Link>
+
+              {/* Starter */}
+              <div className="retro-pricing-card" style={{ background: bgSurface, border: borderCard, borderRadius: 8, padding: '28px 22px 24px', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 0 40px rgba(242,138,15,0.06)' }}>
+                <div style={{ position: 'absolute', top: 0, left: 20, right: 20, height: 1, background: 'linear-gradient(90deg, transparent, rgba(242,138,15,0.5), transparent)' }} aria-hidden />
+                <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: teal, opacity: 0.85, marginBottom: 8 }}>Plan</p>
+                <p style={{ fontFamily: font, fontSize: 18, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>Starter</p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 20 }}>
+                  <span style={{ fontFamily: font, fontSize: 28, fontWeight: 700, color: amber, letterSpacing: -1, lineHeight: 1 }}>$49</span>
+                  <span style={{ fontFamily: font, fontSize: 11, color: textMuted, letterSpacing: 1 }}>/mo</span>
                 </div>
-              ))}
+                <FeatureList items={[
+                  '10 interviews included',
+                  '$5 per additional interview',
+                  '30-day video retention',
+                  '1 hiring manager seat',
+                  'Basic branded candidate emails',
+                ]} />
+                <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: font, fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', padding: '11px 14px', borderRadius: 8, background: 'rgba(242,138,15,0.10)', color: amber, border: borderCard, textDecoration: 'none', transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)' }}>
+                  Get started
+                </Link>
+              </div>
+
+              {/* Growth — most popular */}
+              <div className="retro-pricing-card retro-pricing-card-hot" style={{ background: bgRaised, border: `0.8px solid rgba(229,52,11,0.45)`, borderRadius: 8, padding: '28px 22px 24px', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 0 28px rgba(229,52,11,0.15)' }}>
+                <div style={{ position: 'absolute', top: 0, left: 20, right: 20, height: 1, background: 'linear-gradient(90deg, transparent, rgba(229,52,11,0.6), transparent)' }} aria-hidden />
+                <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: red, opacity: 0.9, marginBottom: 8 }}>Most popular</p>
+                <p style={{ fontFamily: font, fontSize: 18, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>Growth</p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 20 }}>
+                  <span style={{ fontFamily: font, fontSize: 28, fontWeight: 700, color: red, letterSpacing: -1, lineHeight: 1 }}>$149</span>
+                  <span style={{ fontFamily: font, fontSize: 11, color: textMuted, letterSpacing: 1 }}>/mo</span>
+                </div>
+                <FeatureList items={[
+                  '40 interviews included',
+                  '$4 per additional interview',
+                  '90-day video retention',
+                  '5 team seats',
+                  'Shareable candidate scorecards',
+                  'CSV export / basic ATS export',
+                ]} />
+                <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: font, fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', padding: '11px 14px', borderRadius: 8, background: red, color: '#FFE7BD', border: 'none', textDecoration: 'none', transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)' }}>
+                  Get started
+                </Link>
+              </div>
+
+              {/* Team */}
+              <div className="retro-pricing-card" style={{ background: bgSurface, border: borderCard, borderRadius: 8, padding: '28px 22px 24px', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 0 40px rgba(242,138,15,0.06)' }}>
+                <div style={{ position: 'absolute', top: 0, left: 20, right: 20, height: 1, background: 'linear-gradient(90deg, transparent, rgba(242,138,15,0.5), transparent)' }} aria-hidden />
+                <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: teal, opacity: 0.85, marginBottom: 8 }}>Plan</p>
+                <p style={{ fontFamily: font, fontSize: 18, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>Team</p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 20 }}>
+                  <span style={{ fontFamily: font, fontSize: 28, fontWeight: 700, color: amber, letterSpacing: -1, lineHeight: 1 }}>$299</span>
+                  <span style={{ fontFamily: font, fontSize: 11, color: textMuted, letterSpacing: 1 }}>/mo</span>
+                </div>
+                <FeatureList items={[
+                  '100 interviews included',
+                  '$3 per additional interview',
+                  '180-day video retention',
+                  'Unlimited team reviewers',
+                  'Custom rubrics',
+                  'Priority support',
+                ]} />
+                <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: font, fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', padding: '11px 14px', borderRadius: 8, background: 'rgba(242,138,15,0.10)', color: amber, border: borderCard, textDecoration: 'none', transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)' }}>
+                  Get started
+                </Link>
+              </div>
+
+              {/* Enterprise */}
+              <div className="retro-pricing-card" style={{ background: bgSurface, border: borderTeal, borderRadius: 8, padding: '28px 22px 24px', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 0 40px rgba(63,138,140,0.06)' }}>
+                <div style={{ position: 'absolute', top: 0, left: 20, right: 20, height: 1, background: 'linear-gradient(90deg, transparent, rgba(63,138,140,0.5), transparent)' }} aria-hidden />
+                <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: teal, opacity: 0.85, marginBottom: 8 }}>Plan</p>
+                <p style={{ fontFamily: font, fontSize: 18, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>Enterprise</p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 20 }}>
+                  <span style={{ fontFamily: font, fontSize: 28, fontWeight: 700, color: teal, letterSpacing: -1, lineHeight: 1 }}>Custom</span>
+                </div>
+                <FeatureList items={[
+                  'SSO',
+                  'ATS integrations',
+                  'Custom data retention / deletion',
+                  'Dedicated onboarding',
+                  'Compliance / audit exports',
+                  'API',
+                ]} />
+                <Link href="/contact" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: font, fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', padding: '11px 14px', borderRadius: 8, background: 'rgba(63,138,140,0.10)', color: teal, border: borderTeal, textDecoration: 'none', transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)' }}>
+                  Contact us
+                </Link>
+              </div>
+
             </div>
           </section>
 

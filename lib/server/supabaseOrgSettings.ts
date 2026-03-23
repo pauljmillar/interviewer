@@ -7,6 +7,7 @@ export interface OrgSettings {
   logoKey: string | null;          // S3 key, e.g. "logos/org_abc/logo.png"
   fromEmail: string | null;        // per-org sender email override (falls back to BREVO_FROM_EMAIL)
   fromName: string | null;         // per-org sender name override (falls back to BREVO_FROM_NAME)
+  apiAccess: boolean;              // whether this org can use the v1 bearer token API
 }
 
 export async function getOrgSettings(
@@ -15,12 +16,12 @@ export async function getOrgSettings(
 ): Promise<OrgSettings | null> {
   const { data, error } = await supabase
     .from('org_settings')
-    .select('company_name, website, privacy_policy_url, logo_key, from_email, from_name')
+    .select('company_name, website, privacy_policy_url, logo_key, from_email, from_name, api_access')
     .eq('org_id', orgId)
     .single();
 
-  // If the query failed, retry with only the core columns in case the email-sender
-  // columns haven't been migrated yet (from_email / from_name added later).
+  // If the query failed, retry with only the core columns in case newer
+  // columns haven't been migrated yet.
   if (error || !data) {
     const { data: core, error: coreError } = await supabase
       .from('org_settings')
@@ -35,6 +36,7 @@ export async function getOrgSettings(
       logoKey: (core.logo_key as string) ?? null,
       fromEmail: null,
       fromName: null,
+      apiAccess: false,
     };
   }
 
@@ -45,6 +47,7 @@ export async function getOrgSettings(
     logoKey: (data.logo_key as string) ?? null,
     fromEmail: (data.from_email as string) ?? null,
     fromName: (data.from_name as string) ?? null,
+    apiAccess: (data.api_access as boolean) ?? false,
   };
 }
 
@@ -63,6 +66,7 @@ export async function saveOrgSettings(
   if ('logoKey' in settings) row.logo_key = settings.logoKey ?? null;
   if ('fromEmail' in settings) row.from_email = settings.fromEmail ?? null;
   if ('fromName' in settings) row.from_name = settings.fromName ?? null;
+  if ('apiAccess' in settings) row.api_access = settings.apiAccess ?? false;
 
   const { error } = await supabase
     .from('org_settings')

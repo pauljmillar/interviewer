@@ -10,6 +10,8 @@ interface OrgSettingsData {
   hasLogo: boolean;
   fromEmail: string | null;
   fromName: string | null;
+  apiAccess: boolean;
+  isSuperadmin: boolean;
 }
 
 export default function SettingsPage() {
@@ -26,6 +28,8 @@ export default function SettingsPage() {
 
   const [fromEmail, setFromEmail] = useState('');
   const [fromName, setFromName] = useState('');
+  const [apiAccess, setApiAccess] = useState(false);
+  const [isSuperadmin, setIsSuperadmin] = useState(false);
 
   const [hasLogo, setHasLogo] = useState(false);
   const [logoKey, setLogoKey] = useState(0); // bump to force <img> refresh
@@ -42,6 +46,8 @@ export default function SettingsPage() {
         setWebsite(d.website ?? '');
         setFromEmail(d.fromEmail ?? '');
         setFromName(d.fromName ?? '');
+        setApiAccess(d.apiAccess ?? false);
+        setIsSuperadmin(d.isSuperadmin ?? false);
         if (d.privacyPolicyUrl) {
           setPrivacyMode('custom');
           setPrivacyUrl(d.privacyPolicyUrl);
@@ -69,6 +75,7 @@ export default function SettingsPage() {
           privacyPolicyUrl: privacyMode === 'custom' && privacyUrl.trim() ? privacyUrl.trim() : null,
           fromEmail: fromEmail.trim() || null,
           fromName: fromName.trim() || null,
+          ...(isSuperadmin ? { apiAccess } : {}),
         }),
       });
       if (!res.ok) {
@@ -247,6 +254,30 @@ export default function SettingsPage() {
             />
           </div>
         </div>
+
+        {/* API Access — superadmin only */}
+        {isSuperadmin && (
+          <div>
+            <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              API access
+            </p>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div
+                role="switch"
+                aria-checked={apiAccess}
+                onClick={() => setApiAccess((v) => !v)}
+                className={`relative w-10 h-6 rounded-full transition-colors cursor-pointer ${apiAccess ? 'bg-[#3ECF8E]' : 'bg-gray-300 dark:bg-[#3a3a3a]'}`}
+              >
+                <span
+                  className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${apiAccess ? 'translate-x-4' : 'translate-x-0'}`}
+                />
+              </div>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {apiAccess ? 'Enabled' : 'Disabled'} — allows bearer token requests to <code className="font-mono text-xs bg-gray-100 dark:bg-[#2a2a2a] px-1 rounded">/api/v1/</code>
+              </span>
+            </label>
+          </div>
+        )}
 
         {/* Save */}
         {saveError && (

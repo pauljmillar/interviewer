@@ -1,51 +1,166 @@
-# AI Interviewer
+# Candice AI — AI Interviewer Platform
 
-A conversational AI interviewer that supports multiple interview modes (screening, behavioral, biography, contradiction check), voice-enabled chat, and position-based flows with optional job-description analysis.
+A Next.js SaaS platform for AI-powered candidate screening. Candice conducts structured, consistent first-round interviews with every candidate and surfaces a ranked shortlist for the hiring team to review.
 
 ## Features
 
-- **Interview modes (1–5)** — Per-question mode: strict screening (1), hints (2), list-only (3), biographer (4), contradiction check (5). Mode controls evaluation and follow-up behavior.
-- **Templates** — Built-in and custom templates (questions, intro, conclusion, reminder). Start from template or save current questions as a template.
-- **Positions** — Create positions (e.g. “Janitor at Company X”, “Biography for Grandma Betty”) with optional type (job / biography / screening) and link to a template. Resume list shows instance and position.
-- **New position from job description** — Paste or upload a job description, or paste a URL to a JD; an LLM generates 5–10 screening questions and a suggested job title. Create a position and a new template from the result in one flow. Supported inputs: plain text, **.txt / .pdf / .docx** files, or **URLs** (HTML/PDF/DOCX); text is extracted server-side via `POST /api/jd/extract`.
-- **Demo flow (no account)** — From the landing hero, paste or upload a JD or paste a URL → generate questions → customize settings → generate a shareable interview link. **Claim**: after signing in (or signing up), add the demo position to your account so it appears in admin; or use “Add to my account” on the demo done page when already signed in.
-- **Voice-enabled chat** — Text-to-speech for AI questions and speech-to-text for user responses (Chrome/Edge recommended).
-- **Persistence** — When Supabase is configured, positions, custom templates, and interview instances/sessions use Supabase; otherwise instances and sessions use localStorage. Resume a previous interview; the agent receives a brief from prior sessions.
-- **Intro, conclusion, reminder** — Optional intro before the first question and conclusion after all questions (per template). One-time disengagement reminder when the interviewee dismisses the interview.
-- **Biography generation** — Turn interview conversations into narrative biographies (for biographer-style interviews).
-- **Debug panel** — Optional right-hand panel with full history of steps (thinking, tool calls) for the current conversation.
+### Core interview engine
+- **Interview modes (1–5)** — Per-question mode: strict screening (1), hints (2), list-only (3), biographer (4), contradiction check (5). Mode controls evaluation and follow-up behaviour.
+- **Templates** — Built-in and custom templates (questions, intro, conclusion, reminder). Start from a template or save current questions as a template.
+- **Positions** — Create positions with optional type (job / biography / screening) and link to a template.
+- **New position from job description** — Paste or upload a JD (plain text, `.txt / .pdf / .docx`, or URL); an LLM generates 5–10 screening questions and a suggested title. Supported via `POST /api/jd/extract`.
+- **Demo flow (no account)** — From the landing hero, paste/upload a JD → generate questions → customise settings → get a shareable interview link. After signing in, claim the demo position into your account.
+- **Voice-enabled chat** — TTS for AI questions and STT for user responses (Chrome/Edge recommended).
+- **Persistence** — Positions, templates, and interview instances stored in Supabase; falls back to localStorage when Supabase is not configured.
+- **Biography generation** — Turn biographer-mode conversations into narrative biographies.
+
+### Public marketing site
+- **Retro design system** — Landing page, `/ai-interviewer`, and `/integrations` share a unified retro theme: Helvetica Neue, amber/red/teal palette, grid background, grain + scanlines overlays, dark/light mode via CSS variables (`var(--retro-*)`).
+- **Blog** — Public blog listing and post pages. Thumbnails stored in S3.
+- **Privacy page**, smooth-scroll nav, retro header with dropdowns.
+
+### Admin
+- **Admin → Positions / Templates / Interviews / Settings** — Org-scoped management.
+- **Admin → Blog** — Rich text editor (Tiptap), cover image upload, publish/schedule/archive. (Superadmin only.)
+- **Admin → API Keys** — Create and revoke Bearer tokens for the v1 API. (Superadmin only.)
+- **Admin → Art Config** — JSON editor for geometric art generation parameters, with inline PNG/GIF preview. (Superadmin only.)
+- **Email invitations** — Candidate invite emails sent via Brevo.
+- **Org logo** — Upload and display organisation logo.
+
+### v1 API
+Bearer-token API for programmatic blog management. See [`docs/api-v1.md`](docs/api-v1.md) for full reference.
+
+| Endpoint | Description |
+|---|---|
+| `GET /api/v1/topics` | List published post slugs + titles |
+| `GET /api/v1/posts` | List posts (filter by status, tag, date) |
+| `POST /api/v1/posts` | Create a post (supports inline image upload) |
+| `GET /api/v1/posts/:slug` | Fetch a single post |
+| `PATCH /api/v1/posts/:slug` | Update a post |
+| `DELETE /api/v1/posts/:slug` | Soft-delete (archive) a post |
+| `POST /api/v1/images` | Upload an image to S3 |
+| `POST /api/v1/generate-art` | Generate geometric art PNG or animated GIF |
+
+### Geometric art generation
+Pure server-side canvas rendering via `@napi-rs/canvas`. Seeded PRNG guarantees deterministic output for the same `seed` + `bgIndex`. Config (palette, sizes, frame count, etc.) is stored in Supabase `art_config` and editable in the admin UI.
+
+---
 
 ## Setup
 
-1. Install dependencies:
+### 1. Install dependencies
+
 ```bash
 npm install
 ```
 
-2. Create `.env.local`:
-```
-OPENAI_API_KEY=your_openai_api_key_here
+### 2. Environment variables
+
+Create `.env.local`:
+
+```env
+# OpenAI
+OPENAI_API_KEY=sk-...
+
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Clerk (admin auth); create an app at https://clerk.com
+# Clerk (admin auth) — https://clerk.com
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
-```
-Enable **Organizations** in the Clerk Dashboard so admins can create/join an org; data is scoped by organization. Optional: `SUPERADMIN_USER_IDS=user_xxx,user_yyy` (comma-separated Clerk user IDs) to allow those users to use "View as org" in admin. Optional: `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in` and `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up` if you use custom paths.
 
-**Supabase (database):** When set, positions, custom templates, and interview instances/sessions are stored in Supabase instead of localStorage. Run the SQL in [supabase/schema.sql](supabase/schema.sql) in your Supabase project, then add:
-```
+# Optional: comma-separated Clerk user IDs with superadmin access
+SUPERADMIN_USER_IDS=user_xxx,user_yyy
+
+# Supabase (database)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-```
-For client-side access (optional), add `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key   # optional, for client-side access
 
-3. Run the development server:
+# S3 (image storage)
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+S3_BUCKET_NAME=your-bucket
+
+# Brevo (candidate email invitations)
+BREVO_API_KEY=...
+BREVO_SENDER_EMAIL=hello@yourdomain.com
+BREVO_SENDER_NAME=Candice AI
+```
+
+Enable **Organizations** in the Clerk Dashboard — data is scoped by organization.
+
+### 3. Database migration
+
+Run the SQL in [`supabase/schema.sql`](supabase/schema.sql), then add the art config table:
+
+```sql
+create table art_config (
+  id         integer primary key default 1,
+  config     jsonb not null,
+  updated_at timestamptz not null default now(),
+  constraint single_row check (id = 1)
+);
+```
+
+### 4. Run
+
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Project structure
+
+```
+app/
+  page.tsx                        Landing page (retro theme)
+  ai-interviewer/page.tsx         AI Interviewer feature page
+  integrations/page.tsx           Integrations page
+  blog/                           Public blog listing + post pages
+  admin/                          Admin dashboard
+    positions/, templates/,
+    interviews/, settings/        Org management
+    blog/                         Blog editor (superadmin)
+    api-keys/                     API key management (superadmin)
+    art-config/                   Art generation config (superadmin)
+  api/
+    v1/                           Public v1 API (Bearer token)
+      posts/, images/, topics/,
+      generate-art/
+    admin/                        Admin-only API routes
+      api-keys/, art-config/
+    chat/, analyze-jd/,
+    jd/extract/, demo/,
+    biography/, ...               Interview engine routes
+
+components/
+  landing/                        Retro landing components + buttons
+  admin/                          AdminLayout, sidebar nav
+  blog/                           PostCard, ThumbnailImage
+
+lib/
+  art/                            Geometric art generation
+    config.ts                     ArtConfig type + DEFAULT_CONFIG
+    prng.ts                       Seeded PRNG helpers
+    gif.ts                        Pure-JS LZW encoder + GIF builder
+    compose.ts                    composePNG / composeGIF
+  server/
+    apiAuth.ts                    Bearer token validation
+    apiKeyStore.ts                API key CRUD
+    supabaseBlogStore.ts          Blog post CRUD
+    supabaseOrgSettings.ts        Org settings
+  openai/, jd/, persistence/,
+  voice/, tools/                  Interview engine internals
+
+docs/
+  api-v1.md                       v1 API reference
+```
+
+---
 
 ## Browser compatibility
 
@@ -53,30 +168,10 @@ npm run dev
 - **Voice output**: All modern browsers.
 - **Fallback**: Type responses if voice input is unavailable.
 
-## Usage
-
-**Demo (no account):** On the landing page, paste a job description or URL, or upload a .txt/.pdf/.docx file → submit → review/edit questions and position name → settings (voice, intro, etc.) → generate a shareable interview link. To keep the position in your account: sign in (or sign up) and use “Add to my account” on the done page, or sign in with “Sign in” (redirects to claim after login); the demo is then moved to your org and appears under Admin → Positions.
-
-**Admin / full flow:**
-1. **Position (optional)** — Choose a position from the dropdown to load its template; or leave “None”.
-2. **Template** — Choose “Start from template” (built-in or custom) or “New position from JD” to paste/upload a job description or URL and generate questions (supports .txt, .pdf, .docx and URLs).
-3. **Start** — The AI sends an intro (if set) and the first question.
-4. **Respond** — Use voice (microphone) or type. In screening modes the agent evaluates answers and moves on; in biographer mode it asks follow-ups and tracks entities.
-5. **Resume** — Pick a saved interview instance from the “Resume” dropdown to continue where you left off.
-6. **Conclusion** — After all questions, the agent sends the template conclusion (if set).
-7. **Create Story** — For biographer-style interviews, generate a biography from the conversation.
-8. **Reset** — Start a new conversation (creates a new interview instance).
-
-## Project structure
-
-- `app/` — Next.js app router: pages and API routes (`/api/chat`, `/api/analyze-jd`, `/api/jd/extract`, `/api/demo/create`, `/api/demo/create-instance`, `/api/demo/try-interview`, `/api/demo/claim`, `/api/review-historical`, `/api/biography`, `/api/wordcount`).
-- `components/` — React UI (ChatInterface, ConfigPanel, MessageBubble, landing HeroInput, etc.).
-- `lib/` — OpenAI chat and tools (evaluateAnswer, analyzeJobDescription, checkAnswer, detectDisengagement, reviewForContradiction), JD extractors (PDF, DOCX, HTML), persistence, voice.
-- `lib/constants/` — Built-in templates, JD extract limits (`jdExtract.ts`), demo org and cookie (`demo.ts`).
-- `types/` — TypeScript types (Question, InterviewTemplate, PositionRecord, InterviewInstanceRecord, SessionRecord, etc.).
-- `docs/` — Documentation: [docs/README.md](docs/README.md), [docs/requirements.md](docs/requirements.md), [docs/interview-modes-and-templates.md](docs/interview-modes-and-templates.md).
+---
 
 ## Documentation
 
-- **[docs/requirements.md](docs/requirements.md)** — Implemented and planned requirements (terminology, positions, JD extract and analyze flow, demo flow and claim, tools, APIs).
+- **[docs/api-v1.md](docs/api-v1.md)** — Full v1 API reference with curl examples.
+- **[docs/requirements.md](docs/requirements.md)** — Implemented and planned requirements.
 - **[docs/interview-modes-and-templates.md](docs/interview-modes-and-templates.md)** — Interview modes and template design.
