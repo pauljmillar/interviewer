@@ -98,8 +98,8 @@ export default function ArtConfigPage() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">403</p>
-          <p className="text-gray-500 dark:text-gray-400">Superadmin access required.</p>
+          <p className="text-2xl font-bold text-[var(--retro-text-primary)] mb-2">403</p>
+          <p className="text-[var(--retro-text-muted)]">Superadmin access required.</p>
         </div>
       </div>
     );
@@ -108,26 +108,26 @@ export default function ArtConfigPage() {
   return (
     <div className="p-6 max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Art Config</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <h1 className="text-xl font-bold text-[var(--retro-text-primary)]">Art Config</h1>
+        <p className="text-sm text-[var(--retro-text-muted)] mt-1">
           Configure geometric art generation parameters. Saved config is used by{' '}
-          <code className="font-mono text-xs bg-gray-100 dark:bg-[#2a2a2a] px-1 py-0.5 rounded">POST /api/generate-art</code>.
+          <code className="font-mono text-xs bg-[var(--retro-bg-raised)] px-1 py-0.5 rounded">POST /api/generate-art</code>.
         </p>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <div className="w-6 h-6 border-2 border-[#3ECF8E] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-[#F28A0F] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : error ? (
         <p className="text-sm text-red-500">{error}</p>
       ) : (
         <>
-          <div className="mb-4 border border-gray-200 dark:border-[#2a2a2a] rounded-lg bg-white dark:bg-[#1a1a1a] overflow-hidden">
+          <div className="mb-4 border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-surface)] admin-card overflow-hidden">
             <textarea
               value={json}
               onChange={(e) => { setJson(e.target.value); setSaveError(null); setSaved(false); }}
-              className="w-full font-mono text-xs p-4 bg-transparent text-gray-900 dark:text-gray-100 resize-none focus:outline-none"
+              className="w-full font-mono text-xs p-4 bg-transparent text-[var(--retro-text-primary)] resize-none focus:outline-none"
               rows={30}
               spellCheck={false}
             />
@@ -142,28 +142,28 @@ export default function ArtConfigPage() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#3ECF8E] hover:bg-[#2dbe7e] disabled:opacity-50 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-[#F28A0F] hover:bg-[#d47b0a] disabled:opacity-50 rounded-lg transition-colors"
             >
               {saving ? 'Saving…' : 'Save'}
             </button>
             <button
               type="button"
               onClick={handleReset}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 dark:border-[#2a2a2a] rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors"
+              className="px-4 py-2 text-sm font-medium border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-surface)] text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] transition-colors"
             >
               Reset to defaults
             </button>
-            {saved && <span className="text-sm text-[#3ECF8E]">Saved.</span>}
+            {saved && <span className="text-sm text-[#F28A0F]">Saved.</span>}
           </div>
 
           <div className="mb-6">
-            <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Preview</h2>
+            <h2 className="text-sm font-semibold text-[var(--retro-text-secondary)] mb-3">Preview</h2>
             <div className="flex gap-3 mb-4 flex-wrap">
               <button
                 type="button"
                 onClick={() => handlePreview('png')}
                 disabled={previewingPng}
-                className="px-4 py-2 text-sm font-medium border border-gray-300 dark:border-[#2a2a2a] rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] disabled:opacity-50 transition-colors"
+                className="px-4 py-2 text-sm font-medium border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-surface)] text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] disabled:opacity-50 transition-colors"
               >
                 {previewingPng ? 'Generating…' : 'Preview PNG'}
               </button>
@@ -171,7 +171,7 @@ export default function ArtConfigPage() {
                 type="button"
                 onClick={() => handlePreview('gif')}
                 disabled={previewingGif}
-                className="px-4 py-2 text-sm font-medium border border-gray-300 dark:border-[#2a2a2a] rounded-lg bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] disabled:opacity-50 transition-colors"
+                className="px-4 py-2 text-sm font-medium border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-surface)] text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] disabled:opacity-50 transition-colors"
               >
                 {previewingGif ? 'Generating…' : 'Preview GIF'}
               </button>
@@ -179,16 +179,16 @@ export default function ArtConfigPage() {
             <div className="flex gap-4 flex-wrap">
               {previewPng && (
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">PNG</p>
+                  <p className="text-xs text-[var(--retro-text-muted)] mb-1">PNG</p>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={previewPng} alt="PNG preview" className="w-64 h-64 object-cover rounded-lg border border-gray-200 dark:border-[#2a2a2a]" />
+                  <img src={previewPng} alt="PNG preview" className="w-64 h-64 object-cover rounded-lg border border-[var(--retro-border-color)]" />
                 </div>
               )}
               {previewGif && (
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">GIF</p>
+                  <p className="text-xs text-[var(--retro-text-muted)] mb-1">GIF</p>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={previewGif} alt="GIF preview" className="w-64 h-64 object-cover rounded-lg border border-gray-200 dark:border-[#2a2a2a]" />
+                  <img src={previewGif} alt="GIF preview" className="w-64 h-64 object-cover rounded-lg border border-[var(--retro-border-color)]" />
                 </div>
               )}
             </div>

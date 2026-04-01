@@ -11,7 +11,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-2">What we collect</h2>
           <p>
-            When you participate in an interview conducted through Candice AI, we collect:
+            When you participate in an interview conducted through Screen AI, we collect:
           </p>
           <ul className="list-disc pl-5 space-y-1 mt-2">
             <li>Your written responses to interview questions.</li>
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-2">How it is used</h2>
           <p>
             Your interview responses and recording are shared only with the organisation that invited you
-            to the interview. They are used solely to evaluate your application or participation. Candice AI
+            to the interview. They are used solely to evaluate your application or participation. Screen AI
             does not use your responses to train AI models or share them with third parties.
           </p>
         </section>
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
           <p>
             Depending on your location you may have rights to access, correct, or delete personal data
             held about you. To exercise these rights, contact the organisation that sent you the interview
-            link. For questions about how Candice AI handles data, contact{' '}
+            link. For questions about how Screen AI handles data, contact{' '}
             <a href="mailto:privacy@candice.ai" className="text-[#3ECF8E] hover:underline">
               privacy@candice.ai
             </a>

@@ -195,7 +195,7 @@ export default function NewPositionPage() {
       <div className="mb-4">
         <Link
           href="/admin/positions"
-          className="text-sm text-gray-600 hover:text-gray-900"
+          className="text-sm text-[var(--retro-text-secondary)] hover:text-[var(--retro-text-primary)]"
         >
           ← Back to positions
         </Link>
@@ -203,20 +203,20 @@ export default function NewPositionPage() {
 
       {view === 'default' && (
         <>
-          <h1 className="text-xl font-semibold text-gray-900 mb-6">Create a new position</h1>
+          <h1 className="text-xl font-semibold text-[var(--retro-text-primary)] mb-6">Create a new position</h1>
           {error && (
             <p className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert">
               {error}
             </p>
           )}
-          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 mb-6">
-            <h2 className="text-base font-medium text-gray-800 mb-3">Upload Job Description</h2>
-            <p className="text-sm text-gray-600 mb-3">
+          <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-6 admin-card mb-6">
+            <h2 className="text-base font-medium text-[var(--retro-text-primary)] mb-3">Upload Job Description</h2>
+            <p className="text-sm text-[var(--retro-text-secondary)] mb-3">
               Upload a .txt file or paste the job description below. We&apos;ll generate screening questions for you.
             </p>
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center mb-3 transition-colors ${
-                jdDropActive ? 'border-[#3ECF8E] bg-[#3ECF8E]/10' : 'border-gray-300 bg-gray-50'
+                jdDropActive ? 'border-[#F28A0F] bg-[#F28A0F]/10' : 'border-[var(--retro-border-color)] bg-[var(--retro-bg-raised)]'
               }`}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -243,11 +243,11 @@ export default function NewPositionPage() {
                   e.target.value = '';
                 }}
               />
-              <label htmlFor="jd-file" className="cursor-pointer text-sm text-gray-600 hover:text-gray-900">
+              <label htmlFor="jd-file" className="cursor-pointer text-sm text-[var(--retro-text-secondary)] hover:text-[var(--retro-text-primary)]">
                 Drop a .txt file here or click to browse
               </label>
             </div>
-            <label htmlFor="jd-paste" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="jd-paste" className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
               Or paste below
             </label>
             <textarea
@@ -255,33 +255,33 @@ export default function NewPositionPage() {
               value={jdText}
               onChange={(e) => setJdText(e.target.value)}
               placeholder="Paste job description here..."
-              className="w-full h-40 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 resize-y"
+              className="w-full h-40 px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] resize-y"
             />
             <div className="mt-3">
               <button
                 type="button"
                 disabled={!jdText.trim() || jdAnalyzing}
                 onClick={handleGenerateQuestions}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
                 {jdAnalyzing ? 'Generating questions...' : 'Generate questions'}
               </button>
             </div>
           </div>
 
-          <p className="text-sm text-gray-500 text-center mb-3">Or start another way</p>
+          <p className="text-sm text-[var(--retro-text-muted)] text-center mb-3">Or start another way</p>
           <div className="flex flex-wrap gap-3 justify-center">
             <button
               type="button"
               onClick={() => setView('template')}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
+              className="px-4 py-2 border border-[var(--retro-border-color)] rounded-lg text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] font-medium text-sm"
             >
               Use existing template
             </button>
             <button
               type="button"
               onClick={() => setView('scratch')}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
+              className="px-4 py-2 border border-[var(--retro-border-color)] rounded-lg text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] font-medium text-sm"
             >
               From scratch
             </button>
@@ -291,29 +291,29 @@ export default function NewPositionPage() {
 
       {view === 'jd-review' && (
         <>
-          <h1 className="text-xl font-semibold text-gray-900 mb-6">Review and create position</h1>
+          <h1 className="text-xl font-semibold text-[var(--retro-text-primary)] mb-6">Review and create position</h1>
           {error && (
             <p className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert">
               {error}
             </p>
           )}
-          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 space-y-4">
+          <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-6 admin-card space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Position name</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Position name</label>
               <input
                 type="text"
                 value={jdPositionName}
                 onChange={(e) => setJdPositionName(e.target.value)}
                 placeholder="e.g. Senior Engineer at Acme"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900"
+                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)]"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Type</label>
               <select
                 value={jdPositionType}
                 onChange={(e) => setJdPositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
               >
                 <option value="job">job</option>
                 <option value="biography">biography</option>
@@ -321,10 +321,10 @@ export default function NewPositionPage() {
               </select>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">
+              <p className="text-sm font-medium text-[var(--retro-text-secondary)] mb-2">
                 Generated questions ({jdGeneratedQuestions?.length ?? 0})
               </p>
-              <ul className="list-decimal list-inside space-y-1 text-gray-800 text-sm max-h-48 overflow-y-auto border border-gray-100 rounded p-3 bg-gray-50">
+              <ul className="list-decimal list-inside space-y-1 text-[var(--retro-text-primary)] text-sm max-h-48 overflow-y-auto border border-[var(--retro-border-color)] rounded p-3 bg-[var(--retro-bg-raised)]">
                 {jdGeneratedQuestions?.map((q, i) => (
                   <li key={i}>{q.mainQuestion}</li>
                 ))}
@@ -334,7 +334,7 @@ export default function NewPositionPage() {
               <button
                 type="button"
                 onClick={() => setView('default')}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
+                className="px-4 py-2 border border-[var(--retro-border-color)] rounded-lg text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] font-medium text-sm"
               >
                 Back
               </button>
@@ -342,7 +342,7 @@ export default function NewPositionPage() {
                 type="button"
                 disabled={!jdPositionName.trim() || !jdGeneratedQuestions?.length || creating}
                 onClick={createPositionFromJd}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
                 {creating ? 'Creating...' : 'Create position'}
               </button>
@@ -353,19 +353,19 @@ export default function NewPositionPage() {
 
       {view === 'template' && (
         <>
-          <h1 className="text-xl font-semibold text-gray-900 mb-6">Use existing template</h1>
+          <h1 className="text-xl font-semibold text-[var(--retro-text-primary)] mb-6">Use existing template</h1>
           {error && (
             <p className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert">
               {error}
             </p>
           )}
-          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 space-y-4">
+          <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-6 admin-card space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Template</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Template</label>
               <select
                 value={selectedTemplateId}
                 onChange={(e) => setSelectedTemplateId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
               >
                 <option value="">Choose a template...</option>
                 {allTemplates.map((t) => (
@@ -376,21 +376,21 @@ export default function NewPositionPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Position name</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Position name</label>
               <input
                 type="text"
                 value={templatePositionName}
                 onChange={(e) => setTemplatePositionName(e.target.value)}
                 placeholder="e.g. Janitor at Company X"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900"
+                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)]"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Type</label>
               <select
                 value={templatePositionType}
                 onChange={(e) => setTemplatePositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
               >
                 <option value="job">job</option>
                 <option value="biography">biography</option>
@@ -401,7 +401,7 @@ export default function NewPositionPage() {
               <button
                 type="button"
                 onClick={backToDefault}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
+                className="px-4 py-2 border border-[var(--retro-border-color)] rounded-lg text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] font-medium text-sm"
               >
                 Back
               </button>
@@ -409,7 +409,7 @@ export default function NewPositionPage() {
                 type="button"
                 disabled={!templatePositionName.trim() || !selectedTemplateId || creating}
                 onClick={createPositionFromTemplate}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
                 {creating ? 'Creating...' : 'Create position'}
               </button>
@@ -420,29 +420,29 @@ export default function NewPositionPage() {
 
       {view === 'scratch' && (
         <>
-          <h1 className="text-xl font-semibold text-gray-900 mb-6">From scratch</h1>
+          <h1 className="text-xl font-semibold text-[var(--retro-text-primary)] mb-6">From scratch</h1>
           {error && (
             <p className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert">
               {error}
             </p>
           )}
-          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 space-y-4">
+          <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-6 admin-card space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Position name</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Position name</label>
               <input
                 type="text"
                 value={scratchPositionName}
                 onChange={(e) => setScratchPositionName(e.target.value)}
                 placeholder="e.g. Biography for Grandma Betty"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900"
+                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)]"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Type</label>
               <select
                 value={scratchPositionType}
                 onChange={(e) => setScratchPositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
               >
                 <option value="job">job</option>
                 <option value="biography">biography</option>
@@ -450,21 +450,21 @@ export default function NewPositionPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
                 Questions (optional, one per line)
               </label>
               <textarea
                 value={scratchQuestionsText}
                 onChange={(e) => setScratchQuestionsText(e.target.value)}
                 placeholder="Add questions one per line, or leave blank to add later."
-                className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 resize-y"
+                className="w-full h-32 px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] resize-y"
               />
             </div>
             <div className="flex gap-2 pt-2">
               <button
                 type="button"
                 onClick={backToDefault}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
+                className="px-4 py-2 border border-[var(--retro-border-color)] rounded-lg text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] font-medium text-sm"
               >
                 Back
               </button>
@@ -472,7 +472,7 @@ export default function NewPositionPage() {
                 type="button"
                 disabled={!scratchPositionName.trim() || creating}
                 onClick={createPositionFromScratch}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
                 {creating ? 'Creating...' : 'Create position'}
               </button>

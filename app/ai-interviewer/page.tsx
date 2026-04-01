@@ -93,7 +93,7 @@ const features = [
   {
     label: 'Output',
     title: 'Instant ranking',
-    body: 'Candice scores every response and surfaces a prioritised shortlist — ready in your dashboard by morning.',
+    body: 'Screen AI scores every response and surfaces a prioritised shortlist — ready in your dashboard by morning.',
     accent: amber,
     icon: (
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
@@ -126,9 +126,9 @@ const features = [
 ];
 
 const steps = [
-  { n: '01', title: 'Upload your job description', body: 'Paste or upload your JD. Candice reads it and automatically generates a tailored set of screening questions and scoring rubrics.' },
+  { n: '01', title: 'Upload your job description', body: 'Paste or upload your JD. Screen AI reads it and automatically generates a tailored set of screening questions and scoring rubrics.' },
   { n: '02', title: 'Send interview links', body: 'Share a unique link with each candidate. They can complete the interview on their own schedule — no calendar coordination, no no-shows.' },
-  { n: '03', title: 'Candice conducts the interview', body: 'Your AI interviewer leads a structured, conversational screening. Every candidate gets the same questions, asked the same way.' },
+  { n: '03', title: 'Screen AI conducts the interview', body: 'Your AI interviewer leads a structured, conversational screening. Every candidate gets the same questions, asked the same way.' },
   { n: '04', title: 'Review ranked results', body: 'Log in to find candidates ranked by score, with notes and highlights from each interview. Move the best straight to the next round.' },
 ];
 
@@ -180,8 +180,8 @@ export default function AIInterviewerPage() {
                   fontFamily: font, fontSize: 'clamp(48px, 7vw, 72px)', fontWeight: 700,
                   color: textPrimary, lineHeight: 1, letterSpacing: -2, margin: '0 0 20px',
                 }}>
-                  MEET CANDICE,<br />
-                  YOUR <span style={{ color: red }}>AI INTERVIEWER.</span>
+                  MEET YOUR<br />
+                  <span style={{ color: red }}>AI INTERVIEWER.</span>
                 </h1>
                 <p style={{ fontSize: 16, fontWeight: 400, letterSpacing: 2, textTransform: 'uppercase' as const, color: textSecondary, marginBottom: 40 }}>
                   Every candidate screened&nbsp;·&nbsp;You review the shortlist
@@ -223,7 +223,7 @@ export default function AIInterviewerPage() {
               <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
                 <GhostNumber>02</GhostNumber>
                 <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 4, textTransform: 'uppercase' as const, color: 'var(--retro-text-accent-dim)', marginTop: 4 }}>
-                  Candice AI
+                  Screen AI
                 </p>
               </div>
             </div>
@@ -259,7 +259,7 @@ export default function AIInterviewerPage() {
           <section style={{ padding: '90px 0', borderBottom: borderSubtle }}>
             <SectionLabel n="02" title="Everything you need from a first-round interview" />
             <p style={{ fontFamily: font, fontSize: 16, color: textMuted, marginBottom: 48, marginTop: -24 }}>
-              Candice handles the volume. You handle the decisions.
+              Screen AI handles the volume. You handle the decisions.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               {features.map(({ label, title, body, accent, icon }) => (
@@ -322,7 +322,7 @@ export default function AIInterviewerPage() {
           {/* ── FOOTER ────────────────────────────────────────────────────── */}
           <footer style={{ padding: '40px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' as const, gap: 16 }}>
             <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: textMuted }}>
-              © {new Date().getFullYear()} Candice AI
+              © {new Date().getFullYear()} Screen AI
             </p>
             <div style={{ display: 'flex', gap: 24 }}>
               {[

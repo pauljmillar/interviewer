@@ -229,7 +229,7 @@ export default function PositionDetailPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <p className="text-gray-500 dark:text-gray-400">Loading position...</p>
+        <p className="text-[var(--retro-text-muted)]">Loading position...</p>
       </div>
     );
   }
@@ -238,7 +238,7 @@ export default function PositionDetailPage() {
     return (
       <div className="max-w-2xl mx-auto p-6">
         <p className="text-red-600 dark:text-red-400">{error || 'Position not found'}</p>
-        <Link href="/admin/positions" className="mt-4 inline-block text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline">
+        <Link href="/admin/positions" className="mt-4 inline-block text-[#F28A0F] hover:underline">
           Back to positions
         </Link>
       </div>
@@ -250,20 +250,20 @@ export default function PositionDetailPage() {
       <div className="mb-6 flex items-center justify-between">
         <Link
           href="/admin/positions"
-          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+          className="text-sm text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)]"
         >
           ← Back to positions
         </Link>
       </div>
-      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 mb-6">
+      <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-6 admin-card mb-6">
         <div className="flex items-start justify-between mb-6">
-          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Position details</h1>
+          <h1 className="text-xl font-semibold text-[var(--retro-text-primary)]">Position details</h1>
           {!isEditing && (
             <button
               type="button"
               onClick={() => setIsEditing(true)}
               title="Edit position"
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors"
+              className="p-1.5 rounded-lg text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)] hover:bg-[var(--retro-bg-raised)] transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
@@ -281,21 +281,21 @@ export default function PositionDetailPage() {
           <>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Name</label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)]"
                   placeholder="e.g. Senior Engineer at Acme"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Type</label>
                 <select
                   value={editType}
                   onChange={(e) => setEditType(e.target.value as PositionType)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2a2a2a]"
+                  className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
                 >
                   <option value="job">job</option>
                   <option value="biography">biography</option>
@@ -303,11 +303,11 @@ export default function PositionDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Template</label>
+                <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Template</label>
                 <select
                   value={editTemplateId}
                   onChange={(e) => setEditTemplateId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2a2a2a]"
+                  className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
                 >
                   <option value="">None</option>
                   {allTemplates.map((t) => (
@@ -317,7 +317,7 @@ export default function PositionDetailPage() {
                   ))}
                 </select>
               </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-sm text-[var(--retro-text-muted)]">
                 Created {new Date(position.createdAt).toLocaleString()}
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function PositionDetailPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={saving || !editName.trim()}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:pointer-events-none font-medium"
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:pointer-events-none font-medium"
               >
                 {saving ? 'Saving…' : 'Save changes'}
               </button>
@@ -334,7 +334,7 @@ export default function PositionDetailPage() {
                 type="button"
                 onClick={handleCancelEdit}
                 disabled={saving}
-                className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 dark:bg-gray-600 font-medium"
+                className="px-4 py-2 border border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] rounded-lg hover:bg-[var(--retro-bg-raised)] font-medium"
               >
                 Cancel
               </button>
@@ -351,20 +351,20 @@ export default function PositionDetailPage() {
         ) : (
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <dt className="font-medium text-gray-500 dark:text-gray-400">Name</dt>
-              <dd className="text-gray-900 dark:text-gray-100">{position.name}</dd>
+              <dt className="font-medium text-[var(--retro-text-muted)]">Name</dt>
+              <dd className="text-[var(--retro-text-primary)]">{position.name}</dd>
             </div>
             <div>
-              <dt className="font-medium text-gray-500 dark:text-gray-400">Type</dt>
-              <dd className="text-gray-900 dark:text-gray-100">{position.type ?? 'job'}</dd>
+              <dt className="font-medium text-[var(--retro-text-muted)]">Type</dt>
+              <dd className="text-[var(--retro-text-primary)]">{position.type ?? 'job'}</dd>
             </div>
             <div>
-              <dt className="font-medium text-gray-500 dark:text-gray-400">Template</dt>
-              <dd className="text-gray-900 dark:text-gray-100">{templateName ?? 'None'}</dd>
+              <dt className="font-medium text-[var(--retro-text-muted)]">Template</dt>
+              <dd className="text-[var(--retro-text-primary)]">{templateName ?? 'None'}</dd>
             </div>
             <div>
-              <dt className="font-medium text-gray-500 dark:text-gray-400">Created</dt>
-              <dd className="text-gray-900 dark:text-gray-100">{new Date(position.createdAt).toLocaleString()}</dd>
+              <dt className="font-medium text-[var(--retro-text-muted)]">Created</dt>
+              <dd className="text-[var(--retro-text-primary)]">{new Date(position.createdAt).toLocaleString()}</dd>
             </div>
           </dl>
         )}
@@ -385,18 +385,18 @@ export default function PositionDetailPage() {
           aria-modal="true"
           aria-labelledby="create-instances-title"
         >
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6 border border-gray-200 dark:border-[#2a2a2a]">
-            <h2 id="create-instances-title" className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-1">
+          <div className="bg-[var(--retro-bg-surface)] rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6 border border-[var(--retro-border-color)] admin-card">
+            <h2 id="create-instances-title" className="text-lg font-semibold text-[var(--retro-text-primary)] mb-1">
               Create interview instances
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Position: {position.name}</p>
+            <p className="text-sm text-[var(--retro-text-secondary)] mb-4">Position: {position.name}</p>
 
             <table className="w-full text-sm mb-3">
               <thead>
                 <tr>
-                  <th className="text-left font-medium text-gray-600 dark:text-gray-400 pb-1 pr-2">Name</th>
-                  <th className="text-left font-medium text-gray-600 dark:text-gray-400 pb-1 pr-2">
-                    Email <span className="font-normal text-gray-400 dark:text-gray-500">(optional)</span>
+                  <th className="text-left font-medium text-[var(--retro-text-secondary)] pb-1 pr-2">Name</th>
+                  <th className="text-left font-medium text-[var(--retro-text-secondary)] pb-1 pr-2">
+                    Email <span className="font-normal text-[var(--retro-text-muted)]">(optional)</span>
                   </th>
                   <th className="w-8" />
                 </tr>
@@ -413,7 +413,7 @@ export default function PositionDetailPage() {
                           setCandidates(next);
                         }}
                         placeholder="Jane Doe"
-                        className="w-full px-3 py-1.5 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+                        className="w-full px-3 py-1.5 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
                       />
                     </td>
                     <td className="pr-2 pb-2">
@@ -425,7 +425,7 @@ export default function PositionDetailPage() {
                           setCandidates(next);
                         }}
                         placeholder="jane@example.com"
-                        className="w-full px-3 py-1.5 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+                        className="w-full px-3 py-1.5 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
                       />
                     </td>
                     <td className="pb-2">
@@ -433,7 +433,7 @@ export default function PositionDetailPage() {
                         <button
                           type="button"
                           onClick={() => setCandidates(candidates.filter((_, j) => j !== i))}
-                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          className="text-[var(--retro-text-muted)] hover:text-red-500 transition-colors"
                           aria-label="Remove row"
                         >
                           ×
@@ -448,19 +448,19 @@ export default function PositionDetailPage() {
             <button
               type="button"
               onClick={() => setCandidates([...candidates, { name: '', email: '' }])}
-              className="text-sm text-[#3ECF8E] hover:underline mb-4"
+              className="text-sm text-[#F28A0F] hover:underline mb-4"
             >
               + Add another
             </button>
 
             {candidates.some((c) => c.email.trim()) && (
               <div className="mb-4">
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-700 dark:text-gray-300">
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-[var(--retro-text-secondary)]">
                   <input
                     type="checkbox"
                     checked={sendEmails}
                     onChange={(e) => setSendEmails(e.target.checked)}
-                    className="accent-[#3ECF8E]"
+                    className="accent-[#F28A0F]"
                   />
                   Send invite emails now
                 </label>
@@ -477,7 +477,7 @@ export default function PositionDetailPage() {
                 type="button"
                 onClick={handleCreateInstances}
                 disabled={createGenerating}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
                 {createGenerating ? 'Creating…' : 'Create'}
               </button>
@@ -491,7 +491,7 @@ export default function PositionDetailPage() {
                   }
                 }}
                 disabled={createGenerating}
-                className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 dark:bg-gray-600 font-medium disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-2 border border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] rounded-lg hover:bg-[var(--retro-bg-raised)] font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
                 Cancel
               </button>

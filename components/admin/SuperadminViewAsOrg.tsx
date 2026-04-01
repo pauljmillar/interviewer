@@ -52,12 +52,12 @@ export default function SuperadminViewAsOrg() {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="superadmin-org" className="text-xs font-medium text-gray-500 whitespace-nowrap">
+      <label htmlFor="superadmin-org" className="text-xs font-medium text-[var(--retro-text-muted)] whitespace-nowrap">
         View as:
       </label>
       <select
         id="superadmin-org"
-        className="text-sm border border-gray-300 rounded px-2 py-1 bg-white text-gray-800"
+        className="text-sm border border-[var(--retro-border-color)] rounded px-2 py-1 bg-[var(--retro-bg-raised)] text-[var(--retro-text-primary)]"
         defaultValue=""
         onChange={(e) => handleChange(e.target.value)}
       >

@@ -215,6 +215,7 @@ export function composeGIF(seed: number, bgIndex: number, config: ArtConfig): Ui
 
   for (let f = 0; f < frameCount; f++) {
     const t = f / FPS;
+    tCtx.clearRect(0, 0, W, H);
     tCtx.drawImage(off, 0, 0);
     drawMovers(tCtx, t);
     drawVignette(tCtx);

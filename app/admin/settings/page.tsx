@@ -136,20 +136,20 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <p className="text-gray-500 dark:text-gray-400">Loading settings…</p>
+        <p className="text-[var(--retro-text-muted)]">Loading settings…</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Company settings</h1>
+      <h1 className="text-xl font-semibold text-[var(--retro-text-primary)] mb-6">Company settings</h1>
 
-      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 space-y-6">
+      <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-6 admin-card space-y-6">
 
         {/* Company name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
             Company name
           </label>
           <input
@@ -157,16 +157,16 @@ export default function SettingsPage() {
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
             placeholder="Acme Corp"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+            className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-[var(--retro-text-muted)]">
             Shown to candidates on the interview page.
           </p>
         </div>
 
         {/* Website */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
             Website
           </label>
           <input
@@ -174,13 +174,13 @@ export default function SettingsPage() {
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             placeholder="https://acme.com"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+            className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
           />
         </div>
 
         {/* Privacy policy */}
         <div>
-          <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <p className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-2">
             Privacy policy
           </p>
           <div className="space-y-2">
@@ -191,16 +191,16 @@ export default function SettingsPage() {
                 value="default"
                 checked={privacyMode === 'default'}
                 onChange={() => setPrivacyMode('default')}
-                className="accent-[#3ECF8E]"
+                className="accent-[#F28A0F]"
               />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Use Candice AI default privacy policy
+              <span className="text-sm text-[var(--retro-text-secondary)]">
+                Use Screen AI default privacy policy
                 {' '}
                 <a
                   href="/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#3ECF8E] hover:underline"
+                  className="text-[#F28A0F] hover:underline"
                 >
                   (view)
                 </a>
@@ -213,9 +213,9 @@ export default function SettingsPage() {
                 value="custom"
                 checked={privacyMode === 'custom'}
                 onChange={() => setPrivacyMode('custom')}
-                className="accent-[#3ECF8E]"
+                className="accent-[#F28A0F]"
               />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Use custom URL</span>
+              <span className="text-sm text-[var(--retro-text-secondary)]">Use custom URL</span>
             </label>
           </div>
           {privacyMode === 'custom' && (
@@ -224,17 +224,17 @@ export default function SettingsPage() {
               value={privacyUrl}
               onChange={(e) => setPrivacyUrl(e.target.value)}
               placeholder="https://acme.com/privacy"
-              className="mt-2 w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+              className="mt-2 w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
             />
           )}
         </div>
 
         {/* Email sender */}
         <div>
-          <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <p className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
             Email sender
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <p className="text-xs text-[var(--retro-text-muted)] mb-3">
             Leave blank to use the system default. Custom addresses require a verified domain in your Brevo account.
           </p>
           <div className="space-y-2">
@@ -243,14 +243,14 @@ export default function SettingsPage() {
               value={fromName}
               onChange={(e) => setFromName(e.target.value)}
               placeholder="Sender name (defaults to system sender)"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
             />
             <input
               type="email"
               value={fromEmail}
               onChange={(e) => setFromEmail(e.target.value)}
               placeholder="Sender email (defaults to system sender)"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a]"
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
             />
           </div>
         </div>
@@ -258,7 +258,7 @@ export default function SettingsPage() {
         {/* API Access — superadmin only */}
         {isSuperadmin && (
           <div>
-            <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <p className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
               API access
             </p>
             <label className="flex items-center gap-3 cursor-pointer">
@@ -266,14 +266,14 @@ export default function SettingsPage() {
                 role="switch"
                 aria-checked={apiAccess}
                 onClick={() => setApiAccess((v) => !v)}
-                className={`relative w-10 h-6 rounded-full transition-colors cursor-pointer ${apiAccess ? 'bg-[#3ECF8E]' : 'bg-gray-300 dark:bg-[#3a3a3a]'}`}
+                className={`relative w-10 h-6 rounded-full transition-colors cursor-pointer ${apiAccess ? 'bg-[#F28A0F]' : 'bg-[var(--retro-bg-raised)]'}`}
               >
                 <span
                   className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${apiAccess ? 'translate-x-4' : 'translate-x-0'}`}
                 />
               </div>
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                {apiAccess ? 'Enabled' : 'Disabled'} — allows bearer token requests to <code className="font-mono text-xs bg-gray-100 dark:bg-[#2a2a2a] px-1 rounded">/api/v1/</code>
+              <span className="text-sm text-[var(--retro-text-secondary)]">
+                {apiAccess ? 'Enabled' : 'Disabled'} — allows bearer token requests to <code className="font-mono text-xs bg-[var(--retro-bg-raised)] px-1 rounded">/api/v1/</code>
               </span>
             </label>
           </div>
@@ -288,7 +288,7 @@ export default function SettingsPage() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium disabled:opacity-50 disabled:pointer-events-none"
+            className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] font-medium disabled:opacity-50 disabled:pointer-events-none"
           >
             {saving ? 'Saving…' : 'Save'}
           </button>
@@ -299,9 +299,9 @@ export default function SettingsPage() {
       </div>
 
       {/* Logo */}
-      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 mt-6">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Company logo</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+      <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-6 admin-card mt-6">
+        <h2 className="text-base font-semibold text-[var(--retro-text-primary)] mb-4">Company logo</h2>
+        <p className="text-sm text-[var(--retro-text-muted)] mb-4">
           Shown in the interview page header. Recommended: PNG or SVG with transparent background, at least 200px tall.
         </p>
 
@@ -312,7 +312,7 @@ export default function SettingsPage() {
               key={logoKey}
               src={`/api/org/logo/${data.orgId}?v=${logoKey}`}
               alt="Company logo"
-              className="h-16 object-contain border border-gray-200 dark:border-[#2a2a2a] rounded p-2 bg-white dark:bg-[#2a2a2a]"
+              className="h-16 object-contain border border-[var(--retro-border-color)] rounded p-2 bg-[var(--retro-bg-raised)]"
             />
           </div>
         )}
@@ -326,7 +326,7 @@ export default function SettingsPage() {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] font-medium text-sm disabled:opacity-50 disabled:pointer-events-none"
+            className="px-4 py-2 border border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] rounded-lg hover:bg-[var(--retro-bg-raised)] font-medium text-sm disabled:opacity-50 disabled:pointer-events-none"
           >
             {uploading ? 'Uploading…' : hasLogo ? 'Replace logo' : 'Upload logo'}
           </button>

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPostBySlug(supabase, slug);
   if (!post || !post.published) return {};
   return {
-    title: `${post.title} | Candice AI Blog`,
+    title: `${post.title} | Screen AI Blog`,
     description: post.excerpt ?? post.summary ?? undefined,
   };
 }
@@ -53,7 +53,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         )}
         <div
-          className="prose prose-gray dark:prose-invert max-w-none"
+          className="prose prose-gray dark:prose-invert prose-a:text-[#3ECF8E] prose-a:no-underline hover:prose-a:underline max-w-none blog-content"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </article>

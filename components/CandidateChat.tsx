@@ -16,7 +16,7 @@ function countWords(text: string): number {
 function getPreSpokenIntroText(instance: InterviewInstanceRecord): string {
   const recruiter = instance.recruiterName?.trim() || 'the hiring team';
   const company = instance.companyName?.trim() || 'the company';
-  return `Hi, I'm Candice. I'm working with ${recruiter} at ${company} to help them work through a large list of candidates. The most qualified candidates will be passed along to ${recruiter} to continue to the next steps of the interview process.`;
+  return `Hi, I'm Screen AI. I'm working with ${recruiter} at ${company} to help them work through a large list of candidates. The most qualified candidates will be passed along to ${recruiter} to continue to the next steps of the interview process.`;
 }
 
 /** Split text into sentences (by . ! ?) for chunked TTS. */
@@ -759,7 +759,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   const faqItems = [
     {
       q: 'Is this a real interview?',
-      a: `Yes. Candice is an AI assistant conducting a real screening interview on behalf of ${instance.companyName || 'the hiring team'}. Your responses are reviewed by the recruiting team.`,
+      a: `Yes. Screen AI is an AI assistant conducting a real screening interview on behalf of ${instance.companyName || 'the hiring team'}. Your responses are reviewed by the recruiting team.`,
     },
     {
       q: 'Can I start over?',
@@ -767,7 +767,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
     },
     {
       q: 'How can I learn more about the role?',
-      a: `Check the company's website or reply to the email you received from the recruiter${instance.recruiterName ? ` (${instance.recruiterName})` : ''}. Candice is focused on the interview itself and cannot answer detailed questions about compensation or team structure.`,
+      a: `Check the company's website or reply to the email you received from the recruiter${instance.recruiterName ? ` (${instance.recruiterName})` : ''}. Screen AI is focused on the interview itself and cannot answer detailed questions about compensation or team structure.`,
     },
     {
       q: 'When can I expect to hear back?',
@@ -786,11 +786,11 @@ export default function CandidateChat({ instance, session: initialSession, onSes
   return (
     <>
       <div className="font-landing flex flex-col h-screen bg-landing-bg">
-        {/* Interview-specific header: Candice logo, company + job title, recording controls, timer, help */}
+        {/* Interview-specific header: Screen AI logo, company + job title, recording controls, timer, help */}
         <header className="bg-landing-bg border-b border-landing-border px-4 py-3 flex-shrink-0">
           <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              {/* Candice AI brand */}
+              {/* Screen AI brand */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -802,12 +802,12 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-[#3ECF8E]"
+                  className="text-[#F28A0F]"
                   aria-hidden
                 >
                   <path d="M2 13a2 2 0 0 0 2-2V7a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0V4a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0v-4a2 2 0 0 1 2-2" />
                 </svg>
-                <span className="text-sm font-semibold text-landing-heading whitespace-nowrap">Candice AI</span>
+                <span className="text-sm font-semibold text-landing-heading whitespace-nowrap">Screen AI</span>
               </div>
               {/* Divider + company logo + company/job info */}
               {(orgSettings?.companyName || orgSettings?.hasLogo || instance.companyName || instance.name) && (
@@ -859,7 +859,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                 <button
                   type="button"
                   onClick={handleResumeRecording}
-                  className="px-2.5 py-1 text-xs font-medium rounded-md bg-[#3ECF8E]/10 text-[#2dbe7e] hover:bg-[#3ECF8E]/20"
+                  className="px-2.5 py-1 text-xs font-medium rounded-md bg-[#F28A0F]/10 text-[#F28A0F] hover:bg-[#F28A0F]/20"
                 >
                   Resume
                 </button>
@@ -870,7 +870,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
               <button
                 type="button"
                 onClick={() => setHelpOpen(true)}
-                className="px-3 py-1.5 text-xs font-medium rounded-md border border-landing-border text-landing-muted hover:text-landing-heading hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+                className="px-3 py-1.5 text-xs font-medium rounded-md border border-landing-border text-landing-muted hover:text-landing-heading hover:border-landing-heading transition-colors"
                 aria-label="Help and FAQ"
               >
                 Help
@@ -941,7 +941,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                     ? 'Type or use voice…'
                     : 'Type your response…'
                 }
-                className="flex-1 px-4 py-3 border border-gray-300 dark:border-[#2a2a2a] dark:bg-[#1c1c1c] dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] resize-none text-gray-900 text-sm leading-5"
+                className="flex-1 px-4 py-3 border border-landing-border bg-[var(--retro-bg-raised)] text-[var(--retro-text-primary)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] resize-none text-sm leading-5"
                 rows={1}
                 disabled={isLoading || isRecording}
               />
@@ -952,7 +952,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                   className={`px-5 py-3 rounded-lg font-medium text-sm transition-colors flex-shrink-0 ${
                     isRecording
                       ? 'bg-red-600 text-white hover:bg-red-700 animate-pulse'
-                      : 'bg-[#3ECF8E] text-white hover:bg-[#2dbe7e]'
+                      : 'bg-[#F28A0F] text-white hover:bg-[#d47b0a]'
                   }`}
                 >
                   {isRecording ? 'Stop' : '🎤 Voice'}
@@ -967,7 +967,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
                   }
                 }}
                 disabled={isLoading || isRecording}
-                className="px-5 py-3 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] transition-colors font-medium text-sm disabled:bg-gray-300 disabled:cursor-not-allowed flex-shrink-0"
+                className="px-5 py-3 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
               >
                 Send
               </button>
@@ -992,7 +992,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
           className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
           onClick={(e) => { if (e.target === e.currentTarget) setHelpOpen(false); }}
         >
-          <div className="bg-white dark:bg-[#1c1c1c] rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto">
+          <div className="bg-[var(--retro-bg-surface)] rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-semibold text-landing-heading">Help &amp; FAQ</h2>
               <button
@@ -1015,7 +1015,7 @@ export default function CandidateChat({ instance, session: initialSession, onSes
             <button
               type="button"
               onClick={() => setHelpOpen(false)}
-              className="mt-6 w-full py-2.5 rounded-lg bg-[#3ECF8E] text-white font-medium text-sm hover:bg-[#2dbe7e] transition-colors"
+              className="mt-6 w-full py-2.5 rounded-lg bg-[#F28A0F] text-white font-medium text-sm hover:bg-[#d47b0a] transition-colors"
             >
               Got it
             </button>

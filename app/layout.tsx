@@ -5,7 +5,7 @@ import ConditionalHeader from "@/components/ConditionalHeader";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "Candice AI",
+  title: "Screen AI",
   description: "Your AI Agent for candidate interviews",
 };
 

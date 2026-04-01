@@ -37,6 +37,7 @@ export default function BlogEditorPage() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [publishedAt, setPublishedAt] = useState('');
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,6 +66,7 @@ export default function BlogEditorPage() {
         setSlug(p.slug);
         setSummary(p.excerpt ?? p.summary ?? '');
         setPublished(p.published);
+        setPublishedAt(p.publishedAt ? p.publishedAt.slice(0, 16) : '');
         setThumbnailKey(p.thumbnailKey);
         setCoverImageUrl(p.coverImageUrl);
         if (p.thumbnailKey) {
@@ -161,7 +163,7 @@ export default function BlogEditorPage() {
         const res = await fetch('/api/blog/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, slug, summary: summary || null, excerpt: summary || null, content, thumbnailKey, coverImageUrl }),
+          body: JSON.stringify({ title, slug, summary: summary || null, excerpt: summary || null, content, thumbnailKey, coverImageUrl, publishedAt: publishedAt ? new Date(publishedAt).toISOString() : null }),
         });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
@@ -179,7 +181,7 @@ export default function BlogEditorPage() {
         router.replace(`/admin/blog/${newPost.id}`);
       } else {
         // Update
-        const patch: Record<string, unknown> = { title, slug, summary: summary || null, excerpt: summary || null, content, thumbnailKey, coverImageUrl };
+        const patch: Record<string, unknown> = { title, slug, summary: summary || null, excerpt: summary || null, content, thumbnailKey, coverImageUrl, publishedAt: publishedAt ? new Date(publishedAt).toISOString() : null };
         if (publish !== undefined) {
           patch.published = publish;
           setPublished(publish);
@@ -204,7 +206,7 @@ export default function BlogEditorPage() {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#3ECF8E] border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-[#F28A0F] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -222,7 +224,7 @@ export default function BlogEditorPage() {
         {/* Editor column */}
         <div className="flex-1 min-w-0 flex flex-col overflow-auto p-6">
           {/* Toolbar */}
-          <div className="flex flex-wrap gap-1 mb-3 p-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg sticky top-0 z-10">
+          <div className="flex flex-wrap gap-1 mb-3 p-2 bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg sticky top-0 z-10">
             <ToolbarButton
               onClick={() => editor?.chain().focus().toggleBold().run()}
               active={editor?.isActive('bold')}
@@ -237,7 +239,7 @@ export default function BlogEditorPage() {
             >
               <em>I</em>
             </ToolbarButton>
-            <div className="w-px h-6 bg-gray-200 dark:bg-[#3a3a3a] self-center mx-0.5" />
+            <div className="w-px h-6 bg-[var(--retro-border-color)] self-center mx-0.5" />
             <ToolbarButton
               onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
               active={editor?.isActive('heading', { level: 1 })}
@@ -259,7 +261,7 @@ export default function BlogEditorPage() {
             >
               H3
             </ToolbarButton>
-            <div className="w-px h-6 bg-gray-200 dark:bg-[#3a3a3a] self-center mx-0.5" />
+            <div className="w-px h-6 bg-[var(--retro-border-color)] self-center mx-0.5" />
             <ToolbarButton
               onClick={() => editor?.chain().focus().toggleBulletList().run()}
               active={editor?.isActive('bulletList')}
@@ -288,7 +290,7 @@ export default function BlogEditorPage() {
             >
               {'</>'}
             </ToolbarButton>
-            <div className="w-px h-6 bg-gray-200 dark:bg-[#3a3a3a] self-center mx-0.5" />
+            <div className="w-px h-6 bg-[var(--retro-border-color)] self-center mx-0.5" />
             <ToolbarButton onClick={handleInlineImageUpload} title="Insert image">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -317,18 +319,18 @@ export default function BlogEditorPage() {
           {/* Editor area */}
           <EditorContent
             editor={editor}
-            className="flex-1 min-h-[400px] bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-4 prose prose-gray dark:prose-invert max-w-none focus-within:ring-2 focus-within:ring-[#3ECF8E]/30"
+            className="flex-1 min-h-[400px] bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-4 prose prose-gray dark:prose-invert max-w-none focus-within:ring-2 focus-within:ring-[#F28A0F]/30"
           />
         </div>
 
         {/* Sidebar */}
-        <aside className="w-72 flex-shrink-0 border-l border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] flex flex-col overflow-auto">
-          <div className="p-4 border-b border-gray-100 dark:border-[#2a2a2a] flex items-center justify-between">
+        <aside className="w-72 flex-shrink-0 border-l border-[var(--retro-border-color)] bg-[var(--retro-bg-surface)] flex flex-col overflow-auto">
+          <div className="p-4 border-b border-[var(--retro-border-color)] flex items-center justify-between">
             <span
               className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                 published
                   ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-gray-100 text-gray-600 dark:bg-[#2a2a2a] dark:text-gray-400'
+                  : 'bg-[var(--retro-bg-raised)] text-[var(--retro-text-secondary)]'
               }`}
             >
               {published ? 'Published' : 'Draft'}
@@ -336,7 +338,7 @@ export default function BlogEditorPage() {
             <button
               type="button"
               onClick={() => router.push('/admin/blog')}
-              className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="text-xs text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)]"
             >
               ← All posts
             </button>
@@ -345,45 +347,56 @@ export default function BlogEditorPage() {
           <div className="flex-1 p-4 space-y-4 overflow-auto">
             {/* Title */}
             <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Title</label>
+              <label className="block text-xs font-medium text-[var(--retro-text-muted)] mb-1">Title</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Post title"
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#3a3a3a] rounded-lg bg-white dark:bg-[#0f0f0f] text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3ECF8E]/30"
+                className="w-full px-3 py-2 text-sm border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-surface)] text-[var(--retro-text-primary)] placeholder-[var(--retro-text-muted)] focus:outline-none focus:ring-2 focus:ring-[#F28A0F]/30"
               />
             </div>
 
             {/* Slug */}
             <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Slug</label>
+              <label className="block text-xs font-medium text-[var(--retro-text-muted)] mb-1">Slug</label>
               <input
                 type="text"
                 value={slug}
                 onChange={(e) => { setSlug(e.target.value); setSlugManuallyEdited(true); }}
                 placeholder="post-slug"
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#3a3a3a] rounded-lg bg-white dark:bg-[#0f0f0f] text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3ECF8E]/30 font-mono"
+                className="w-full px-3 py-2 text-sm border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-surface)] text-[var(--retro-text-primary)] placeholder-[var(--retro-text-muted)] focus:outline-none focus:ring-2 focus:ring-[#F28A0F]/30 font-mono"
               />
             </div>
 
             {/* Summary */}
             <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Summary</label>
+              <label className="block text-xs font-medium text-[var(--retro-text-muted)] mb-1">Summary</label>
               <textarea
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
                 placeholder="Short description for listing cards"
                 rows={3}
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#3a3a3a] rounded-lg bg-white dark:bg-[#0f0f0f] text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3ECF8E]/30 resize-none"
+                className="w-full px-3 py-2 text-sm border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-surface)] text-[var(--retro-text-primary)] placeholder-[var(--retro-text-muted)] focus:outline-none focus:ring-2 focus:ring-[#F28A0F]/30 resize-none"
+              />
+            </div>
+
+            {/* Published date */}
+            <div>
+              <label className="block text-xs font-medium text-[var(--retro-text-muted)] mb-1">Published date</label>
+              <input
+                type="datetime-local"
+                value={publishedAt}
+                onChange={(e) => setPublishedAt(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-surface)] text-[var(--retro-text-primary)] focus:outline-none focus:ring-2 focus:ring-[#F28A0F]/30"
               />
             </div>
 
             {/* Thumbnail */}
             <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Thumbnail</label>
+              <label className="block text-xs font-medium text-[var(--retro-text-muted)] mb-1">Thumbnail</label>
               {thumbnailPreview ? (
-                <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 dark:border-[#2a2a2a] mb-2">
+                <div className="relative aspect-video rounded-lg overflow-hidden border border-[var(--retro-border-color)] mb-2">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={thumbnailPreview} alt="Thumbnail" className="w-full h-full object-cover" />
                   <button
@@ -406,7 +419,7 @@ export default function BlogEditorPage() {
               <button
                 type="button"
                 onClick={() => thumbnailInputRef.current?.click()}
-                className="w-full px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors"
+                className="w-full px-3 py-2 text-xs font-medium text-[var(--retro-text-secondary)] border border-dashed border-[var(--retro-border-color)] rounded-lg hover:bg-[var(--retro-bg-raised)] transition-colors"
               >
                 {thumbnailPreview ? 'Replace thumbnail' : 'Upload thumbnail'}
               </button>
@@ -414,12 +427,12 @@ export default function BlogEditorPage() {
           </div>
 
           {/* Action buttons */}
-          <div className="p-4 border-t border-gray-100 dark:border-[#2a2a2a] space-y-2">
+          <div className="p-4 border-t border-[var(--retro-border-color)] space-y-2">
             <button
               type="button"
               onClick={() => handleSave(undefined)}
               disabled={saving}
-              className="w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors disabled:opacity-50"
+              className="w-full px-4 py-2 text-sm font-medium text-[var(--retro-text-secondary)] border border-[var(--retro-border-color)] rounded-lg hover:bg-[var(--retro-bg-raised)] transition-colors disabled:opacity-50"
             >
               {saving ? 'Saving…' : 'Save draft'}
             </button>
@@ -430,7 +443,7 @@ export default function BlogEditorPage() {
               className={`w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 ${
                 published
                   ? 'text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-900/20'
-                  : 'text-white bg-[#3ECF8E] hover:bg-[#2dbe7e]'
+                  : 'text-white bg-[#F28A0F] hover:bg-[#d47b0a]'
               }`}
             >
               {saving ? 'Saving…' : published ? 'Unpublish' : 'Publish'}
@@ -459,8 +472,8 @@ function ToolbarButton({
       title={title}
       className={`px-2 py-1 text-sm rounded transition-colors ${
         active
-          ? 'bg-[#3ECF8E]/15 text-[#2dbe7e] dark:text-[#3ECF8E]'
-          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+          ? 'bg-[#F28A0F]/15 text-[#F28A0F]'
+          : 'text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)]'
       }`}
     >
       {children}

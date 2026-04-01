@@ -1,6 +1,6 @@
-# Candice AI — AI Interviewer Platform
+# Screen AI — AI Interviewer Platform
 
-A Next.js SaaS platform for AI-powered candidate screening. Candice conducts structured, consistent first-round interviews with every candidate and surfaces a ranked shortlist for the hiring team to review.
+A Next.js SaaS platform for AI-powered candidate screening. Screen AI conducts structured, consistent first-round interviews with every candidate and surfaces a ranked shortlist for the hiring team to review.
 
 ## Features
 
@@ -15,7 +15,7 @@ A Next.js SaaS platform for AI-powered candidate screening. Candice conducts str
 - **Biography generation** — Turn biographer-mode conversations into narrative biographies.
 
 ### Public marketing site
-- **Retro design system** — Landing page, `/ai-interviewer`, and `/integrations` share a unified retro theme: Helvetica Neue, amber/red/teal palette, grid background, grain + scanlines overlays, dark/light mode via CSS variables (`var(--retro-*)`).
+- **Retro design system** — All public-facing pages (landing, `/ai-interviewer`, `/integrations`, `/blog`, `/interview/*`) and the admin dashboard share a unified retro theme. See [`theme-retro.html`](theme-retro.html) for the full living style guide: colour swatches, typography scale, component examples, and usage notes.
 - **Blog** — Public blog listing and post pages. Thumbnails stored in S3.
 - **Privacy page**, smooth-scroll nav, retro header with dropdowns.
 
@@ -43,6 +43,35 @@ Bearer-token API for programmatic blog management. See [`docs/api-v1.md`](docs/a
 
 ### Geometric art generation
 Pure server-side canvas rendering via `@napi-rs/canvas`. Seeded PRNG guarantees deterministic output for the same `seed` + `bgIndex`. Config (palette, sizes, frame count, etc.) is stored in Supabase `art_config` and editable in the admin UI.
+
+---
+
+## Design system
+
+The entire product — marketing pages, admin dashboard, and interview UI — uses a single retro design system. **[`theme-retro.html`](theme-retro.html)** is the living style guide; open it in a browser to see colour swatches, typography specimens, spacing, border tokens, and component examples.
+
+### Key tokens
+
+| Token | Value | Usage |
+|---|---|---|
+| `--retro-bg-base` | `#0D0D0D` dark / `#F5F5F5` light | Page background |
+| `--retro-bg-surface` | `#141414` dark / `#FFFFFF` light | Cards, panels, header |
+| `--retro-bg-raised` | `#1C1C1C` dark / `#F0F0F0` light | Inputs, hover states |
+| `--retro-border-color` | amber `rgba(242,138,15,0.22)` dark / `rgba(0,0,0,0.12)` light | All borders |
+| `--retro-text-primary` | `#FFE7BD` dark / `#1A1A1A` light | Headings, primary content |
+| `--retro-text-secondary` | `rgba(255,231,189,0.68)` dark | Body text |
+| `--retro-text-muted` | `rgba(255,231,189,0.42)` dark | Labels, timestamps |
+| `--retro-grid-color` | `rgba(63,138,140,0.07)` | Teal grid background |
+| `#F28A0F` | amber | Primary CTA buttons, active nav, links |
+| `#E5340B` | red | Destructive actions, hot accent |
+| `#3F8A8C` | teal | Cool accent, eyebrow labels |
+
+### Rules for new UI
+- **Font**: `'Helvetica Neue', Helvetica, Arial, sans-serif` — applied via `font-landing` (public pages) or `font-retro-admin` (admin).
+- **Buttons**: Primary = `bg-[#F28A0F] hover:bg-[#d47b0a] text-white`. Destructive = `border-red-* text-red-*`. Secondary = `border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)]`.
+- **Cards**: Add class `admin-card` alongside the border to get the amber top-gradient accent line.
+- **No green `#3ECF8E`**: that was the previous accent; the retro accent is amber `#F28A0F` everywhere.
+- **Semantic status badges are exempt**: `bg-green-100 text-green-700` (active/published), `bg-amber-* text-amber-*` (draft/pending), `bg-red-* text-red-*` (error/revoked) — these convey meaning and must not be recoloured.
 
 ---
 
@@ -85,7 +114,7 @@ S3_BUCKET_NAME=your-bucket
 # Brevo (candidate email invitations)
 BREVO_API_KEY=...
 BREVO_SENDER_EMAIL=hello@yourdomain.com
-BREVO_SENDER_NAME=Candice AI
+BREVO_SENDER_NAME=Screen AI
 ```
 
 Enable **Organizations** in the Clerk Dashboard — data is scoped by organization.

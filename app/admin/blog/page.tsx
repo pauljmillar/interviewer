@@ -36,8 +36,8 @@ export default function AdminBlogPage() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">403</p>
-          <p className="text-gray-500 dark:text-gray-400">Superadmin access required.</p>
+          <p className="text-2xl font-bold text-[var(--retro-text-primary)] mb-2">403</p>
+          <p className="text-[var(--retro-text-muted)]">Superadmin access required.</p>
         </div>
       </div>
     );
@@ -46,10 +46,10 @@ export default function AdminBlogPage() {
   return (
     <div className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Blog Posts</h1>
+          <h1 className="text-xl font-bold text-[var(--retro-text-primary)]">Blog Posts</h1>
           <Link
             href="/admin/blog/new"
-            className="px-4 py-2 text-sm font-medium text-white bg-[#3ECF8E] hover:bg-[#2dbe7e] rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-[#F28A0F] hover:bg-[#d47b0a] rounded-lg transition-colors"
           >
             New post
           </Link>
@@ -57,35 +57,35 @@ export default function AdminBlogPage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <div className="w-6 h-6 border-2 border-[#3ECF8E] border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#F28A0F] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : error ? (
           <p className="text-red-500 text-sm">{error}</p>
         ) : posts.length === 0 ? (
-          <div className="text-center py-16 text-gray-400 dark:text-gray-500 text-sm">
+          <div className="text-center py-16 text-[var(--retro-text-muted)] text-sm">
             No posts yet.{' '}
-            <Link href="/admin/blog/new" className="text-[#3ECF8E] hover:underline">
+            <Link href="/admin/blog/new" className="text-[#F28A0F] hover:underline">
               Create the first one.
             </Link>
           </div>
         ) : (
-          <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg overflow-hidden">
+          <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg admin-card overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-[#2a2a2a] text-left">
-                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Title</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Status</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Published</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-right">Actions</th>
+                <tr className="border-b border-[var(--retro-border-color)] text-left">
+                  <th className="px-4 py-3 font-medium text-[var(--retro-text-muted)]">Title</th>
+                  <th className="px-4 py-3 font-medium text-[var(--retro-text-muted)]">Status</th>
+                  <th className="px-4 py-3 font-medium text-[var(--retro-text-muted)]">Published</th>
+                  <th className="px-4 py-3 font-medium text-[var(--retro-text-muted)] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {posts.map((post) => (
                   <tr
                     key={post.id}
-                    className="border-b border-gray-100 dark:border-[#2a2a2a] last:border-0 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/40"
+                    className="border-b border-[var(--retro-border-color)] last:border-0 hover:bg-[var(--retro-bg-raised)]"
                   >
-                    <td className="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium max-w-xs truncate">
+                    <td className="px-4 py-3 text-[var(--retro-text-primary)] font-medium max-w-xs truncate">
                       {post.title}
                     </td>
                     <td className="px-4 py-3">
@@ -93,13 +93,13 @@ export default function AdminBlogPage() {
                         className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                           post.published
                             ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-gray-100 text-gray-600 dark:bg-[#2a2a2a] dark:text-gray-400'
+                            : 'bg-[var(--retro-bg-raised)] text-[var(--retro-text-secondary)]'
                         }`}
                       >
                         {post.published ? 'Published' : 'Draft'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
+                    <td className="px-4 py-3 text-[var(--retro-text-muted)]">
                       {post.publishedAt
                         ? new Date(post.publishedAt).toLocaleDateString('en-US', {
                             year: 'numeric',
@@ -112,7 +112,7 @@ export default function AdminBlogPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/admin/blog/${post.id}`}
-                          className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-[#3a3a3a] rounded hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors"
+                          className="px-3 py-1.5 text-xs font-medium text-[var(--retro-text-secondary)] border border-[var(--retro-border-color)] rounded hover:bg-[var(--retro-bg-raised)] transition-colors"
                         >
                           Edit
                         </Link>

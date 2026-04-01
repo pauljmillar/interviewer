@@ -5,8 +5,8 @@ import PostCard from '@/components/blog/PostCard';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Blog | Candice AI',
-  description: 'Articles and updates from the Candice AI team.',
+  title: 'Blog | Screen AI',
+  description: 'Articles and updates from the Screen AI team.',
 };
 
 export default async function BlogPage() {
@@ -17,7 +17,7 @@ export default async function BlogPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Blog</h1>
-      <p className="text-gray-500 dark:text-gray-400 mb-10">Thoughts, updates, and insights from the Candice AI team.</p>
+      <p className="text-gray-500 dark:text-gray-400 mb-10">Thoughts, updates, and insights from the Screen AI team.</p>
 
       {recent.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">

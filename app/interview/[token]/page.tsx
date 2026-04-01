@@ -77,21 +77,21 @@ export default function InterviewPage({
     return (
       <div className="min-h-screen flex items-center justify-center bg-landing-bg p-4">
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-10">
-          <div className="bg-white dark:bg-[#1c1c1c] rounded-xl shadow-xl max-w-md w-full p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+          <div className="bg-[var(--retro-bg-surface)] rounded-xl shadow-xl max-w-md w-full p-6">
+            <h2 className="text-lg font-semibold text-[var(--retro-text-primary)] mb-3">
               Before you begin
             </h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-6">
+            <p className="text-[var(--retro-text-secondary)] mb-6">
               This company prefers that you have your camera on and that this interview be recorded, even if you choose to type your responses. Click OK to continue and start the recording.
             </p>
             <button
               type="button"
               onClick={() => setConsentGiven(true)}
-              className="w-full px-4 py-3 bg-[#3ECF8E] text-white font-medium rounded-lg hover:bg-[#2dbe7e] focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] focus:ring-offset-2 transition-colors"
+              className="w-full px-4 py-3 bg-[#F28A0F] text-white font-medium rounded-lg hover:bg-[#d47b0a] focus:outline-none focus:ring-2 focus:ring-[#F28A0F] focus:ring-offset-2 transition-colors"
             >
               OK
             </button>
-            <p className="mt-4 text-center text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-4 text-center text-xs text-[var(--retro-text-muted)]">
               By continuing you acknowledge our{' '}
               <a
                 href={privacyUrl}

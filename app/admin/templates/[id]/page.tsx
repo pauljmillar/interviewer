@@ -220,7 +220,7 @@ export default function TemplateDetailPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto p-6">
-        <p className="text-gray-500">Loading template...</p>
+        <p className="text-[var(--retro-text-muted)]">Loading template...</p>
       </div>
     );
   }
@@ -229,7 +229,7 @@ export default function TemplateDetailPage() {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <p className="text-red-600">{error || 'Template not found'}</p>
-        <Link href="/admin/templates" className="mt-4 inline-block text-[#3ECF8E] hover:underline">
+        <Link href="/admin/templates" className="mt-4 inline-block text-[#F28A0F] hover:underline">
           Back to templates
         </Link>
       </div>
@@ -239,12 +239,12 @@ export default function TemplateDetailPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
-        <Link href="/admin/templates" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+        <Link href="/admin/templates" className="text-sm text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)]">
           ← Back to templates
         </Link>
       </div>
-      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6">
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Template details</h1>
+      <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg p-6 admin-card">
+        <h1 className="text-xl font-semibold text-[var(--retro-text-primary)] mb-2">Template details</h1>
         {isBuiltIn && (
           <p className="mb-4 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
             Built-in templates cannot be edited or deleted. Create a custom template (e.g. from a position) to edit questions.
@@ -257,57 +257,57 @@ export default function TemplateDetailPage() {
         )}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Name</label>
             <input
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               readOnly={isBuiltIn}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] disabled:bg-[var(--retro-bg-raised)]"
               placeholder="Template name"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Intro (optional)</label>
+            <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Intro (optional)</label>
             <textarea
               value={editIntro}
               onChange={(e) => setEditIntro(e.target.value)}
               readOnly={isBuiltIn}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] disabled:bg-[var(--retro-bg-raised)]"
               placeholder="Shown before the first question"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Conclusion (optional)</label>
+            <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Conclusion (optional)</label>
             <textarea
               value={editConclusion}
               onChange={(e) => setEditConclusion(e.target.value)}
               readOnly={isBuiltIn}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] disabled:bg-[var(--retro-bg-raised)]"
               placeholder="Shown after all questions"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Reminder (optional)</label>
+            <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Reminder (optional)</label>
             <textarea
               value={editReminder}
               onChange={(e) => setEditReminder(e.target.value)}
               readOnly={isBuiltIn}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] disabled:bg-[var(--retro-bg-raised)]"
               placeholder="One-time reminder when interviewee dismisses"
             />
           </div>
           {!isBuiltIn && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">TTS voice</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">TTS voice</label>
               <div className="flex flex-wrap items-center gap-2">
                 <select
                   value={editVoice || ''}
                   onChange={(e) => setEditVoice(e.target.value)}
-                  className="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
+                  className="w-full sm:w-48 px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
                   title="Voice used for text-to-speech in candidate interview"
                 >
                   {TTS_VOICES.map((v) => (
@@ -320,23 +320,23 @@ export default function TemplateDetailPage() {
                   type="button"
                   onClick={handleVoicePreview}
                   disabled={voicePreviewPlaying}
-                  className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3ECF8E]"
+                  className="px-3 py-2 border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-raised)] text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)] disabled:opacity-50 disabled:pointer-events-none text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#F28A0F]"
                   title="Play a short sample of this voice"
                 >
                   {voicePreviewPlaying ? 'Playing…' : 'Play sample'}
                 </button>
               </div>
-              <p className="mt-1 text-xs text-gray-500">Used when the candidate hears the interviewer (browser or API TTS).</p>
+              <p className="mt-1 text-xs text-[var(--retro-text-muted)]">Used when the candidate hears the interviewer (browser or API TTS).</p>
             </div>
           )}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium text-gray-700">Questions</label>
+              <label className="block text-sm font-medium text-[var(--retro-text-secondary)]">Questions</label>
               {!isBuiltIn && (
                 <button
                   type="button"
                   onClick={addQuestion}
-                  className="text-sm text-[#3ECF8E] hover:underline"
+                  className="text-sm text-[#F28A0F] hover:underline"
                 >
                   + Add question
                 </button>
@@ -344,20 +344,20 @@ export default function TemplateDetailPage() {
             </div>
             <div className="space-y-3">
               {editQuestions.map((q, i) => (
-                <div key={i} className="flex flex-col gap-2 sm:gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50/50">
+                <div key={i} className="flex flex-col gap-2 sm:gap-3 p-3 border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-raised)]">
                   <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
                     <div className="flex gap-2 sm:items-center flex-1 min-w-0">
-                      <span className="flex-shrink-0 text-sm font-medium text-gray-600 w-6">{i + 1}.</span>
+                      <span className="flex-shrink-0 text-sm font-medium text-[var(--retro-text-secondary)] w-6">{i + 1}.</span>
                       <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-2">
                         {isBuiltIn ? (
-                          <span className="text-xs font-medium text-gray-500 sm:w-48 flex-shrink-0">
+                          <span className="text-xs font-medium text-[var(--retro-text-muted)] sm:w-48 flex-shrink-0">
                             {MODE_LABELS[q.mode]}
                           </span>
                         ) : (
                           <select
                             value={q.mode}
                             onChange={(e) => setQuestionMode(i, parseInt(e.target.value, 10) as InterviewMode)}
-                            className="flex-shrink-0 w-full sm:w-56 px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 bg-white"
+                            className="flex-shrink-0 w-full sm:w-56 px-2.5 py-1.5 text-sm border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
                             title="Question type (1–5)"
                           >
                             {([1, 2, 3, 4, 5] as const).map((m) => (
@@ -372,7 +372,7 @@ export default function TemplateDetailPage() {
                           value={q.mainQuestion}
                           onChange={(e) => setQuestion(i, e.target.value)}
                           readOnly={isBuiltIn}
-                          className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 disabled:bg-gray-100"
+                          className="flex-1 min-w-0 px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] disabled:bg-[var(--retro-bg-raised)]"
                           placeholder="Question text"
                         />
                       </div>
@@ -390,11 +390,11 @@ export default function TemplateDetailPage() {
                   </div>
                   {(q.mode === 1 || q.mode === 2) && (
                     <div className="ml-8">
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                      <label className="block text-xs font-medium text-[var(--retro-text-secondary)] mb-1">
                         Acceptable answers (one per line)
                       </label>
                       {isBuiltIn ? (
-                        <div className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 min-h-[2.5rem]">
+                        <div className="text-sm text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] border border-[var(--retro-border-color)] rounded-lg px-3 py-2 min-h-[2.5rem]">
                           {q.acceptableAnswers.length === 0
                             ? '—'
                             : q.acceptableAnswers.map((a, j) => (
@@ -409,7 +409,7 @@ export default function TemplateDetailPage() {
                           value={q.acceptableAnswers.join('\n')}
                           onChange={(e) => setQuestionAcceptableAnswers(i, e.target.value)}
                           rows={Math.min(4, Math.max(2, q.acceptableAnswers.length + 1))}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900"
+                          className="w-full px-3 py-2 text-sm border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)]"
                           placeholder="e.g. yes, yeah, I am"
                         />
                       )}
@@ -426,7 +426,7 @@ export default function TemplateDetailPage() {
               type="button"
               onClick={handleSave}
               disabled={saving || !editName.trim()}
-              className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:pointer-events-none font-medium"
+              className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:pointer-events-none font-medium"
             >
               {saving ? 'Saving…' : 'Save changes'}
             </button>

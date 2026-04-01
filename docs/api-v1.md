@@ -1,4 +1,4 @@
-# Candice AI — Internal API v1
+# Screen AI — Internal API v1
 
 Bearer token API for programmatic blog management. Currently superadmin-only. The same
 endpoints will serve paying client orgs once org-level access is enabled (see roadmap below).

@@ -85,11 +85,11 @@ export default function Header({ hasClerk = true }: HeaderProps) {
 
   const navItems = isLanding ? landingNav : isAdmin ? [] : publicNav;
 
-  const headerBg = isLanding ? '' : 'bg-white dark:bg-[#0f0f0f]';
-  const headerBorder = isLanding ? '' : 'border-gray-200 dark:border-[#2a2a2a]';
+  const headerBg = isLanding ? '' : 'bg-[var(--retro-bg-surface)]';
+  const headerBorder = isLanding ? '' : 'border-[var(--retro-border-color)]';
   const linkClass = isLanding
     ? 'retro-nav-link'
-    : 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors';
+    : 'px-3 py-2.5 min-h-[44px] flex items-center text-sm font-medium text-[var(--retro-text-secondary)] hover:text-[var(--retro-text-primary)] transition-colors';
 
   return (
     <header
@@ -98,7 +98,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
       <div className="flex-shrink-0 w-1/3 flex items-center">
         <Link
           href="/"
-          className={isLanding ? 'retro-logo flex items-center gap-2 truncate' : 'flex items-center gap-2 text-lg font-semibold truncate transition-colors text-gray-900 hover:text-gray-600 dark:text-gray-100 dark:hover:text-gray-300'}
+          className={isLanding ? 'retro-logo flex items-center gap-2 truncate' : 'flex items-center gap-2 text-lg font-semibold truncate transition-colors text-[var(--retro-text-primary)] hover:text-[var(--retro-text-secondary)]'}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -110,12 +110,12 @@ export default function Header({ hasClerk = true }: HeaderProps) {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className={`flex-shrink-0 ${isLanding ? 'text-[#E5340B]' : 'text-[#3ECF8E]'}`}
+            className={`flex-shrink-0 ${isLanding ? 'text-[#E5340B]' : 'text-[#F28A0F]'}`}
             aria-hidden
           >
             <path d="M2 13a2 2 0 0 0 2-2V7a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0V4a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0v-4a2 2 0 0 1 2-2" />
           </svg>
-          Candice AI
+          Screen AI
         </Link>
       </div>
 
@@ -146,16 +146,16 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               </button>
               {productsOpen && (
                 <div className="absolute top-full left-0 pt-1 w-52 z-50">
-                  <div className={isLanding ? 'rounded-lg border retro-dropdown shadow-lg py-1' : 'rounded-lg border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f] shadow-lg py-1'}>
+                  <div className={isLanding ? 'rounded-lg border retro-dropdown shadow-lg py-1' : 'rounded-lg border border-[var(--retro-border-color)] bg-[var(--retro-bg-surface)] shadow-lg py-1'}>
                     <Link
                       href="/ai-interviewer"
-                      className={isLanding ? 'retro-dropdown-item' : 'block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}
+                      className={isLanding ? 'retro-dropdown-item' : 'block px-4 py-2.5 text-sm text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)]'}
                     >
                       AI Interviewer
                     </Link>
                     <Link
                       href="/integrations"
-                      className={isLanding ? 'retro-dropdown-item' : 'block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}
+                      className={isLanding ? 'retro-dropdown-item' : 'block px-4 py-2.5 text-sm text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)]'}
                     >
                       Integrations
                     </Link>
@@ -176,7 +176,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
         <button
           type="button"
           onClick={() => setMobileMenuOpen((o) => !o)}
-          className="flex items-center justify-center w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#2a2a2a]"
+          className="flex items-center justify-center w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg text-[var(--retro-text-secondary)] hover:bg-[var(--retro-bg-raised)]"
           aria-expanded={mobileMenuOpen}
           aria-controls="mobile-nav"
           aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
@@ -195,7 +195,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
 
       <div
         id="mobile-nav"
-        className={`sm:hidden absolute top-full left-0 right-0 bg-white dark:bg-[#0f0f0f] border-b border-gray-200 dark:border-[#2a2a2a] shadow-lg ${mobileMenuOpen ? 'block' : 'hidden'}`}
+        className={`sm:hidden absolute top-full left-0 right-0 bg-[var(--retro-bg-surface)] border-b border-[var(--retro-border-color)] shadow-lg ${mobileMenuOpen ? 'block' : 'hidden'}`}
         role="dialog"
         aria-label="Mobile navigation"
       >
@@ -206,14 +206,14 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 <Link
                   href="/ai-interviewer"
                   onClick={closeMobileMenu}
-                  className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                  className="px-4 py-3 min-h-[44px] flex items-center text-[var(--retro-text-secondary)] font-medium rounded-lg hover:bg-[var(--retro-bg-raised)]"
                 >
                   AI Interviewer
                 </Link>
                 <Link
                   href="/integrations"
                   onClick={closeMobileMenu}
-                  className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                  className="px-4 py-3 min-h-[44px] flex items-center text-[var(--retro-text-secondary)] font-medium rounded-lg hover:bg-[var(--retro-bg-raised)]"
                 >
                   Integrations
                 </Link>
@@ -223,7 +223,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 key={href}
                 href={href}
                 onClick={(e) => { handleHashClick(e, href); closeMobileMenu(); }}
-                className="px-4 py-3 min-h-[44px] flex items-center text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                className="px-4 py-3 min-h-[44px] flex items-center text-[var(--retro-text-secondary)] font-medium rounded-lg hover:bg-[var(--retro-bg-raised)]"
               >
                 {label}
               </Link>
@@ -231,7 +231,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
           )}
         </nav>
         {(hasClerk || isLanding) && (
-          <div className="px-4 pb-4 pt-0 flex gap-2 border-t border-gray-200 dark:border-[#2a2a2a] pt-3">
+          <div className="px-4 pb-4 pt-0 flex gap-2 border-t border-[var(--retro-border-color)] pt-3">
             {hasClerk ? (
               <>
                 <SignedOut>
@@ -239,7 +239,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                     <button
                       type="button"
                       onClick={closeMobileMenu}
-                      className="flex-1 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-[#2a2a2a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                      className="flex-1 py-3 min-h-[44px] text-sm font-medium text-[var(--retro-text-secondary)] border border-[var(--retro-border-color)] rounded-lg hover:bg-[var(--retro-bg-raised)]"
                     >
                       Sign in
                     </button>
@@ -248,7 +248,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                     <button
                       type="button"
                       onClick={closeMobileMenu}
-                      className="flex-1 py-3 min-h-[44px] text-sm font-medium text-white bg-black hover:bg-gray-800 rounded-lg border-2 border-transparent"
+                      className="flex-1 py-3 min-h-[44px] text-sm font-medium text-white bg-[#F28A0F] hover:bg-[#d47b0a] rounded-lg border-2 border-transparent"
                     >
                       Sign up
                     </button>
@@ -260,7 +260,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                       <Link
                         href="/admin"
                         onClick={closeMobileMenu}
-                        className="py-3 min-h-[44px] px-4 text-sm font-medium text-gray-700 dark:text-gray-200 rounded-lg border border-gray-300 dark:border-[#2a2a2a] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                        className="py-3 min-h-[44px] px-4 text-sm font-medium text-[var(--retro-text-secondary)] rounded-lg border border-[var(--retro-border-color)] hover:bg-[var(--retro-bg-raised)]"
                       >
                         Dashboard
                       </Link>
@@ -274,7 +274,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                 <Link
                   href="/sign-in"
                   onClick={closeMobileMenu}
-                  className="flex-1 py-3 min-h-[44px] text-center text-sm font-medium text-gray-700 border border-gray-300 rounded-lg"
+                  className="flex-1 py-3 min-h-[44px] text-center text-sm font-medium text-[var(--retro-text-secondary)] border border-[var(--retro-border-color)] rounded-lg"
                 >
                   Sign in
                 </Link>
@@ -292,7 +292,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               <SignInButton mode="modal">
                 <button
                   type="button"
-                  className={isLanding ? 'retro-sign-in' : `px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-landing-text hover:text-landing-heading dark:text-gray-300 dark:hover:text-white`}
+                  className={isLanding ? 'retro-sign-in' : `px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-[var(--retro-text-secondary)] hover:text-[var(--retro-text-primary)]`}
                 >
                   Sign in
                 </button>
@@ -300,7 +300,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               <SignUpButton mode="modal">
                 <button
                   type="button"
-                  className={isLanding ? 'retro-sign-up' : `px-4 py-2.5 min-h-[44px] text-sm font-medium text-white rounded-lg border-2 border-transparent transition-colors bg-landing-primary hover:bg-landing-primary-hover`}
+                  className={isLanding ? 'retro-sign-up' : `px-4 py-2.5 min-h-[44px] text-sm font-medium text-white rounded-lg border-2 border-transparent transition-colors bg-[#F28A0F] hover:bg-[#d47b0a]`}
                 >
                   Sign up
                 </button>
@@ -318,16 +318,17 @@ export default function Header({ hasClerk = true }: HeaderProps) {
                       elements: {
                         rootBox: 'flex items-center',
                         organizationPreviewMainIdentifier: {
-                          color: isDark ? '#e5e7eb' : '#374151',
+                          color: isDark ? '#FFE7BD' : '#1a1a1a',
                         },
                         organizationPreviewSecondaryIdentifier: {
-                          color: isDark ? '#9ca3af' : '#6b7280',
+                          color: isDark ? 'rgba(255,231,189,0.55)' : 'rgba(26,26,26,0.55)',
                         },
                       },
                       variables: {
-                        colorBackground: isDark ? '#1f2937' : '#ffffff',
-                        colorForeground: isDark ? '#e5e7eb' : '#374151',
+                        colorBackground: isDark ? '#141414' : '#ffffff',
+                        colorForeground: isDark ? '#FFE7BD' : '#1a1a1a',
                         colorPrimaryForeground: '#ffffff',
+                        colorPrimary: '#F28A0F',
                       },
                     }}
                   />
@@ -336,7 +337,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
               {!isAdminPath(pathname) && (
                 <Link
                   href="/admin"
-                  className={isLanding ? 'retro-nav-link' : `px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-landing-text hover:text-landing-heading`}
+                  className={isLanding ? 'retro-nav-link' : `px-3 py-2.5 min-h-[44px] text-sm font-medium transition-colors text-[var(--retro-text-secondary)] hover:text-[var(--retro-text-primary)]`}
                 >
                   Dashboard
                 </Link>
@@ -347,7 +348,7 @@ export default function Header({ hasClerk = true }: HeaderProps) {
         ) : isLanding ? (
           <Link
             href="/sign-in"
-            className="px-3 py-2.5 min-h-[44px] text-sm font-medium text-gray-700 hover:text-black transition-colors"
+            className="px-3 py-2.5 min-h-[44px] text-sm font-medium text-[var(--retro-text-secondary)] hover:text-[var(--retro-text-primary)] transition-colors"
           >
             Sign in
           </Link>

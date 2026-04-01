@@ -7,7 +7,7 @@ export default function AdminInterviewsNewPage() {
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <div className="mb-4">
-        <Link href="/admin/interviews" className="text-sm text-gray-500 hover:text-gray-700">
+        <Link href="/admin/interviews" className="text-sm text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)]">
           ← Back to interviews
         </Link>
       </div>

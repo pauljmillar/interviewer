@@ -311,7 +311,7 @@ export default async function HomePage() {
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <GhostNumber>01</GhostNumber>
                 <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 4, textTransform: 'uppercase' as const, color: textAccentDim, marginTop: 4 }}>
-                  Candice AI
+                  Screen AI
                 </p>
               </div>
             </div>
@@ -343,7 +343,7 @@ export default async function HomePage() {
               <Card label="Output" title="Ranked list" body="Scored, with video replay and interview notes for every candidate." />
               <Card label="Availability" title="24 / 7" body="Candidates interview on their own schedule from any device." />
               <Card label="Consistency" title="Fair rubric" body="Standardised questions and scoring remove bias at the highest-volume stage." />
-              <Card label="Setup time" title="60 sec" body="Paste your JD and Candice generates tailored interview questions automatically." />
+              <Card label="Setup time" title="60 sec" body="Paste your JD and Screen AI generates tailored interview questions automatically." />
             </div>
           </section>
 
@@ -352,9 +352,9 @@ export default async function HomePage() {
             <SectionLabel n="02" title="From JD to shortlist in four steps" />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
               {[
-                { n: '01', title: 'Upload your JD', body: 'Paste or upload your job description. Candice reads it and generates tailored screening questions automatically.' },
+                { n: '01', title: 'Upload your JD', body: 'Paste or upload your job description. Screen AI reads it and generates tailored screening questions automatically.' },
                 { n: '02', title: 'Send interview links', body: 'Share a unique link with each candidate. They complete the interview on their own time — no scheduling.' },
-                { n: '03', title: 'Candice interviews', body: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
+                { n: '03', title: 'Screen AI interviews', body: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
                 { n: '04', title: 'Review ranked results', body: 'Log in to find candidates scored and ranked, with notes from each interview ready to act on.' },
               ].map(({ n, title, body }, i) => (
                 <div key={n} style={{
@@ -557,7 +557,7 @@ export default async function HomePage() {
           {/* ── FOOTER ────────────────────────────────────────────────────── */}
           <footer style={{ padding: '40px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
             <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: textMuted }}>
-              © {new Date().getFullYear()} Candice AI
+              © {new Date().getFullYear()} Screen AI
             </p>
             <div style={{ display: 'flex', gap: 24 }}>
               {[

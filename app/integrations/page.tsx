@@ -76,7 +76,7 @@ const categories: Category[] = [
     title: 'Applicant Tracking Systems',
     subtitle: 'Sync candidates directly from your ATS and push completed interview results back automatically.',
     integrations: [
-      { name: 'Greenhouse', description: 'Pull candidates into Candice and push scores back to Greenhouse automatically.', badge: 'coming-soon', icon: <IconATS /> },
+      { name: 'Greenhouse', description: 'Pull candidates into Screen AI and push scores back to Greenhouse automatically.', badge: 'coming-soon', icon: <IconATS /> },
       { name: 'Lever', description: 'Trigger screening interviews from Lever stages and receive ranked results instantly.', badge: 'coming-soon', icon: <IconATS /> },
       { name: 'Workday', description: 'Enterprise-grade sync with Workday Recruiting for large hiring teams.', badge: 'coming-soon', icon: <IconATS /> },
       { name: 'BambooHR', description: 'Lightweight integration for SMBs using BambooHR as their people platform.', badge: 'coming-soon', icon: <IconATS /> },
@@ -96,14 +96,14 @@ const categories: Category[] = [
     title: 'Scheduling & Calendar',
     subtitle: 'Remove the back-and-forth of booking next-round interviews after the screen.',
     integrations: [
-      { name: 'Google Calendar', description: 'Send calendar invites for next-round interviews directly from Candice.', badge: 'coming-soon', icon: <IconCalendar /> },
+      { name: 'Google Calendar', description: 'Send calendar invites for next-round interviews directly from Screen AI.', badge: 'coming-soon', icon: <IconCalendar /> },
       { name: 'Outlook / Microsoft 365', description: 'Full Microsoft calendar support for enterprise teams.', badge: 'coming-soon', icon: <IconCalendar /> },
     ],
   },
   {
     n: '04',
     title: 'Developer & API',
-    subtitle: 'Build your own integrations or trigger Candice from any workflow.',
+    subtitle: 'Build your own integrations or trigger Screen AI from any workflow.',
     integrations: [
       { name: 'REST API', description: 'Create positions, generate interview links, and pull results programmatically via our REST API.', badge: 'available', icon: <IconWebhook /> },
       { name: 'Webhooks', description: 'Receive real-time events when interviews start, complete, or when scores are ready.', badge: 'coming-soon', icon: <IconWebhook /> },
@@ -195,7 +195,7 @@ export default function IntegrationsPage() {
                   letterSpacing: -4, pointerEvents: 'none', userSelect: 'none',
                 }} aria-hidden>03</div>
                 <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 4, textTransform: 'uppercase' as const, color: 'var(--retro-text-accent-dim)', marginTop: 4 }}>
-                  Candice AI
+                  Screen AI
                 </p>
               </div>
             </div>
@@ -291,7 +291,7 @@ export default function IntegrationsPage() {
           {/* ── FOOTER ────────────────────────────────────────────────────── */}
           <footer style={{ padding: '40px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' as const, gap: 16 }}>
             <p style={{ fontFamily: font, fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' as const, color: textMuted }}>
-              © {new Date().getFullYear()} Candice AI
+              © {new Date().getFullYear()} Screen AI
             </p>
             <div style={{ display: 'flex', gap: 24 }}>
               {[

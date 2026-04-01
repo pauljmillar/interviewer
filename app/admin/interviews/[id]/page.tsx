@@ -74,13 +74,13 @@ export default function AdminInterviewInstanceDetailPage() {
     }
   };
 
-  if (!id) return <p className="p-4 text-gray-500 dark:text-gray-400">Loading...</p>;
-  if (loading) return <p className="p-4 text-gray-600 dark:text-gray-400">Loading instance...</p>;
+  if (!id) return <p className="p-4 text-[var(--retro-text-muted)]">Loading...</p>;
+  if (loading) return <p className="p-4 text-[var(--retro-text-secondary)]">Loading instance...</p>;
   if (error || !data) {
     return (
       <div className="p-4 max-w-4xl mx-auto">
         <p className="text-red-600 dark:text-red-400">{error ?? 'Not found'}</p>
-        <Link href="/admin/interviews" className="mt-4 inline-block text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline">
+        <Link href="/admin/interviews" className="mt-4 inline-block text-[#F28A0F] hover:underline">
           Back to interviews
         </Link>
       </div>
@@ -93,29 +93,29 @@ export default function AdminInterviewInstanceDetailPage() {
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <div className="mb-4">
-        <Link href="/admin/interviews" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+        <Link href="/admin/interviews" className="text-sm text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)]">
           ← Back to interviews
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg p-6 mb-6">
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Interview instance</h1>
+      <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg admin-card p-6 mb-6">
+        <h1 className="text-xl font-semibold text-[var(--retro-text-primary)] mb-4">Interview instance</h1>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
-            <dt className="font-medium text-gray-500 dark:text-gray-400">Recipient</dt>
-            <dd className="text-gray-900 dark:text-gray-100">{instance.recipientName ?? '—'}</dd>
+            <dt className="font-medium text-[var(--retro-text-muted)]">Recipient</dt>
+            <dd className="text-[var(--retro-text-primary)]">{instance.recipientName ?? '—'}</dd>
           </div>
           <div>
-            <dt className="font-medium text-gray-500 dark:text-gray-400">Position</dt>
-            <dd className="text-gray-900 dark:text-gray-100">{positionName ?? instance.name ?? '—'}</dd>
+            <dt className="font-medium text-[var(--retro-text-muted)]">Position</dt>
+            <dd className="text-[var(--retro-text-primary)]">{positionName ?? instance.name ?? '—'}</dd>
           </div>
           <div>
-            <dt className="font-medium text-gray-500 dark:text-gray-400">Template</dt>
-            <dd className="text-gray-900 dark:text-gray-100">{templateName ?? '—'}</dd>
+            <dt className="font-medium text-[var(--retro-text-muted)]">Template</dt>
+            <dd className="text-[var(--retro-text-primary)]">{templateName ?? '—'}</dd>
           </div>
           <div>
-            <dt className="font-medium text-gray-500 dark:text-gray-400">Date</dt>
-            <dd className="text-gray-900 dark:text-gray-100">
+            <dt className="font-medium text-[var(--retro-text-muted)]">Date</dt>
+            <dd className="text-[var(--retro-text-primary)]">
               {new Date(instance.createdAt).toLocaleString()}
               {status && (
                 <span
@@ -124,7 +124,7 @@ export default function AdminInterviewInstanceDetailPage() {
                       ? 'text-green-600 dark:text-green-400'
                       : status === 'started'
                         ? 'text-amber-600 dark:text-amber-400'
-                        : 'text-gray-500 dark:text-gray-400'
+                        : 'text-[var(--retro-text-muted)]'
                   }`}
                 >
                   · {status.replace('_', ' ')}
@@ -134,13 +134,13 @@ export default function AdminInterviewInstanceDetailPage() {
           </div>
           {session?.recordingKey && (
             <div className="sm:col-span-2">
-              <dt className="font-medium text-gray-500 dark:text-gray-400">Recording</dt>
+              <dt className="font-medium text-[var(--retro-text-muted)]">Recording</dt>
               <dd>
                 <a
                   href={`/api/instances/${id}/recording`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#3ECF8E] dark:text-[#3ECF8E] hover:underline"
+                  className="text-[#F28A0F] hover:underline"
                 >
                   View recording
                 </a>
@@ -149,10 +149,10 @@ export default function AdminInterviewInstanceDetailPage() {
           )}
           {instance.recipientEmail && (
             <div className="sm:col-span-2">
-              <dt className="font-medium text-gray-500 dark:text-gray-400">Candidate email</dt>
-              <dd className="text-gray-900 dark:text-gray-100 flex items-center gap-3 flex-wrap">
+              <dt className="font-medium text-[var(--retro-text-muted)]">Candidate email</dt>
+              <dd className="text-[var(--retro-text-primary)] flex items-center gap-3 flex-wrap">
                 <span>{instance.recipientEmail}</span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-[var(--retro-text-muted)]">
                   {emailSentAt
                     ? `Invitation sent ${new Date(emailSentAt).toLocaleString()}`
                     : 'Not sent'}
@@ -161,7 +161,7 @@ export default function AdminInterviewInstanceDetailPage() {
                   type="button"
                   onClick={handleSendEmail}
                   disabled={emailSending}
-                  className="px-3 py-1 text-sm bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:pointer-events-none"
+                  className="px-3 py-1 text-sm bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {emailSending ? 'Sending…' : emailSentAt ? 'Resend invitation' : 'Send invite'}
                 </button>
@@ -174,20 +174,20 @@ export default function AdminInterviewInstanceDetailPage() {
         </dl>
       </div>
 
-      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg overflow-hidden">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 px-6 py-3 border-b border-gray-200 dark:border-[#2a2a2a]">
+      <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg admin-card overflow-hidden">
+        <h2 className="text-base font-semibold text-[var(--retro-text-primary)] px-6 py-3 border-b border-[var(--retro-border-color)]">
           Questions asked and responses given
         </h2>
         {messages.length === 0 ? (
-          <p className="p-6 text-gray-500 dark:text-gray-400">No messages yet.</p>
+          <p className="p-6 text-[var(--retro-text-muted)]">No messages yet.</p>
         ) : (
-          <ul className="divide-y divide-gray-100 dark:divide-gray-600">
+          <ul className="divide-y divide-[var(--retro-border-color)]">
             {messages.map((m, i) => (
               <li key={i} className="p-6">
-                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                <div className="text-xs font-medium text-[var(--retro-text-muted)] mb-1">
                   {m.role === 'assistant' ? 'Interviewer' : 'Candidate'}
                 </div>
-                <div className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{m.content}</div>
+                <div className="text-[var(--retro-text-primary)] whitespace-pre-wrap">{m.content}</div>
               </li>
             ))}
           </ul>

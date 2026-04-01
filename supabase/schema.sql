@@ -107,3 +107,11 @@ CREATE TABLE IF NOT EXISTS position_analysis_settings (
   scoring_prompt TEXT NOT NULL,
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Content pipeline config (editable via /admin/content-config)
+-- create table content_config (
+--   id         integer primary key default 1,
+--   content    text not null,
+--   updated_at timestamptz not null default now(),
+--   constraint single_row check (id = 1)
+-- );

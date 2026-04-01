@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
   if (!supabase) return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
 
   // Convert Markdown → HTML so the blog page can render it with dangerouslySetInnerHTML
-  let content = await marked(body_markdown as string, { gfm: true, breaks: false });
+  let content = await marked(body_markdown as string, { gfm: true, breaks: true });
   if (Array.isArray(images) && images.length > 0) {
     const s3 = getS3Client();
     if (s3) {

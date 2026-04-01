@@ -207,16 +207,16 @@ export default function AnalysisPanel({
 
   return (
     <>
-      <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg overflow-hidden mt-6">
+      <div className="bg-[var(--retro-bg-surface)] border border-[var(--retro-border-color)] rounded-lg overflow-hidden mt-6 admin-card">
         {/* Header */}
-        <div className="flex flex-col gap-2 px-6 py-4 border-b border-gray-200 dark:border-[#2a2a2a]">
+        <div className="flex flex-col gap-2 px-6 py-4 border-b border-[var(--retro-border-color)]">
           <div className="flex items-start justify-between gap-2">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Candidates</h2>
+            <h2 className="text-lg font-semibold text-[var(--retro-text-primary)]">Candidates</h2>
             <button
               type="button"
               onClick={() => setSettingsOpen(true)}
               title="Scoring settings"
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors flex-shrink-0"
+              className="p-1.5 rounded-lg text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)] hover:bg-[var(--retro-bg-raised)] transition-colors flex-shrink-0"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -233,7 +233,7 @@ export default function AnalysisPanel({
             </button>
           </div>
           {!isBodyLoading && summary && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-[var(--retro-text-muted)]">
               {summary.notStarted} not started · {summary.started} in progress ·{' '}
               {summary.completed} completed
               {lastAnalyzedText && (
@@ -249,7 +249,7 @@ export default function AnalysisPanel({
               type="button"
               onClick={handleAnalyze}
               disabled={analyzing || isBodyLoading}
-              className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] disabled:opacity-50 disabled:pointer-events-none font-medium text-sm flex items-center gap-1"
+              className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:pointer-events-none font-medium text-sm flex items-center gap-1"
             >
               {analyzing ? (
                 <>
@@ -283,7 +283,7 @@ export default function AnalysisPanel({
               <button
                 type="button"
                 onClick={onCreateNew}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium text-sm"
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] font-medium text-sm"
               >
                 Create New
               </button>
@@ -305,44 +305,44 @@ export default function AnalysisPanel({
 
         {/* Body */}
         {isBodyLoading ? (
-          <p className="p-6 text-gray-500 dark:text-gray-400">Loading…</p>
+          <p className="p-6 text-[var(--retro-text-muted)]">Loading…</p>
         ) : mergedRows.length === 0 ? (
-          <p className="p-6 text-gray-600 dark:text-gray-300">
+          <p className="p-6 text-[var(--retro-text-secondary)]">
             No candidates yet.{hasTemplate ? ' Click Create New to add recipients.' : ''}
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead className="bg-gray-50 dark:bg-[#2a2a2a]/50">
+            <table className="min-w-full divide-y divide-[var(--retro-border-color)]">
+              <thead className="bg-[var(--retro-bg-raised)]">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-10">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase w-10">
                     #
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">
                     Candidate
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-24">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase w-24">
                     Status
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-20">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase w-20">
                     Duration
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-16">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase w-16">
                     Score
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-24">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase w-24">
                     Impression
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">
                     Notes
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">
                     Email
                   </th>
                   <th className="px-4 py-2 w-10" aria-label="Copy link" />
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-[#1a1a1a] divide-y divide-gray-200 dark:divide-gray-600">
+              <tbody className="bg-[var(--retro-bg-surface)] divide-y divide-[var(--retro-border-color)]">
                 {mergedRows.map((row) => {
                   const isScored = row.rank !== null;
                   const canOpenDetail = isScored && (row.notes || row.questionDetails);
@@ -360,13 +360,13 @@ export default function AnalysisPanel({
                   };
                   return (
                     <tr key={row.id} className={isScored ? '' : 'opacity-60'}>
-                      <td className="px-4 py-2 text-sm text-center font-medium text-gray-800 dark:text-gray-100">
+                      <td className="px-4 py-2 text-sm text-center font-medium text-[var(--retro-text-primary)]">
                         {row.rank ?? '—'}
                       </td>
                       <td className="px-4 py-2 text-sm">
                         <Link
                           href={`/admin/interviews/${encodeURIComponent(row.id)}`}
-                          className="font-medium text-[#3ECF8E] hover:underline"
+                          className="font-medium text-[#F28A0F] hover:underline"
                         >
                           {row.recipientName ?? '—'}
                         </Link>
@@ -378,13 +378,13 @@ export default function AnalysisPanel({
                               ? 'text-green-600 dark:text-green-400'
                               : row.status === 'started'
                                 ? 'text-amber-600 dark:text-amber-400'
-                                : 'text-gray-500 dark:text-gray-400'
+                                : 'text-[var(--retro-text-muted)]'
                           }
                         >
                           {row.status.replace('_', ' ')}
                         </span>
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">
+                      <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)]">
                         {formatDuration(row.durationSeconds, row.status)}
                       </td>
                       <td className="px-4 py-2 text-sm">
@@ -401,30 +401,30 @@ export default function AnalysisPanel({
                             {row.overallScore}
                           </span>
                         ) : (
-                          <span className="text-gray-400 dark:text-gray-500">—</span>
+                          <span className="text-[var(--retro-text-muted)]">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">
+                      <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)]">
                         {row.impressionScore !== null ? `${row.impressionScore}/10` : '—'}
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 max-w-xs">
+                      <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)] max-w-xs">
                         {row.status === 'not_started' ? (
-                          <span className="text-gray-400 dark:text-gray-500 italic">Not started</span>
+                          <span className="text-[var(--retro-text-muted)] italic">Not started</span>
                         ) : canOpenDetail ? (
                           <button
                             type="button"
                             onClick={() => setDetailCandidate(detailCandidate)}
-                            className="text-left line-clamp-2 hover:text-[#3ECF8E] dark:hover:text-blue-400 underline decoration-dotted underline-offset-2 cursor-pointer"
+                            className="text-left line-clamp-2 hover:text-[#F28A0F] underline decoration-dotted underline-offset-2 cursor-pointer"
                           >
                             {row.notes ?? 'View details'}
                           </button>
                         ) : (
-                          <span className="text-gray-400 dark:text-gray-500">—</span>
+                          <span className="text-[var(--retro-text-muted)]">—</span>
                         )}
                       </td>
                       <td className="px-4 py-2 text-sm">
                         {!row.recipientEmail ? (
-                          <span className="text-gray-400 dark:text-gray-500">—</span>
+                          <span className="text-[var(--retro-text-muted)]">—</span>
                         ) : (() => {
                           const sentAt = instanceEmailSentAt[row.id] ?? row.emailSentAt;
                           const state = emailSendState[row.id];
@@ -438,7 +438,7 @@ export default function AnalysisPanel({
                                   type="button"
                                   onClick={() => handleSendEmail(row)}
                                   disabled={state === 'sending'}
-                                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-[#3ECF8E] underline disabled:opacity-50"
+                                  className="text-xs text-[var(--retro-text-muted)] hover:text-[#F28A0F] underline disabled:opacity-50"
                                 >
                                   {state === 'sending' ? 'Sending…' : 'Resend'}
                                 </button>
@@ -447,14 +447,14 @@ export default function AnalysisPanel({
                           }
                           return (
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[120px]" title={row.recipientEmail}>
+                              <span className="text-xs text-[var(--retro-text-secondary)] truncate max-w-[120px]" title={row.recipientEmail}>
                                 {row.recipientEmail}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleSendEmail(row)}
                                 disabled={state === 'sending'}
-                                className="text-xs px-2 py-0.5 bg-[#3ECF8E] text-white rounded hover:bg-[#2dbe7e] disabled:opacity-50 whitespace-nowrap"
+                                className="text-xs px-2 py-0.5 bg-[#F28A0F] text-white rounded hover:bg-[#d47b0a] disabled:opacity-50 whitespace-nowrap"
                               >
                                 {state === 'sending' ? 'Sending…' : state === 'error' ? 'Error' : 'Send invite'}
                               </button>
@@ -468,7 +468,7 @@ export default function AnalysisPanel({
                             type="button"
                             onClick={() => handleCopyLink(row)}
                             title="Copy interview link"
-                            className="p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors"
+                            className="p-1 rounded text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)] hover:bg-[var(--retro-bg-raised)] transition-colors"
                           >
                             {copiedId === row.id ? (
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-green-500">
@@ -510,21 +510,21 @@ export default function AnalysisPanel({
           aria-modal="true"
           aria-labelledby="analysis-settings-title"
         >
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 border border-gray-200 dark:border-[#2a2a2a]">
+          <div className="bg-[var(--retro-bg-surface)] rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 border border-[var(--retro-border-color)] admin-card">
             <h2
               id="analysis-settings-title"
-              className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4"
+              className="text-lg font-semibold text-[var(--retro-text-primary)] mb-4"
             >
               Scoring settings
             </h2>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
               Scoring rubric
             </label>
             <textarea
               value={scoringPrompt}
               onChange={(e) => setScoringPrompt(e.target.value)}
               rows={12}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E] text-gray-900 dark:text-gray-100 dark:bg-[#2a2a2a] resize-y mb-4 text-sm font-mono"
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] resize-y mb-4 text-sm font-mono"
             />
             {settingsError && (
               <p className="mb-4 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -536,7 +536,7 @@ export default function AnalysisPanel({
                 type="button"
                 onClick={handleSaveSettings}
                 disabled={settingsSaving}
-                className="px-4 py-2 bg-[#3ECF8E] text-white rounded-lg hover:bg-[#2dbe7e] font-medium disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
                 {settingsSaving ? 'Saving…' : 'Save'}
               </button>
@@ -546,7 +546,7 @@ export default function AnalysisPanel({
                   if (!settingsSaving) setSettingsOpen(false);
                 }}
                 disabled={settingsSaving}
-                className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] font-medium disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-2 border border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] rounded-lg hover:bg-[var(--retro-bg-raised)] font-medium disabled:opacity-50 disabled:pointer-events-none"
               >
                 Cancel
               </button>
@@ -585,14 +585,14 @@ function CandidateDetailModal({
       aria-modal="true"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col border border-gray-200 dark:border-[#2a2a2a]">
+      <div className="bg-[var(--retro-bg-surface)] rounded-lg shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col border border-[var(--retro-border-color)] admin-card">
         {/* Header */}
-        <div className="flex items-start justify-between px-6 py-4 border-b border-gray-200 dark:border-[#2a2a2a] flex-shrink-0">
+        <div className="flex items-start justify-between px-6 py-4 border-b border-[var(--retro-border-color)] flex-shrink-0">
           <div>
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-[var(--retro-text-primary)]">
               {c.recipientName ?? 'Candidate'}
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-sm text-[var(--retro-text-muted)] mt-0.5">
               Overall score:{' '}
               <span
                 className={`font-semibold ${
@@ -606,14 +606,14 @@ function CandidateDetailModal({
                 {c.overallScore ?? '—'}/100
               </span>
               {c.rank !== null && (
-                <span className="ml-3 text-gray-400 dark:text-gray-500">Rank #{c.rank}</span>
+                <span className="ml-3 text-[var(--retro-text-muted)]">Rank #{c.rank}</span>
               )}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="ml-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex-shrink-0"
+            className="ml-4 text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)] flex-shrink-0"
             aria-label="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -628,27 +628,27 @@ function CandidateDetailModal({
           {/* Overall summary */}
           {c.notes && (
             <section>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--retro-text-muted)] mb-2">
                 Summary
               </h3>
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{c.notes}</p>
+              <p className="text-sm text-[var(--retro-text-secondary)] leading-relaxed">{c.notes}</p>
             </section>
           )}
 
           {/* Per-question scores */}
           {c.questionDetails && c.questionDetails.length > 0 && (
             <section>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--retro-text-muted)] mb-3">
                 Question scores
               </h3>
               <div className="space-y-3">
                 {c.questionDetails.map((qd) => (
                   <div
                     key={qd.questionIndex}
-                    className="bg-gray-50 dark:bg-[#2a2a2a]/50 rounded-lg px-4 py-3"
+                    className="bg-[var(--retro-bg-raised)] rounded-lg px-4 py-3"
                   >
                     <div className="flex items-start justify-between gap-3 mb-1">
-                      <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-snug">
+                      <p className="text-sm font-medium text-[var(--retro-text-primary)] leading-snug">
                         {qd.question}
                       </p>
                       <span
@@ -658,7 +658,7 @@ function CandidateDetailModal({
                       </span>
                     </div>
                     {qd.notes && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                      <p className="text-sm text-[var(--retro-text-muted)] leading-relaxed">
                         {qd.notes}
                       </p>
                     )}
@@ -671,12 +671,12 @@ function CandidateDetailModal({
           {/* Overall impression */}
           {c.impressionScore !== null && (
             <section>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--retro-text-muted)] mb-3">
                 Overall impression
               </h3>
-              <div className="bg-gray-50 dark:bg-[#2a2a2a]/50 rounded-lg px-4 py-3">
+              <div className="bg-[var(--retro-bg-raised)] rounded-lg px-4 py-3">
                 <div className="flex items-start justify-between gap-3 mb-1">
-                  <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                  <p className="text-sm font-medium text-[var(--retro-text-primary)]">
                     Enthusiasm, communication, reliability, professionalism
                   </p>
                   <span className={`text-sm font-bold flex-shrink-0 ${scoreColor(c.impressionScore)}`}>
@@ -684,7 +684,7 @@ function CandidateDetailModal({
                   </span>
                 </div>
                 {c.impressionNotes && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                  <p className="text-sm text-[var(--retro-text-muted)] leading-relaxed">
                     {c.impressionNotes}
                   </p>
                 )}
@@ -694,11 +694,11 @@ function CandidateDetailModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-[#2a2a2a] flex-shrink-0">
+        <div className="px-6 py-4 border-t border-[var(--retro-border-color)] flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] font-medium text-sm"
+            className="px-4 py-2 border border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] rounded-lg hover:bg-[var(--retro-bg-raised)] font-medium text-sm"
           >
             Close
           </button>

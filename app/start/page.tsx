@@ -1,7 +1,7 @@
 import JobDescriptionInput from '@/components/landing/JobDescriptionInput';
 
 export const metadata = {
-  title: 'Add job description | Candice AI',
+  title: 'Add job description | Screen AI',
   description: 'Paste, upload, or share a link to your job description to generate screening interviews.',
 };
 

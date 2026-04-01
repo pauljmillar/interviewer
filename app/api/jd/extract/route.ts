@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       try {
         res = await fetch(urlStr, {
           signal: controller.signal,
-          headers: { 'User-Agent': 'CandiceAI-JD-Extract/1.0' },
+          headers: { 'User-Agent': 'ScreenAI-JD-Extract/1.0' },
         });
       } catch (err) {
         clearTimeout(timeoutId);

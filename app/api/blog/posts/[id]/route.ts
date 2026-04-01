@@ -56,6 +56,8 @@ export async function PATCH(
       patch.publishedAt = null;
     }
   }
+  // Allow superadmin to directly correct the published date
+  if (body.publishedAt !== undefined) patch.publishedAt = body.publishedAt;
 
   const post = await updatePost(supabase, id, patch);
   return NextResponse.json({ post });

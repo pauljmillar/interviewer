@@ -36,14 +36,14 @@ export default function TemplatesView() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 flex items-center justify-between flex-wrap gap-2">
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Templates</h1>
+      <div className="p-4 border-b border-[var(--retro-border-color)] bg-[var(--retro-bg-surface)] flex-shrink-0 flex items-center justify-between flex-wrap gap-2">
+        <h1 className="text-lg font-semibold text-[var(--retro-text-primary)]">Templates</h1>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter:</label>
+          <label className="text-sm font-medium text-[var(--retro-text-secondary)]">Filter:</label>
           <select
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value)}
-            className="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 text-sm"
+            className="px-2 py-1.5 border border-[var(--retro-border-color)] rounded-lg text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] text-sm"
           >
             <option value="">All</option>
             <option value="built-in">Built-in</option>
@@ -53,32 +53,32 @@ export default function TemplatesView() {
       </div>
       <div className="flex-1 overflow-auto p-4">
         {loading ? (
-          <p className="text-gray-500 dark:text-gray-400 text-sm">Loading templates...</p>
+          <p className="text-[var(--retro-text-muted)] text-sm">Loading templates...</p>
         ) : filteredTemplates.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <p className="text-[var(--retro-text-muted)] text-sm">
             {templates.length === 0 ? 'No templates.' : 'No templates match the filter.'}
           </p>
         ) : (
-          <div className="overflow-x-auto border border-gray-200 dark:border-gray-600 rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-              <thead className="bg-gray-50 dark:bg-gray-700/50">
+          <div className="overflow-x-auto border border-[var(--retro-border-color)] rounded-lg admin-card">
+            <table className="min-w-full divide-y divide-[var(--retro-border-color)]">
+              <thead className="bg-[var(--retro-bg-raised)]">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Source</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Questions</th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">Name</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">Source</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">Questions</th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--retro-text-muted)] uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+              <tbody className="bg-[var(--retro-bg-surface)] divide-y divide-[var(--retro-border-color)]">
                 {filteredTemplates.map((t) => (
                   <tr key={t.id}>
-                    <td className="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">{t.name}</td>
-                    <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">{t.source}</td>
-                    <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">{t.questions?.length ?? 0}</td>
+                    <td className="px-4 py-2 text-sm text-[var(--retro-text-primary)]">{t.name}</td>
+                    <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)]">{t.source}</td>
+                    <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)]">{t.questions?.length ?? 0}</td>
                     <td className="px-4 py-2 text-right">
                       <Link
                         href={`/admin/templates/${t.id}`}
-                        className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
+                        className="text-[#F28A0F] hover:underline text-sm font-medium"
                       >
                         View
                       </Link>

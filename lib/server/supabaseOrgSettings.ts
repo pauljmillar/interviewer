@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export interface OrgSettings {
   companyName: string | null;
   website: string | null;
-  privacyPolicyUrl: string | null; // null = use Candice AI default at /privacy
+  privacyPolicyUrl: string | null; // null = use Screen AI default at /privacy
   logoKey: string | null;          // S3 key, e.g. "logos/org_abc/logo.png"
   fromEmail: string | null;        // per-org sender email override (falls back to BREVO_FROM_EMAIL)
   fromName: string | null;         // per-org sender name override (falls back to BREVO_FROM_NAME)
