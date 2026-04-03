@@ -115,3 +115,21 @@ CREATE TABLE IF NOT EXISTS position_analysis_settings (
 --   updated_at timestamptz not null default now(),
 --   constraint single_row check (id = 1)
 -- );
+
+-- Email template columns for org_settings (run once if table already exists):
+-- ALTER TABLE org_settings ADD COLUMN email_subject TEXT;
+-- ALTER TABLE org_settings ADD COLUMN email_html_template TEXT;
+
+-- Campaign outbound email tracking (for Cowork integration)
+-- CREATE TABLE campaign_contacts (
+--   id                TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+--   uid               TEXT UNIQUE NOT NULL,
+--   email             TEXT NOT NULL,
+--   name              TEXT NOT NULL,
+--   sent_at           TIMESTAMPTZ,
+--   brevo_message_id  TEXT,
+--   demo_clicked      BOOLEAN NOT NULL DEFAULT false,
+--   demo_clicked_at   TIMESTAMPTZ,
+--   created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+-- );
+-- CREATE INDEX idx_campaign_contacts_uid ON campaign_contacts(uid);

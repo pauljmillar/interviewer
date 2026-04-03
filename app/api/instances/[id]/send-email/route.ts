@@ -22,6 +22,11 @@ export async function POST(
     return NextResponse.json({ error: 'Instance id required' }, { status: 400 });
   }
 
+  const reqBody = await request.json().catch(() => ({})) as {
+    subject?: string;
+    htmlTemplate?: string;
+  };
+
   try {
     const instance = await getInstanceById(id, orgId);
     if (!instance) {
@@ -54,6 +59,10 @@ export async function POST(
       ? `${origin}/interview/${instance.shareableToken}`
       : '';
 
+    // Priority: request body > org settings > hardcoded default
+    const subjectOverride = reqBody.subject || orgSettings?.emailSubject || undefined;
+    const htmlOverride = reqBody.htmlTemplate || orgSettings?.emailHtmlTemplate || undefined;
+
     await sendInterviewInvite({
       recipientEmail: instance.recipientEmail,
       recipientName: instance.recipientName || instance.recipientEmail,
@@ -63,6 +72,8 @@ export async function POST(
       interviewUrl,
       fromEmail,
       fromName,
+      subjectOverride,
+      htmlOverride,
     });
 
     const sentAt = new Date().toISOString();

@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
     fromEmail: settings?.fromEmail ?? null,
     fromName: settings?.fromName ?? null,
     apiAccess: settings?.apiAccess ?? false,
+    emailSubject: settings?.emailSubject ?? null,
+    emailHtmlTemplate: settings?.emailHtmlTemplate ?? null,
     isSuperadmin,
   });
 }
@@ -38,6 +40,8 @@ export async function PATCH(request: NextRequest) {
     fromEmail?: string | null;
     fromName?: string | null;
     apiAccess?: boolean;
+    emailSubject?: string | null;
+    emailHtmlTemplate?: string | null;
   };
 
   const patch: Parameters<typeof saveOrgSettings>[2] = {
@@ -52,6 +56,8 @@ export async function PATCH(request: NextRequest) {
   if (isSuperadmin && 'apiAccess' in body) {
     patch.apiAccess = !!body.apiAccess;
   }
+  if ('emailSubject' in body) patch.emailSubject = body.emailSubject ?? null;
+  if ('emailHtmlTemplate' in body) patch.emailHtmlTemplate = body.emailHtmlTemplate ?? null;
 
   await saveOrgSettings(supabase, orgId, patch);
   return NextResponse.json({ ok: true });

@@ -25,6 +25,12 @@ export default function AdminInterviewInstanceDetailPage() {
   const [emailSentAt, setEmailSentAt] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
 
+  const [editingContact, setEditingContact] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [contactSaving, setContactSaving] = useState(false);
+  const [contactError, setContactError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
@@ -43,6 +49,8 @@ export default function AdminInterviewInstanceDetailPage() {
         if (!cancelled) {
           setData(json);
           setEmailSentAt(json.instance?.emailSentAt ?? null);
+          setEditName(json.instance?.recipientName ?? '');
+          setEditEmail(json.instance?.recipientEmail ?? '');
         }
       } catch {
         if (!cancelled) setError('Failed to load');
@@ -71,6 +79,39 @@ export default function AdminInterviewInstanceDetailPage() {
       setEmailError(e instanceof Error ? e.message : 'Failed to send email');
     } finally {
       setEmailSending(false);
+    }
+  };
+
+  const handleSaveContact = async () => {
+    if (!id) return;
+    setContactSaving(true);
+    setContactError(null);
+    try {
+      const res = await fetch(`/api/instances/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipientName: editName, recipientEmail: editEmail }),
+      });
+      const body = await res.json().catch(() => ({})) as { error?: string };
+      if (!res.ok) throw new Error(body.error ?? 'Failed to save');
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              instance: {
+                ...prev.instance,
+                recipientName: editName || undefined,
+                recipientEmail: editEmail || undefined,
+              },
+            }
+          : prev
+      );
+      setEditingContact(false);
+    } catch (e) {
+      setContactError(e instanceof Error ? e.message : 'Failed to save');
+    } finally {
+      setContactSaving(false);
     }
   };
 
@@ -103,7 +144,18 @@ export default function AdminInterviewInstanceDetailPage() {
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
             <dt className="font-medium text-[var(--retro-text-muted)]">Recipient</dt>
-            <dd className="text-[var(--retro-text-primary)]">{instance.recipientName ?? '—'}</dd>
+            <dd className="text-[var(--retro-text-primary)] flex items-center gap-2">
+              {instance.recipientName ?? '—'}
+              {!editingContact && (
+                <button
+                  type="button"
+                  onClick={() => { setEditingContact(true); setContactError(null); }}
+                  className="text-xs text-[#F28A0F] hover:underline"
+                >
+                  Edit
+                </button>
+              )}
+            </dd>
           </div>
           <div>
             <dt className="font-medium text-[var(--retro-text-muted)]">Position</dt>
@@ -147,7 +199,48 @@ export default function AdminInterviewInstanceDetailPage() {
               </dd>
             </div>
           )}
-          {instance.recipientEmail && (
+          {editingContact ? (
+            <div className="sm:col-span-2">
+              <dt className="font-medium text-[var(--retro-text-muted)] mb-2">Edit contact</dt>
+              <dd className="space-y-2">
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Full name"
+                  className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] text-sm"
+                />
+                <input
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  placeholder="Email address"
+                  className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] text-sm"
+                />
+                {contactError && (
+                  <p className="text-sm text-red-600 dark:text-red-400">{contactError}</p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveContact}
+                    disabled={contactSaving}
+                    className="px-3 py-1.5 text-sm bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50"
+                  >
+                    {contactSaving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingContact(false)}
+                    disabled={contactSaving}
+                    className="px-3 py-1.5 text-sm border border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] rounded-lg hover:bg-[var(--retro-bg-raised)] disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </dd>
+            </div>
+          ) : instance.recipientEmail ? (
             <div className="sm:col-span-2">
               <dt className="font-medium text-[var(--retro-text-muted)]">Candidate email</dt>
               <dd className="text-[var(--retro-text-primary)] flex items-center gap-3 flex-wrap">
@@ -170,7 +263,7 @@ export default function AdminInterviewInstanceDetailPage() {
                 )}
               </dd>
             </div>
-          )}
+          ) : null}
         </dl>
       </div>
 

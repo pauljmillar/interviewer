@@ -307,6 +307,94 @@ PATCH /api/v1/posts/<slug>
 
 ---
 
+---
+
+## Campaign Endpoints
+
+Used by Claude Cowork to send outbound email campaigns and track engagement.
+
+### `POST /api/v1/campaign/send`
+
+Send a batch of personalised transactional emails via Brevo and record each contact in the `campaign_contacts` table.
+
+**Request body** (`application/json`)
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `contacts` | `{ email, name, uid }[]` | **yes** | Per-recipient data |
+| `subject` | string | **yes** | Supports `{{name}}`, `{{uid}}`, `{{email}}` placeholders |
+| `html` | string | **yes** | HTML body with placeholders |
+| `text` | string | no | Plain-text fallback with same placeholders |
+| `fromEmail` | string | no | Sender email — falls back to `BREVO_FROM_EMAIL` env var |
+| `fromName` | string | no | Sender name — falls back to `BREVO_FROM_NAME` env var |
+
+Placeholder substitution is applied per contact: `{{name}}`, `{{uid}}`, `{{email}}`.
+
+**Example**
+```json
+{
+  "contacts": [
+    { "email": "alice@example.com", "name": "Alice", "uid": "abc123" }
+  ],
+  "subject": "Try the AI Interview demo, {{name}}",
+  "html": "<p>Hi {{name}}, click here: <a href='https://hrscreen.ai/api/v1/campaign/track?uid={{uid}}&redirect=1'>Start demo</a></p>"
+}
+```
+
+**Response `200`**
+```json
+{ "sent": 1, "failed": [] }
+```
+
+`failed` is an array of `{ email, error }` objects for any contacts that could not be sent.
+
+---
+
+### `GET /api/v1/campaign/stats`
+
+Returns all campaign contacts with Brevo event stats (opens, clicks) and demo-page click tracking.
+
+**Response `200`**
+```json
+{
+  "contacts": [{
+    "uid": "abc123",
+    "email": "alice@example.com",
+    "name": "Alice",
+    "sentAt": "2026-04-01T10:00:00.000Z",
+    "demoClicked": false,
+    "demoClickedAt": null,
+    "opened": true,
+    "openedAt": "2026-04-01T10:05:00.000Z",
+    "clicked": false,
+    "clickedAt": null
+  }]
+}
+```
+
+---
+
+### `GET /api/v1/campaign/track` _(no auth required)_
+
+Records a demo-page click for a given `uid` and optionally redirects the user.
+
+**Query parameters**
+
+| Param | Notes |
+|---|---|
+| `uid` | **required** — must match a `uid` in `campaign_contacts` |
+| `redirect` | set to `1` to redirect to `/start` after recording |
+
+Use this as the destination URL in email links:
+```
+https://hrscreen.ai/api/v1/campaign/track?uid={{uid}}&redirect=1
+```
+Brevo wraps this with its own click-tracking URL, providing double attribution.
+
+**Response** — `{ "ok": true }` (or `302` redirect to `/start` when `redirect=1`)
+
+---
+
 ## Roadmap
 
 - **Org-scoped access** — when a client org is granted API access, their keys will be

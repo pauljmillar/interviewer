@@ -59,6 +59,13 @@ export default function AnalysisPanel({
   const [emailSendState, setEmailSendState] = useState<EmailSendState>({});
   const [instanceEmailSentAt, setInstanceEmailSentAt] = useState<{ [instanceId: string]: string }>({});
 
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkSendModalOpen, setBulkSendModalOpen] = useState(false);
+  const [bulkSendSubject, setBulkSendSubject] = useState('');
+  const [bulkSendHtml, setBulkSendHtml] = useState('');
+  const [bulkSending, setBulkSending] = useState(false);
+  const [bulkSendResult, setBulkSendResult] = useState<string | null>(null);
+
   const loadAnalysis = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -165,6 +172,57 @@ export default function AnalysisPanel({
     }
   };
 
+  const openBulkSendModal = async () => {
+    // Load current org template to pre-populate modal
+    try {
+      const res = await fetch('/api/org/settings', { credentials: 'include' });
+      const d = await res.json() as { emailSubject?: string | null; emailHtmlTemplate?: string | null };
+      setBulkSendSubject(d.emailSubject ?? '');
+      setBulkSendHtml(d.emailHtmlTemplate ?? '');
+    } catch {
+      setBulkSendSubject('');
+      setBulkSendHtml('');
+    }
+    setBulkSendResult(null);
+    setBulkSendModalOpen(true);
+  };
+
+  const handleBulkSend = async () => {
+    setBulkSending(true);
+    setBulkSendResult(null);
+    let sent = 0;
+    let failed = 0;
+    for (const id of Array.from(selectedIds)) {
+      try {
+        const body: Record<string, string> = {};
+        if (bulkSendSubject.trim()) body.subject = bulkSendSubject.trim();
+        if (bulkSendHtml.trim()) body.htmlTemplate = bulkSendHtml.trim();
+        const res = await fetch(`/api/instances/${id}/send-email`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({})) as { sentAt?: string; error?: string };
+        if (!res.ok) throw new Error(data.error ?? 'Failed');
+        sent++;
+        if (data.sentAt) {
+          setInstanceEmailSentAt((s) => ({ ...s, [id]: data.sentAt! }));
+        }
+        setEmailSendState((s) => ({ ...s, [id]: 'sent' }));
+      } catch {
+        failed++;
+        setEmailSendState((s) => ({ ...s, [id]: 'error' }));
+      }
+    }
+    setBulkSending(false);
+    setBulkSendResult(`Sent ${sent}${failed > 0 ? `, ${failed} failed` : ''}`);
+    if (failed === 0) {
+      setSelectedIds(new Set());
+      setTimeout(() => setBulkSendModalOpen(false), 1500);
+    }
+  };
+
   const summary = analysisData?.summary;
 
   const lastAnalyzedText = summary?.lastAnalyzedAt
@@ -202,6 +260,21 @@ export default function AnalysisPanel({
     if (b.rank !== null) return 1;
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
+
+  const eligibleIds = mergedRows
+    .filter((r) => r.recipientEmail && r.status === 'not_started')
+    .map((r) => r.id);
+
+  const allEligibleSelected =
+    eligibleIds.length > 0 && eligibleIds.every((id) => selectedIds.has(id));
+
+  const toggleSelectAll = () => {
+    if (allEligibleSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(eligibleIds));
+    }
+  };
 
   const isBodyLoading = instancesLoading || loading;
 
@@ -303,6 +376,29 @@ export default function AnalysisPanel({
           </p>
         )}
 
+        {/* Bulk send toolbar */}
+        {selectedIds.size > 0 && (
+          <div className="px-6 py-2 border-b border-[var(--retro-border-color)] flex items-center gap-3 bg-[var(--retro-bg-raised)]">
+            <span className="text-sm text-[var(--retro-text-secondary)]">
+              {selectedIds.size} selected
+            </span>
+            <button
+              type="button"
+              onClick={openBulkSendModal}
+              className="px-3 py-1.5 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] font-medium text-sm"
+            >
+              Send to {selectedIds.size}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedIds(new Set())}
+              className="text-sm text-[var(--retro-text-muted)] hover:text-[var(--retro-text-primary)] underline"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
         {/* Body */}
         {isBodyLoading ? (
           <p className="p-6 text-[var(--retro-text-muted)]">Loading…</p>
@@ -315,6 +411,16 @@ export default function AnalysisPanel({
             <table className="min-w-full divide-y divide-[var(--retro-border-color)]">
               <thead className="bg-[var(--retro-bg-raised)]">
                 <tr>
+                  <th className="px-4 py-2 w-8">
+                    <input
+                      type="checkbox"
+                      checked={allEligibleSelected}
+                      onChange={toggleSelectAll}
+                      disabled={eligibleIds.length === 0}
+                      className="accent-[#F28A0F] disabled:opacity-30"
+                      aria-label="Select all eligible"
+                    />
+                  </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase w-10">
                     #
                   </th>
@@ -360,6 +466,25 @@ export default function AnalysisPanel({
                   };
                   return (
                     <tr key={row.id} className={isScored ? '' : 'opacity-60'}>
+                      <td className="px-4 py-2">
+                        {row.recipientEmail && row.status === 'not_started' ? (
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(row.id)}
+                            onChange={(e) => {
+                              setSelectedIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(row.id);
+                                else next.delete(row.id);
+                                return next;
+                              });
+                            }}
+                            className="accent-[#F28A0F]"
+                          />
+                        ) : (
+                          <span />
+                        )}
+                      </td>
                       <td className="px-4 py-2 text-sm text-center font-medium text-[var(--retro-text-primary)]">
                         {row.rank ?? '—'}
                       </td>
@@ -434,14 +559,16 @@ export default function AnalysisPanel({
                                 <span className="text-green-600 dark:text-green-400 text-xs whitespace-nowrap">
                                   Sent {new Date(sentAt).toLocaleDateString()}
                                 </span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleSendEmail(row)}
-                                  disabled={state === 'sending'}
-                                  className="text-xs text-[var(--retro-text-muted)] hover:text-[#F28A0F] underline disabled:opacity-50"
-                                >
-                                  {state === 'sending' ? 'Sending…' : 'Resend'}
-                                </button>
+                                {row.status === 'not_started' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSendEmail(row)}
+                                    disabled={state === 'sending'}
+                                    className="text-xs text-[var(--retro-text-muted)] hover:text-[#F28A0F] underline disabled:opacity-50"
+                                  >
+                                    {state === 'sending' ? 'Sending…' : 'Resend'}
+                                  </button>
+                                )}
                               </div>
                             );
                           }
@@ -500,6 +627,70 @@ export default function AnalysisPanel({
           candidate={detailCandidate}
           onClose={() => setDetailCandidate(null)}
         />
+      )}
+
+      {/* Bulk send modal */}
+      {bulkSendModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bulk-send-title"
+        >
+          <div className="bg-[var(--retro-bg-surface)] rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 border border-[var(--retro-border-color)] admin-card">
+            <h2
+              id="bulk-send-title"
+              className="text-lg font-semibold text-[var(--retro-text-primary)] mb-1"
+            >
+              Send invites to {selectedIds.size} candidate{selectedIds.size !== 1 ? 's' : ''}
+            </h2>
+            <p className="text-xs text-[var(--retro-text-muted)] mb-4">
+              Placeholders:{' '}
+              {'{{firstName}}'} {'{{positionName}}'} {'{{companyName}}'} {'{{interviewUrl}}'}
+            </p>
+            <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
+              Subject
+            </label>
+            <input
+              type="text"
+              value={bulkSendSubject}
+              onChange={(e) => setBulkSendSubject(e.target.value)}
+              placeholder="Leave blank to use default"
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] text-sm mb-3"
+            />
+            <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">
+              Body (HTML)
+            </label>
+            <textarea
+              value={bulkSendHtml}
+              onChange={(e) => setBulkSendHtml(e.target.value)}
+              placeholder="Leave blank to use default"
+              rows={10}
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] resize-y mb-4 text-sm font-mono"
+            />
+            {bulkSendResult && (
+              <p className="mb-4 text-sm text-green-600 dark:text-green-400">{bulkSendResult}</p>
+            )}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleBulkSend}
+                disabled={bulkSending}
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] font-medium disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {bulkSending ? 'Sending…' : `Send to ${selectedIds.size}`}
+              </button>
+              <button
+                type="button"
+                onClick={() => { if (!bulkSending) setBulkSendModalOpen(false); }}
+                disabled={bulkSending}
+                className="px-4 py-2 border border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] rounded-lg hover:bg-[var(--retro-bg-raised)] font-medium disabled:opacity-50 disabled:pointer-events-none"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Settings modal */}

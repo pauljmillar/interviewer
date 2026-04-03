@@ -1,39 +1,31 @@
-export async function sendInterviewInvite(params: {
-  recipientEmail: string;
-  recipientName: string;
-  positionName: string;
-  companyName: string;
-  numQuestions: number;
-  interviewUrl: string;
+export const DEFAULT_EMAIL_SUBJECT =
+  'Interview invitation – {{positionName}} at {{companyName}}';
+
+export const DEFAULT_EMAIL_HTML = `<p>Dear {{firstName}},</p>
+<p>Thank you for your interest in <strong>{{positionName}}</strong> at <strong>{{companyName}}</strong>. We'd like to learn more about you.</p>
+<p>The next step in the process is for you to chat with our AI agent for a few minutes. Click the link below to begin the session.</p>
+<p>The interview should take no more than 15 minutes and will be recorded. We are considering several candidates for this position, and your responses will determine who advances to the next round.</p>
+<p><a href="{{interviewUrl}}">{{interviewUrl}}</a></p>
+<p>Best regards,<br>{{companyName}}</p>`;
+
+function applyPlaceholders(
+  template: string,
+  vars: Record<string, string>
+): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? '');
+}
+
+export async function sendTransactionalEmail(params: {
   fromEmail: string;
   fromName: string;
-}): Promise<void> {
+  toEmail: string;
+  toName: string;
+  subject: string;
+  htmlContent: string;
+  textContent?: string;
+}): Promise<string> {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) throw new Error('BREVO_API_KEY is not set');
-
-  const firstName = params.recipientName.split(/\s+/)[0] ?? params.recipientName;
-
-  const subject = `Interview invitation – ${params.positionName} at ${params.companyName}`;
-
-  const textContent = `Dear ${firstName},
-
-Thank you for your interest in ${params.positionName} at ${params.companyName}. We'd like to learn more about you.
-
-The next step in the process is for you to chat with our AI agent for a few minutes. Click the link below to begin the session.
-
-The interview is ${params.numQuestions} questions, should take no more than 15 minutes, and will be recorded. We are considering several candidates for this position, and your responses in this interview will determine who advances to the next round to meet with one of our recruiting team.
-
-${params.interviewUrl}
-
-Best regards,
-${params.companyName}`;
-
-  const htmlContent = `<p>Dear ${firstName},</p>
-<p>Thank you for your interest in <strong>${params.positionName}</strong> at <strong>${params.companyName}</strong>. We'd like to learn more about you.</p>
-<p>The next step in the process is for you to chat with our AI agent for a few minutes. Click the link below to begin the session.</p>
-<p>The interview is ${params.numQuestions} questions, should take no more than 15 minutes, and will be recorded. We are considering several candidates for this position, and your responses in this interview will determine who advances to the next round to meet with one of our recruiting team.</p>
-<p><a href="${params.interviewUrl}">${params.interviewUrl}</a></p>
-<p>Best regards,<br>${params.companyName}</p>`;
 
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -44,10 +36,10 @@ ${params.companyName}`;
     },
     body: JSON.stringify({
       sender: { name: params.fromName, email: params.fromEmail },
-      to: [{ name: params.recipientName, email: params.recipientEmail }],
-      subject,
-      textContent,
-      htmlContent,
+      to: [{ name: params.toName, email: params.toEmail }],
+      subject: params.subject,
+      htmlContent: params.htmlContent,
+      ...(params.textContent ? { textContent: params.textContent } : {}),
     }),
   });
 
@@ -55,4 +47,51 @@ ${params.companyName}`;
     const body = await res.text().catch(() => '');
     throw new Error(`Brevo API error ${res.status}: ${body}`);
   }
+
+  const data = await res.json().catch(() => ({})) as { messageId?: string };
+  return data.messageId ?? '';
+}
+
+export async function sendInterviewInvite(params: {
+  recipientEmail: string;
+  recipientName: string;
+  positionName: string;
+  companyName: string;
+  numQuestions: number;
+  interviewUrl: string;
+  fromEmail: string;
+  fromName: string;
+  subjectOverride?: string;
+  htmlOverride?: string;
+}): Promise<void> {
+  const firstName = params.recipientName.split(/\s+/)[0] ?? params.recipientName;
+
+  const vars: Record<string, string> = {
+    firstName,
+    positionName: params.positionName,
+    companyName: params.companyName,
+    interviewUrl: params.interviewUrl,
+  };
+
+  const subject = applyPlaceholders(
+    params.subjectOverride ?? DEFAULT_EMAIL_SUBJECT,
+    vars
+  );
+
+  const htmlContent = applyPlaceholders(
+    params.htmlOverride ?? DEFAULT_EMAIL_HTML,
+    vars
+  );
+
+  const textContent = `Dear ${firstName},\n\nYou have been invited to interview for ${params.positionName} at ${params.companyName}.\n\nClick here to begin: ${params.interviewUrl}\n\nBest regards,\n${params.companyName}`;
+
+  await sendTransactionalEmail({
+    fromEmail: params.fromEmail,
+    fromName: params.fromName,
+    toEmail: params.recipientEmail,
+    toName: params.recipientName,
+    subject,
+    htmlContent,
+    textContent,
+  });
 }

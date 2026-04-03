@@ -3,6 +3,7 @@ import {
   getInstanceById,
   getLatestSession,
   getInstanceStatus,
+  updateInstance,
 } from '@/lib/server/instanceStoreAdapter';
 import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
 import { getTemplateById } from '@/constants/templates';
@@ -68,4 +69,36 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { orgId } = await getEffectiveOrgId(request);
+  if (!orgId) {
+    return NextResponse.json({ error: 'Organization required' }, { status: 403 });
+  }
+
+  const { id } = await params;
+  if (!id) {
+    return NextResponse.json({ error: 'Instance id required' }, { status: 400 });
+  }
+
+  const instance = await getInstanceById(id, orgId);
+  if (!instance) {
+    return NextResponse.json({ error: 'Instance not found' }, { status: 404 });
+  }
+
+  const body = await request.json().catch(() => ({})) as {
+    recipientEmail?: string | null;
+    recipientName?: string | null;
+  };
+
+  const patch: Parameters<typeof updateInstance>[1] = {};
+  if ('recipientEmail' in body) patch.recipientEmail = body.recipientEmail?.trim() || null;
+  if ('recipientName' in body) patch.recipientName = body.recipientName?.trim() || null;
+
+  await updateInstance(id, patch);
+  return NextResponse.json({ ok: true });
 }

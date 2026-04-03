@@ -2,6 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+const DEFAULT_SUBJECT = 'Interview invitation – {{positionName}} at {{companyName}}';
+const DEFAULT_HTML = `<p>Dear {{firstName}},</p>
+<p>Thank you for your interest in <strong>{{positionName}}</strong> at <strong>{{companyName}}</strong>. We'd like to learn more about you.</p>
+<p>The next step in the process is for you to chat with our AI agent for a few minutes. Click the link below to begin the session.</p>
+<p>The interview should take no more than 15 minutes and will be recorded. We are considering several candidates for this position, and your responses will determine who advances to the next round.</p>
+<p><a href="{{interviewUrl}}">{{interviewUrl}}</a></p>
+<p>Best regards,<br>{{companyName}}</p>`;
+
 interface OrgSettingsData {
   orgId: string;
   companyName: string | null;
@@ -11,6 +19,8 @@ interface OrgSettingsData {
   fromEmail: string | null;
   fromName: string | null;
   apiAccess: boolean;
+  emailSubject: string | null;
+  emailHtmlTemplate: string | null;
   isSuperadmin: boolean;
 }
 
@@ -31,6 +41,9 @@ export default function SettingsPage() {
   const [apiAccess, setApiAccess] = useState(false);
   const [isSuperadmin, setIsSuperadmin] = useState(false);
 
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailHtmlTemplate, setEmailHtmlTemplate] = useState('');
+
   const [hasLogo, setHasLogo] = useState(false);
   const [logoKey, setLogoKey] = useState(0); // bump to force <img> refresh
   const [uploading, setUploading] = useState(false);
@@ -48,6 +61,8 @@ export default function SettingsPage() {
         setFromName(d.fromName ?? '');
         setApiAccess(d.apiAccess ?? false);
         setIsSuperadmin(d.isSuperadmin ?? false);
+        setEmailSubject(d.emailSubject ?? '');
+        setEmailHtmlTemplate(d.emailHtmlTemplate ?? '');
         if (d.privacyPolicyUrl) {
           setPrivacyMode('custom');
           setPrivacyUrl(d.privacyPolicyUrl);
@@ -76,6 +91,8 @@ export default function SettingsPage() {
           fromEmail: fromEmail.trim() || null,
           fromName: fromName.trim() || null,
           ...(isSuperadmin ? { apiAccess } : {}),
+          emailSubject: emailSubject.trim() || null,
+          emailHtmlTemplate: emailHtmlTemplate.trim() || null,
         }),
       });
       if (!res.ok) {
@@ -251,6 +268,45 @@ export default function SettingsPage() {
               onChange={(e) => setFromEmail(e.target.value)}
               placeholder="Sender email (defaults to system sender)"
               className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
+            />
+          </div>
+        </div>
+
+        {/* Email template */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <p className="block text-sm font-medium text-[var(--retro-text-secondary)]">
+              Invite email template
+            </p>
+            <button
+              type="button"
+              onClick={() => { setEmailSubject(''); setEmailHtmlTemplate(''); }}
+              className="text-xs text-[var(--retro-text-muted)] hover:text-[#F28A0F] underline"
+            >
+              Reset to default
+            </button>
+          </div>
+          <p className="text-xs text-[var(--retro-text-muted)] mb-3">
+            Leave blank to use the default template. Available placeholders:{' '}
+            <code className="font-mono bg-[var(--retro-bg-raised)] px-1 rounded">{'{{firstName}}'}</code>{' '}
+            <code className="font-mono bg-[var(--retro-bg-raised)] px-1 rounded">{'{{positionName}}'}</code>{' '}
+            <code className="font-mono bg-[var(--retro-bg-raised)] px-1 rounded">{'{{companyName}}'}</code>{' '}
+            <code className="font-mono bg-[var(--retro-bg-raised)] px-1 rounded">{'{{interviewUrl}}'}</code>
+          </p>
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={emailSubject}
+              onChange={(e) => setEmailSubject(e.target.value)}
+              placeholder={DEFAULT_SUBJECT}
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] text-sm"
+            />
+            <textarea
+              value={emailHtmlTemplate}
+              onChange={(e) => setEmailHtmlTemplate(e.target.value)}
+              placeholder={DEFAULT_HTML}
+              rows={10}
+              className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] resize-y text-sm font-mono"
             />
           </div>
         </div>

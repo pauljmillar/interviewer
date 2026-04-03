@@ -111,7 +111,7 @@ export async function createSession(instanceId: string): Promise<SessionRecord> 
 
 export async function updateInstance(
   id: string,
-  patch: { emailSentAt?: string | null }
+  patch: { emailSentAt?: string | null; recipientEmail?: string | null; recipientName?: string | null }
 ): Promise<void> {
   const sb = useSupabase();
   if (sb) return supabaseStore.updateInstance(sb, id, patch);

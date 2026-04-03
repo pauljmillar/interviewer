@@ -253,10 +253,12 @@ export async function getInstanceStatus(
 export async function updateInstance(
   supabase: SupabaseClient,
   id: string,
-  patch: { emailSentAt?: string | null }
+  patch: { emailSentAt?: string | null; recipientEmail?: string | null; recipientName?: string | null }
 ): Promise<void> {
   const row: Record<string, unknown> = {};
   if ('emailSentAt' in patch) row.email_sent_at = patch.emailSentAt ?? null;
+  if ('recipientEmail' in patch) row.recipient_email = patch.recipientEmail ?? null;
+  if ('recipientName' in patch) row.recipient_name = patch.recipientName ?? null;
   if (Object.keys(row).length === 0) return;
   const { error } = await supabase.from('interview_instances').update(row).eq('id', id);
   if (error) throw error;
