@@ -115,6 +115,15 @@ S3_BUCKET_NAME=your-bucket
 BREVO_API_KEY=...
 BREVO_SENDER_EMAIL=hello@yourdomain.com
 BREVO_SENDER_NAME=Screen AI
+
+# Internal org for demo interview tracking (Clerk org ID)
+# Create a "Screen AI Internal" org in Clerk, then set this to its org ID.
+# Falls back to 'org_demo' if not set — no breakage during rollout.
+INTERNAL_ORG_ID=org_2abc...
+
+# Position IDs within the internal org (visible in URL: /admin/positions/<id>)
+DEMO_POSITION_ID=<Landing Page Demo position ID>
+CAMPAIGN_POSITION_ID=<Marketing Demo position ID>
 ```
 
 Enable **Organizations** in the Clerk Dashboard — data is scoped by organization.

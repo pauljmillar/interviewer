@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/server/apiAuth';
 import { createInstance } from '@/lib/server/instanceStoreAdapter';
 import { getTemplateById } from '@/constants/templates';
-import { DEMO_ORG_ID } from '@/lib/constants/demo';
+import { INTERNAL_ORG_ID, CAMPAIGN_POSITION_ID } from '@/lib/constants/demo';
 
 const DEMO_TEMPLATE_ID = 'demo-walkthrough';
 
@@ -23,9 +23,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Demo template not found' }, { status: 500 });
     }
 
-    const { shareableToken } = await createInstance(DEMO_ORG_ID, {
-      name: 'Demo',
+    const { shareableToken } = await createInstance(INTERNAL_ORG_ID, {
+      name: 'Marketing Demo',
       templateId: DEMO_TEMPLATE_ID,
+      positionId: CAMPAIGN_POSITION_ID,
       recipientName: body.recipientName || 'Guest',
       recipientEmail: body.recipientEmail || undefined,
       questions: template.questions,

@@ -56,8 +56,11 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 - *Implemented* **Demo flow (no account)**  
   Landing hero: paste JD or URL, or upload .txt/.pdf/.docx → submit → `/demo?step=analyzing` → analyze JD → review questions and position name → settings (voice, intro, conclusion, etc.) → enter recipient name → generate shareable interview link. Position and instance are created under a demo org. **Claim**: if the user signs in (or signs up), they can add the demo to their account: from the demo "done" page, "Add to my account" (when already signed in) calls `POST /api/demo/claim` and redirects to `/admin`; or "Sign in" with `?next=/claim-demo` so after login they land on `/claim-demo`, which POSTs to `/api/demo/claim` and redirects to `/admin`. Claim moves the position, its template, and instances from the demo org to the user's org; cookie `demo_claim_id` is cleared.
 
-- *Implemented* **Try our interview (instant demo)**  
-  Landing hero "Try our interview" button: no JD or config. Client calls `POST /api/demo/try-interview` (no body); server creates one interview instance from the shared built-in template `demo-walkthrough` (intro and questions that explain the process), under `DEMO_ORG_ID`, with no position. Returns `shareableUrl`; client opens it in a new tab. One shared template and org; one new instance (and unique link) per click. Works with or without Supabase (file store when DB not configured).
+- *Implemented* **Try our interview (instant demo)**
+  Landing hero "Try our interview" button: no JD or config. Client calls `POST /api/demo/try-interview` (no body); server creates one interview instance from the shared built-in template `demo-walkthrough` under `INTERNAL_ORG_ID` (env var, falls back to `'org_demo'`) and links it to `DEMO_POSITION_ID` when set. Returns `shareableUrl`; client opens it in a new tab. When the env vars are configured, all landing-page demo instances appear under **Positions → Landing Page Demo** in the admin. Works with or without Supabase (file store when DB not configured).
+
+- *Implemented* **Marketing demo link (campaign API)**
+  `POST /api/v1/demo/link` (Bearer token): creates an interview instance under `INTERNAL_ORG_ID` linked to `CAMPAIGN_POSITION_ID`. Used by Claude Cowork to generate personalised demo links for outbound email campaigns. Instances appear under **Positions → Marketing Demo** with the recipient name and email. See [`docs/api-v1.md`](../docs/api-v1.md) for full endpoint reference.
 
 ---
 
@@ -107,7 +110,7 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 - **Templates list** — `/admin/templates`. Table with filter by source (Built-in / Custom); “View” links to `/admin/templates/[id]`.
 - **Template detail** — `/admin/templates/[id]`. Built-in: view-only. Custom: edit name, intro, conclusion, reminder, TTS voice (dropdown), and questions (add/remove/edit main question text); Save (PATCH) or Delete (DELETE). Back to list.
 - **Demo and claim** — `/demo`: unauthenticated flow (JD → questions → settings → generate link). `/claim-demo`: runs after sign-in when `?next=/claim-demo`; POSTs to `/api/demo/claim` then redirects to `/admin`. Demo done page shows "Add to my account" when signed in (claims and redirects to admin).
-- **Auth** — Clerk protects `/admin` and `/api/templates`, `/api/positions`, `/api/instances`. `/api/demo/*` is public (create, create-instance); claim requires auth inside handler. Client fetches use `credentials: 'include'`. Env: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`. Demo org: `DEMO_ORG_ID` in env for unauthenticated demo positions.
+- **Auth** — Clerk protects `/admin` and `/api/templates`, `/api/positions`, `/api/instances`. `/api/demo/*` is public (create, create-instance); claim requires auth inside handler. Client fetches use `credentials: 'include'`. Env: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`. Demo instances are created under `INTERNAL_ORG_ID` (falls back to `'org_demo'`). Position tracking uses `DEMO_POSITION_ID` (landing page) and `CAMPAIGN_POSITION_ID` (campaign emails); both fall back to `undefined` (no position) if not set.
 
 ## Database backend (implemented)
 

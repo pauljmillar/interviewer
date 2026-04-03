@@ -374,6 +374,36 @@ Returns all campaign contacts with Brevo event stats (opens, clicks) and demo-pa
 
 ---
 
+### `POST /api/v1/demo/link`
+
+Creates a single-use demo interview instance and returns a shareable URL. Instances are created under the **"Screen AI Internal"** org and linked to the **Marketing Demo** position (when `CAMPAIGN_POSITION_ID` is set), making them visible in the admin Positions UI alongside transcripts and engagement data.
+
+**Request body** (`application/json`)
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `recipientName` | string | no | Shown in the instance list. Defaults to `"Guest"`. |
+| `recipientEmail` | string | no | Stored with the instance for identity. |
+
+**Example**
+```json
+{ "recipientName": "Alice Smith", "recipientEmail": "alice@example.com" }
+```
+
+**Response `200`**
+```json
+{ "interviewUrl": "https://hrscreen.ai/interview/<token>", "token": "<token>" }
+```
+
+**Error responses**
+
+| Status | Condition |
+|---|---|
+| `401` | Missing or invalid Bearer token |
+| `500` | Demo template not found or database error |
+
+---
+
 ### `GET /api/v1/campaign/track` _(no auth required)_
 
 Records a demo-page click for a given `uid` and optionally redirects the user.
