@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS position_analysis_settings (
 -- );
 
 -- Email template columns for org_settings (run once if table already exists):
+-- ALTER TABLE org_settings ADD COLUMN email_template_id INTEGER;
 -- ALTER TABLE org_settings ADD COLUMN email_subject TEXT;
 -- ALTER TABLE org_settings ADD COLUMN email_html_template TEXT;
 

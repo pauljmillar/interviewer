@@ -59,7 +59,8 @@ export async function POST(
       ? `${origin}/interview/${instance.shareableToken}`
       : '';
 
-    // Priority: request body > org settings > hardcoded default
+    // Priority: org Brevo template > raw HTML override > hardcoded default
+    const templateId = orgSettings?.emailTemplateId ?? null;
     const subjectOverride = reqBody.subject || orgSettings?.emailSubject || undefined;
     const htmlOverride = reqBody.htmlTemplate || orgSettings?.emailHtmlTemplate || undefined;
 
@@ -72,6 +73,7 @@ export async function POST(
       interviewUrl,
       fromEmail,
       fromName,
+      templateId,
       subjectOverride,
       htmlOverride,
     });

@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     fromEmail: settings?.fromEmail ?? null,
     fromName: settings?.fromName ?? null,
     apiAccess: settings?.apiAccess ?? false,
+    emailTemplateId: settings?.emailTemplateId ?? null,
     emailSubject: settings?.emailSubject ?? null,
     emailHtmlTemplate: settings?.emailHtmlTemplate ?? null,
     isSuperadmin,
@@ -40,6 +41,7 @@ export async function PATCH(request: NextRequest) {
     fromEmail?: string | null;
     fromName?: string | null;
     apiAccess?: boolean;
+    emailTemplateId?: number | null;
     emailSubject?: string | null;
     emailHtmlTemplate?: string | null;
   };
@@ -56,6 +58,7 @@ export async function PATCH(request: NextRequest) {
   if (isSuperadmin && 'apiAccess' in body) {
     patch.apiAccess = !!body.apiAccess;
   }
+  if ('emailTemplateId' in body) patch.emailTemplateId = body.emailTemplateId ?? null;
   if ('emailSubject' in body) patch.emailSubject = body.emailSubject ?? null;
   if ('emailHtmlTemplate' in body) patch.emailHtmlTemplate = body.emailHtmlTemplate ?? null;
 

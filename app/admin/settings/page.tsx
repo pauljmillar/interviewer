@@ -19,6 +19,7 @@ interface OrgSettingsData {
   fromEmail: string | null;
   fromName: string | null;
   apiAccess: boolean;
+  emailTemplateId: number | null;
   emailSubject: string | null;
   emailHtmlTemplate: string | null;
   isSuperadmin: boolean;
@@ -41,6 +42,7 @@ export default function SettingsPage() {
   const [apiAccess, setApiAccess] = useState(false);
   const [isSuperadmin, setIsSuperadmin] = useState(false);
 
+  const [emailTemplateId, setEmailTemplateId] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailHtmlTemplate, setEmailHtmlTemplate] = useState('');
 
@@ -61,6 +63,7 @@ export default function SettingsPage() {
         setFromName(d.fromName ?? '');
         setApiAccess(d.apiAccess ?? false);
         setIsSuperadmin(d.isSuperadmin ?? false);
+        setEmailTemplateId(d.emailTemplateId != null ? String(d.emailTemplateId) : '');
         setEmailSubject(d.emailSubject ?? '');
         setEmailHtmlTemplate(d.emailHtmlTemplate ?? '');
         if (d.privacyPolicyUrl) {
@@ -91,6 +94,7 @@ export default function SettingsPage() {
           fromEmail: fromEmail.trim() || null,
           fromName: fromName.trim() || null,
           ...(isSuperadmin ? { apiAccess } : {}),
+          emailTemplateId: emailTemplateId.trim() ? parseInt(emailTemplateId.trim(), 10) : null,
           emailSubject: emailSubject.trim() || null,
           emailHtmlTemplate: emailHtmlTemplate.trim() || null,
         }),
@@ -285,6 +289,27 @@ export default function SettingsPage() {
             >
               Reset to default
             </button>
+          </div>
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-[var(--retro-text-secondary)] mb-1">
+              Brevo Template ID
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={emailTemplateId}
+              onChange={(e) => setEmailTemplateId(e.target.value)}
+              placeholder="e.g. 1"
+              className="w-32 px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] text-sm"
+            />
+            <p className="mt-1 text-xs text-[var(--retro-text-muted)]">
+              When set, Brevo renders the template — subject and body below are ignored.
+              Use <code className="font-mono bg-[var(--retro-bg-raised)] px-1 rounded">{'{{ params.firstName }}'}</code>{' '}
+              <code className="font-mono bg-[var(--retro-bg-raised)] px-1 rounded">{'{{ params.positionName }}'}</code>{' '}
+              <code className="font-mono bg-[var(--retro-bg-raised)] px-1 rounded">{'{{ params.companyName }}'}</code>{' '}
+              <code className="font-mono bg-[var(--retro-bg-raised)] px-1 rounded">{'{{ params.interviewLink }}'}</code>{' '}
+              in your Brevo template.
+            </p>
           </div>
           <p className="text-xs text-[var(--retro-text-muted)] mb-3">
             Leave blank to use the default template. Available placeholders:{' '}

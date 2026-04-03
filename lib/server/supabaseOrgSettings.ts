@@ -8,8 +8,9 @@ export interface OrgSettings {
   fromEmail: string | null;        // per-org sender email override (falls back to BREVO_FROM_EMAIL)
   fromName: string | null;         // per-org sender name override (falls back to BREVO_FROM_NAME)
   apiAccess: boolean;              // whether this org can use the v1 bearer token API
-  emailSubject: string | null;     // custom invite email subject (null = use default)
-  emailHtmlTemplate: string | null; // custom invite email HTML (null = use default)
+  emailTemplateId: number | null;  // Brevo template ID (takes precedence over raw HTML if set)
+  emailSubject: string | null;     // custom invite email subject (null = use default; ignored when templateId is set)
+  emailHtmlTemplate: string | null; // custom invite email HTML (null = use default; ignored when templateId is set)
 }
 
 export async function getOrgSettings(
@@ -18,7 +19,7 @@ export async function getOrgSettings(
 ): Promise<OrgSettings | null> {
   const { data, error } = await supabase
     .from('org_settings')
-    .select('company_name, website, privacy_policy_url, logo_key, from_email, from_name, api_access, email_subject, email_html_template')
+    .select('company_name, website, privacy_policy_url, logo_key, from_email, from_name, api_access, email_template_id, email_subject, email_html_template')
     .eq('org_id', orgId)
     .single();
 
@@ -39,6 +40,7 @@ export async function getOrgSettings(
       fromEmail: null,
       fromName: null,
       apiAccess: false,
+      emailTemplateId: null,
       emailSubject: null,
       emailHtmlTemplate: null,
     };
@@ -52,6 +54,7 @@ export async function getOrgSettings(
     fromEmail: (data.from_email as string) ?? null,
     fromName: (data.from_name as string) ?? null,
     apiAccess: (data.api_access as boolean) ?? false,
+    emailTemplateId: (data.email_template_id as number) ?? null,
     emailSubject: (data.email_subject as string) ?? null,
     emailHtmlTemplate: (data.email_html_template as string) ?? null,
   };
@@ -73,6 +76,7 @@ export async function saveOrgSettings(
   if ('fromEmail' in settings) row.from_email = settings.fromEmail ?? null;
   if ('fromName' in settings) row.from_name = settings.fromName ?? null;
   if ('apiAccess' in settings) row.api_access = settings.apiAccess ?? false;
+  if ('emailTemplateId' in settings) row.email_template_id = settings.emailTemplateId ?? null;
   if ('emailSubject' in settings) row.email_subject = settings.emailSubject ?? null;
   if ('emailHtmlTemplate' in settings) row.email_html_template = settings.emailHtmlTemplate ?? null;
 

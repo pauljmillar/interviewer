@@ -15,17 +15,45 @@ function applyPlaceholders(
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? '');
 }
 
+type RawEmailParams = {
+  subject: string;
+  htmlContent: string;
+  textContent?: string;
+  templateId?: never;
+  templateParams?: never;
+};
+
+type TemplateEmailParams = {
+  templateId: number;
+  templateParams: Record<string, string>;
+  subject?: never;
+  htmlContent?: never;
+  textContent?: never;
+};
+
 export async function sendTransactionalEmail(params: {
   fromEmail: string;
   fromName: string;
   toEmail: string;
   toName: string;
-  subject: string;
-  htmlContent: string;
-  textContent?: string;
-}): Promise<string> {
+} & (RawEmailParams | TemplateEmailParams)): Promise<string> {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) throw new Error('BREVO_API_KEY is not set');
+
+  const payload: Record<string, unknown> = {
+    sender: { name: params.fromName, email: params.fromEmail },
+    to: [{ name: params.toName, email: params.toEmail }],
+  };
+
+  if ('templateId' in params && params.templateId) {
+    payload.templateId = params.templateId;
+    payload.params = params.templateParams;
+  } else {
+    const p = params as RawEmailParams & { fromEmail: string; fromName: string; toEmail: string; toName: string };
+    payload.subject = p.subject;
+    payload.htmlContent = p.htmlContent;
+    if (p.textContent) payload.textContent = p.textContent;
+  }
 
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -34,13 +62,7 @@ export async function sendTransactionalEmail(params: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
     },
-    body: JSON.stringify({
-      sender: { name: params.fromName, email: params.fromEmail },
-      to: [{ name: params.toName, email: params.toEmail }],
-      subject: params.subject,
-      htmlContent: params.htmlContent,
-      ...(params.textContent ? { textContent: params.textContent } : {}),
-    }),
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
@@ -61,11 +83,34 @@ export async function sendInterviewInvite(params: {
   interviewUrl: string;
   fromEmail: string;
   fromName: string;
+  templateId?: number | null;
   subjectOverride?: string;
   htmlOverride?: string;
 }): Promise<void> {
   const firstName = params.recipientName.split(/\s+/)[0] ?? params.recipientName;
 
+  const base = {
+    fromEmail: params.fromEmail,
+    fromName: params.fromName,
+    toEmail: params.recipientEmail,
+    toName: params.recipientName,
+  };
+
+  if (params.templateId) {
+    await sendTransactionalEmail({
+      ...base,
+      templateId: params.templateId,
+      templateParams: {
+        firstName,
+        positionName: params.positionName,
+        companyName: params.companyName,
+        interviewLink: params.interviewUrl,
+      },
+    });
+    return;
+  }
+
+  // Fall back to raw HTML
   const vars: Record<string, string> = {
     firstName,
     positionName: params.positionName,
@@ -73,25 +118,9 @@ export async function sendInterviewInvite(params: {
     interviewUrl: params.interviewUrl,
   };
 
-  const subject = applyPlaceholders(
-    params.subjectOverride ?? DEFAULT_EMAIL_SUBJECT,
-    vars
-  );
-
-  const htmlContent = applyPlaceholders(
-    params.htmlOverride ?? DEFAULT_EMAIL_HTML,
-    vars
-  );
-
+  const subject = applyPlaceholders(params.subjectOverride ?? DEFAULT_EMAIL_SUBJECT, vars);
+  const htmlContent = applyPlaceholders(params.htmlOverride ?? DEFAULT_EMAIL_HTML, vars);
   const textContent = `Dear ${firstName},\n\nYou have been invited to interview for ${params.positionName} at ${params.companyName}.\n\nClick here to begin: ${params.interviewUrl}\n\nBest regards,\n${params.companyName}`;
 
-  await sendTransactionalEmail({
-    fromEmail: params.fromEmail,
-    fromName: params.fromName,
-    toEmail: params.recipientEmail,
-    toName: params.recipientName,
-    subject,
-    htmlContent,
-    textContent,
-  });
+  await sendTransactionalEmail({ ...base, subject, htmlContent, textContent });
 }
