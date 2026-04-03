@@ -25,7 +25,13 @@ export async function analyzeJobDescription(jobDescription: string): Promise<Ana
   const prompt = `You are an expert recruiter. Given the following job description:
 
 1) Extract a short job title (e.g. "Senior Software Engineer", "Product Manager") that appears in or is clearly implied by the JD. Use the employer's wording when possible.
-2) Generate between 5 and 10 screening interview questions that help discern whether a candidate is worthy of advancing to a next-round interview. Focus on role-specific skills, eligibility/logistics when relevant, motivation and fit, and key requirements.
+2) Generate between 8 and 10 conversational screening interview questions that help a recruiter understand the candidate as a person and assess fit. Every question must be open-ended and conversational — there is no right or wrong answer. The goal is to get the candidate talking naturally about their background, experience, and motivations.
+
+Rules for every question:
+- Never ask yes/no questions (e.g. not "Do you have experience with X?")
+- Never ask questions with a factually correct answer (e.g. not "What is the time complexity of a binary search?")
+- Always invite the candidate to share a story, opinion, or personal experience (e.g. "Tell me about...", "Walk me through...", "How have you approached...", "What drew you to...", "Describe a time when...")
+- Cover a mix of: relevant background and experience, motivation and fit for this specific role, how they work with others, and what they're looking for next
 
 Job description:
 """
@@ -35,8 +41,7 @@ ${capped}
 Output a single JSON object with exactly two keys:
 - "suggestedTitle": string (the job title, concise, from or implied by the JD)
 - "questions": array of objects, each with:
-  - "mainQuestion": string (the question to ask, clear and concise)
-  - "mode": number (1 = yes/no or short answer, 2 = right answer with hints, 3 = open-ended/list, 4 = conversational. Use 1 for eligibility, 3 for experience/skills.)
+  - "mainQuestion": string (the conversational question to ask)
 
 Do not include any other fields. Do not include markdown or code fences, only the raw JSON object.`;
 
@@ -69,7 +74,7 @@ Do not include any other fields. Do not include markdown or code fences, only th
   const questions: Question[] = questionsRaw.slice(0, 10).map((q) => ({
     mainQuestion: typeof q.mainQuestion === 'string' ? q.mainQuestion.trim() : String(q.mainQuestion),
     subTopics: [],
-    mode: typeof q.mode === 'number' && q.mode >= 1 && q.mode <= 5 ? (q.mode as 1 | 2 | 3 | 4 | 5) : 3,
+    mode: 4, // always conversational — no right/wrong answers
   }));
 
   return {
