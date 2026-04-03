@@ -122,6 +122,7 @@ export default function AdminApiKeysPage() {
             className="flex-1 min-w-[180px] px-3 py-2 text-sm border border-[var(--retro-border-color)] rounded-lg bg-[var(--retro-bg-base)] text-[var(--retro-text-primary)]"
           >
             <option value="">Select organization…</option>
+            <option value="_system">⚙ System / Internal (no org)</option>
             {orgs.map((o) => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
@@ -200,7 +201,9 @@ export default function AdminApiKeysPage() {
               {keys.map((key) => (
                 <tr key={key.id} className="bg-[var(--retro-bg-base)] hover:bg-[var(--retro-bg-surface)]">
                   <td className="px-4 py-3 font-medium text-[var(--retro-text-primary)]">{key.name}</td>
-                  <td className="px-4 py-3 text-[var(--retro-text-secondary)]">{key.orgName ?? key.orgId}</td>
+                  <td className="px-4 py-3 text-[var(--retro-text-secondary)]">
+                    {key.orgId === '_system' ? 'System / Internal' : (key.orgName ?? key.orgId)}
+                  </td>
                   <td className="px-4 py-3">
                     <code className="font-mono text-xs bg-[var(--retro-bg-raised)] px-2 py-0.5 rounded text-[var(--retro-text-secondary)]">
                       {key.keyPrefix}…
