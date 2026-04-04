@@ -20,8 +20,6 @@ export async function POST(request: NextRequest) {
   const internalOrgId = process.env['INTERNAL_ORG_ID'] ?? 'org_demo';
   const campaignPositionId = process.env['CAMPAIGN_POSITION_ID'] ?? undefined;
 
-  console.log('[demo/link] creating instance', { internalOrgId, campaignPositionId, recipientName: body.recipientName, recipientEmail: body.recipientEmail });
-
   try {
     const template = getTemplateById(DEMO_TEMPLATE_ID);
     if (!template) {

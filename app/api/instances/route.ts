@@ -102,9 +102,7 @@ export async function GET(request: NextRequest) {
   }
   try {
     const positionId = request.nextUrl.searchParams.get('positionId') ?? undefined;
-    console.log('[GET /api/instances] querying', { orgId, positionId });
     const list = await getAllInstances(orgId, positionId);
-    console.log('[GET /api/instances] result count', list.length);
     return NextResponse.json(list);
   } catch (error) {
     console.error('GET /api/instances error:', error);
