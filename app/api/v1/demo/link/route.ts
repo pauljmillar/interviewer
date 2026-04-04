@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/server/apiAuth';
 import { createInstance } from '@/lib/server/instanceStoreAdapter';
 import { getTemplateById } from '@/constants/templates';
-import { INTERNAL_ORG_ID, CAMPAIGN_POSITION_ID } from '@/lib/constants/demo';
 
 const DEMO_TEMPLATE_ID = 'demo-walkthrough';
 
@@ -17,16 +16,20 @@ export async function POST(request: NextRequest) {
     recipientEmail?: string;
   };
 
+  // Read at request time (not module init) so Vercel env vars are always current.
+  const internalOrgId = process.env.INTERNAL_ORG_ID ?? 'org_demo';
+  const campaignPositionId = process.env.CAMPAIGN_POSITION_ID ?? undefined;
+
   try {
     const template = getTemplateById(DEMO_TEMPLATE_ID);
     if (!template) {
       return NextResponse.json({ error: 'Demo template not found' }, { status: 500 });
     }
 
-    const { shareableToken } = await createInstance(INTERNAL_ORG_ID, {
+    const { shareableToken } = await createInstance(internalOrgId, {
       name: 'Marketing Demo',
       templateId: DEMO_TEMPLATE_ID,
-      positionId: CAMPAIGN_POSITION_ID,
+      positionId: campaignPositionId,
       recipientName: body.recipientName || 'Guest',
       recipientEmail: body.recipientEmail || undefined,
       questions: template.questions,
