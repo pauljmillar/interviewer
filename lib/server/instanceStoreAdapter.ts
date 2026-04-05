@@ -117,3 +117,17 @@ export async function updateInstance(
   if (sb) return supabaseStore.updateInstance(sb, id, patch);
   fileStore.updateInstance(id, patch);
 }
+
+/** Mark an instance as activated (first candidate message). Returns true if this was the first activation. */
+export async function activateInstance(instanceId: string): Promise<boolean> {
+  const sb = useSupabase();
+  if (sb) return supabaseStore.activateInstance(sb, instanceId);
+  return false; // file store: no billing tracking
+}
+
+/** Count activated instances for an org, optionally within a billing period. */
+export async function countActivations(orgId: string, periodStart?: string | null): Promise<number> {
+  const sb = useSupabase();
+  if (sb) return supabaseStore.countActivations(sb, orgId, periodStart);
+  return 0;
+}

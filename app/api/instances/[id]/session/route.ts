@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getInstanceById, getLatestSession, getSessions, saveSession } from '@/lib/server/instanceStoreAdapter';
 import { getEffectiveOrgId } from '@/lib/server/getEffectiveOrgId';
+import { createServerSupabase } from '@/lib/supabase/server';
+import { activateInterview } from '@/lib/billing/activation';
 import type { SessionRecord } from '@/types';
 
 /** Return latest session for this instance. Used by interviewee to re-fetch before starting (avoids overwriting). */
@@ -79,6 +81,18 @@ export async function PATCH(
     });
     await saveSession(body);
     console.log('[session PATCH] save ok');
+
+    // Billing activation: fire-and-forget on first candidate message.
+    const hasUserMessage = body.messages?.some((m) => m.role === 'user');
+    if (hasUserMessage && !instance.activatedAt) {
+      const sb = createServerSupabase();
+      if (sb) {
+        activateInterview(id, instance.orgId, sb).catch((err) =>
+          console.error('[session PATCH] activateInterview error', err)
+        );
+      }
+    }
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('PATCH /api/instances/[id]/session error:', error);

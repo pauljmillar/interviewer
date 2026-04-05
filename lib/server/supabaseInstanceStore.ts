@@ -264,6 +264,39 @@ export async function updateInstance(
   if (error) throw error;
 }
 
+/** Set activated_at to now if not already set. Returns true if this call was the activation. */
+export async function activateInstance(
+  supabase: SupabaseClient,
+  instanceId: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('interview_instances')
+    .update({ activated_at: new Date().toISOString() })
+    .eq('id', instanceId)
+    .is('activated_at', null)
+    .select('id')
+    .single();
+  if (error || !data) return false; // already activated or not found
+  return true;
+}
+
+/** Count activated instances for an org. Pass periodStart to limit to a billing period. */
+export async function countActivations(
+  supabase: SupabaseClient,
+  orgId: string,
+  periodStart?: string | null
+): Promise<number> {
+  let q = supabase
+    .from('interview_instances')
+    .select('id', { count: 'exact', head: true })
+    .eq('org_id', orgId)
+    .not('activated_at', 'is', null);
+  if (periodStart) q = q.gte('activated_at', periodStart);
+  const { count, error } = await q;
+  if (error) return 0;
+  return count ?? 0;
+}
+
 export async function createSession(
   supabase: SupabaseClient,
   instanceId: string
@@ -322,6 +355,7 @@ function rowToInstance(row: Record<string, unknown>): InterviewInstanceRecord {
     voice: row.tts_voice as string | undefined,
     recipientEmail: (row.recipient_email as string) ?? undefined,
     emailSentAt: (row.email_sent_at as string) ?? null,
+    activatedAt: (row.activated_at as string) ?? null,
   };
 }
 

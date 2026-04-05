@@ -106,6 +106,8 @@ export interface InterviewInstanceRecord {
   recipientEmail?: string;
   /** ISO timestamp of when the invitation email was last sent. */
   emailSentAt?: string | null;
+  /** ISO timestamp of when the candidate sent their first message (billing activation). */
+  activatedAt?: string | null;
 }
 
 /** One sitting / one continuous conversation. */

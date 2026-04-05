@@ -121,6 +121,19 @@ CREATE TABLE IF NOT EXISTS position_analysis_settings (
 -- ALTER TABLE org_settings ADD COLUMN email_subject TEXT;
 -- ALTER TABLE org_settings ADD COLUMN email_html_template TEXT;
 
+-- Billing: interview activation tracking (run once):
+-- ALTER TABLE interview_instances ADD COLUMN IF NOT EXISTS activated_at TIMESTAMPTZ;
+-- CREATE INDEX IF NOT EXISTS idx_instances_activated ON interview_instances(org_id, activated_at) WHERE activated_at IS NOT NULL;
+
+-- Billing: org plan and Stripe fields (run once):
+-- ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS plan TEXT NOT NULL DEFAULT 'free';
+-- ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT;
+-- ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT;
+-- ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS stripe_subscription_status TEXT;
+-- ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS interviews_included INTEGER;
+-- ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS current_period_start TIMESTAMPTZ;
+-- ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS payg_payment_method_id TEXT;
+
 -- Campaign outbound email tracking (for Cowork integration)
 -- CREATE TABLE campaign_contacts (
 --   id                TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
