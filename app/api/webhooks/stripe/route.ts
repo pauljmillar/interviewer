@@ -86,10 +86,20 @@ async function handleEvent(
           paygPaymentMethodId: pmId,
         });
       } else if (session.mode === 'subscription') {
-        // Subscription created — full details come via customer.subscription.updated
+        // Fetch subscription immediately so we can write the plan now,
+        // rather than waiting for customer.subscription.updated to arrive.
+        const sub = await stripe.subscriptions.retrieve(session.subscription as string) as unknown as Record<string, unknown>;
+        const items = (sub.items as { data: Array<{ price?: { id?: string } }> }).data;
+        const priceId = items[0]?.price?.id ?? null;
+        const plan = priceId ? planFromPriceId(priceId) : null;
+        const periodStart = new Date((sub.current_period_start as number) * 1000).toISOString();
+
         await saveOrgSettings(supabase!, orgId, {
           stripeCustomerId: session.customer as string,
           stripeSubscriptionId: session.subscription as string,
+          stripeSubscriptionStatus: (sub.status as string) ?? 'active',
+          currentPeriodStart: periodStart,
+          ...(plan ? { plan, interviewsIncluded: PLAN_QUOTAS[plan] } : {}),
         });
       }
       break;
