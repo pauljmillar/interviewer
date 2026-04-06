@@ -63,11 +63,27 @@ function BillingContent() {
     return () => clearTimeout(t);
   }, [showSuccess, dismissSuccess]);
 
+  const isSuccess = searchParams.get('success') === '1';
+
   useEffect(() => {
-    fetch('/api/billing/usage')
-      .then((r) => r.json())
-      .then((d) => { setUsage(d); setLoading(false); })
-      .catch(() => { setError('Failed to load billing info'); setLoading(false); });
+    async function load() {
+      try {
+        // On post-checkout return, sync from Stripe first so the plan is
+        // up-to-date without relying on webhook delivery.
+        if (isSuccess) {
+          await fetch('/api/billing/sync', { method: 'POST' });
+        }
+        const r = await fetch('/api/billing/usage');
+        const d = await r.json();
+        setUsage(d);
+      } catch {
+        setError('Failed to load billing info');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleCheckout(plan: PlanId) {
