@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PLAN_LABELS, PLAN_QUOTAS, type PlanId } from '@/lib/constants/plans';
 
 interface UsageSummary {
@@ -27,11 +28,40 @@ const OVERAGE_DISPLAY: Record<string, string> = {
   team: '$3 / overage',
 };
 
+function getSuccessMessage(plan: string, included: number | null, paygReady: boolean): string {
+  if (plan === 'payg') {
+    return 'Your card has been saved. Interviews will be charged at $7 each when candidates start.';
+  }
+  if (included !== null) {
+    return `You're now on ${PLAN_LABELS[plan as PlanId] ?? plan} — ${included} interviews included per month.`;
+  }
+  return `You're now on the ${PLAN_LABELS[plan as PlanId] ?? plan} plan.`;
+}
+
 export default function BillingPage() {
+  return (
+    <Suspense>
+      <BillingContent />
+    </Suspense>
+  );
+}
+
+function BillingContent() {
   const [usage, setUsage] = useState<UsageSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [successDismissed, setSuccessDismissed] = useState(false);
+  const searchParams = useSearchParams();
+  const showSuccess = searchParams.get('success') === '1' && !successDismissed;
+
+  const dismissSuccess = useCallback(() => setSuccessDismissed(true), []);
+
+  useEffect(() => {
+    if (!showSuccess) return;
+    const t = setTimeout(dismissSuccess, 10000);
+    return () => clearTimeout(t);
+  }, [showSuccess, dismissSuccess]);
 
   useEffect(() => {
     fetch('/api/billing/usage')
@@ -106,6 +136,17 @@ export default function BillingPage() {
         <p className="text-xs tracking-[4px] uppercase text-[var(--retro-text-muted)] mb-1">Admin</p>
         <h1 className="text-2xl font-bold text-[var(--retro-text-primary)]">Billing</h1>
       </div>
+
+      {showSuccess && usage && (
+        <button
+          onClick={dismissSuccess}
+          className="w-full text-left text-sm text-green-300 bg-green-900/25 border border-green-700/40 rounded-lg px-4 py-3 flex items-start gap-2 hover:bg-green-900/35 transition-colors"
+        >
+          <span className="mt-0.5 flex-shrink-0">✓</span>
+          <span>{getSuccessMessage(usage.plan, usage.included, usage.paygReady)}</span>
+          <span className="ml-auto flex-shrink-0 text-green-500/60 text-xs self-center">click to dismiss</span>
+        </button>
+      )}
 
       {error && (
         <div className="text-sm text-red-400 bg-red-900/20 border border-red-800/40 rounded-lg px-4 py-3">

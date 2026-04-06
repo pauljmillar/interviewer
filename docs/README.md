@@ -15,6 +15,10 @@ This directory holds plan documentation, requirements, and design notes for the 
 
 ## Recent plans implemented
 
+- **Admin dashboard** — `/admin` now redirects to `/admin/dashboard`. New dashboard page shows four stat cards (links generated, interviews started, interviews completed, positions) fetched from `GET /api/admin/stats` (parallel `COUNT` queries scoped to the org). Below the cards: a plan summary card with usage bar (reusing `/api/billing/usage`) and quick-action links to common admin pages.
+
+- **Billing success banner** — `/admin/billing?success=1` shows a dismissable confirmation banner. Message is plan-specific: PAYG confirms card-on-file and per-interview charge; subscription plans state the included count. Banner auto-dismisses after 10 s or on click. Implemented via `useSearchParams` (wrapped in Suspense per Next.js App Router requirements).
+
 - **Intro, conclusion, reminder** — Per-template optional intro before Q1 and conclusion after all questions; reminder shown once when the interviewee dismisses the interview (with `detectDisengagement` tool).
 - **Terminology refactor** — Types and persistence renamed: `InterviewRecord` → `InterviewInstanceRecord`, `InterviewSessionRecord` → `SessionRecord`; storage functions and UI variables aligned.
 - **Position** — New entity: create positions (name, type), optional template link; “New position from JD” flow: paste/upload JD or URL → LLM generates 5–10 questions and suggested job title → create template + position.

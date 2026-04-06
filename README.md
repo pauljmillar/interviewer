@@ -20,7 +20,9 @@ A Next.js SaaS platform for AI-powered candidate screening. Screen AI conducts s
 - **Privacy page**, smooth-scroll nav, retro header with dropdowns.
 
 ### Admin
+- **Admin → Dashboard** — Landing page with stat cards (links generated, interviews started/completed, positions), current plan + usage bar, and quick-action links. `/admin` redirects here. Data served by `GET /api/admin/stats`.
 - **Admin → Positions / Templates / Interviews / Settings** — Org-scoped management.
+- **Admin → Billing** — Plan comparison, Stripe Checkout, and billing portal. Returns from Stripe with `?success=1` show a dismissable banner with a plan-specific message (auto-hides after 10 s).
 - **Admin → Blog** — Rich text editor (Tiptap), cover image upload, publish/schedule/archive. (Superadmin only.)
 - **Admin → API Keys** — Create and revoke Bearer tokens for the v1 API. (Superadmin only.)
 - **Admin → Art Config** — JSON editor for geometric art generation parameters, with inline PNG/GIF preview. (Superadmin only.)
@@ -160,8 +162,10 @@ app/
   integrations/page.tsx           Integrations page
   blog/                           Public blog listing + post pages
   admin/                          Admin dashboard
+    dashboard/                    Dashboard landing (stats + plan summary)
     positions/, templates/,
     interviews/, settings/        Org management
+    billing/                      Plan management + Stripe Checkout
     blog/                         Blog editor (superadmin)
     api-keys/                     API key management (superadmin)
     art-config/                   Art generation config (superadmin)
@@ -170,6 +174,7 @@ app/
       posts/, images/, topics/,
       generate-art/
     admin/                        Admin-only API routes
+      stats/                      Aggregate dashboard stats (GET)
       api-keys/, art-config/
     chat/, analyze-jd/,
     jd/extract/, demo/,
