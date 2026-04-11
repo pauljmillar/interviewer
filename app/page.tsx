@@ -249,7 +249,7 @@ export default async function HomePage() {
               pointerEvents: 'none',
             }} />
 
-            <div style={{ display: 'flex', gap: 48, alignItems: 'center', position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
               {/* Text */}
               <div style={{ flex: '0 0 auto', width: '50%' }}>
                 <Eyebrow>AI Screening Platform</Eyebrow>
@@ -315,14 +315,13 @@ export default async function HomePage() {
                   overflow: 'hidden',
                   border: `0.8px solid rgba(242,138,15,0.25)`,
                   boxShadow: '0 0 60px rgba(242,138,15,0.12), 0 0 120px rgba(229,52,11,0.06)',
-                  aspectRatio: '4/5',
                   position: 'relative',
                 }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/images/landing/interview_woman_1.png"
                     alt="Candidate completing an AI-powered screening interview"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center', display: 'block' }}
+                    style={{ width: '100%', height: 'auto', display: 'block' }}
                   />
                   {/* Subtle bottom gradient fade */}
                   <div aria-hidden style={{
@@ -386,20 +385,19 @@ export default async function HomePage() {
             <div style={{ display: 'flex', gap: 56, alignItems: 'flex-start' }}>
 
               {/* Left: image */}
-              <div style={{ flex: '0 0 auto', width: '42%', position: 'relative' }}>
+              <div style={{ flex: '0 0 auto', width: '50%', position: 'relative' }}>
                 <div style={{
                   borderRadius: 12,
                   overflow: 'hidden',
                   border: `0.8px solid rgba(63,138,140,0.30)`,
                   boxShadow: '0 0 60px rgba(63,138,140,0.10)',
-                  aspectRatio: '3/4',
                   position: 'relative',
                 }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/images/landing/interview_man_1.png"
                     alt="Hiring manager reviewing AI interview results"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center', display: 'block' }}
+                    style={{ width: '100%', height: 'auto', display: 'block' }}
                   />
                   <div aria-hidden style={{
                     position: 'absolute', bottom: 0, left: 0, right: 0, height: '25%',
