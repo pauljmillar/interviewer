@@ -54,10 +54,9 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SectionLabel({ n, title }: { n: string; title: string }) {
+function SectionLabel({ title }: { title: string }) {
   return (
-    <div style={{ marginBottom: 48 }}>
-      <p style={{ fontFamily: font, fontSize: 13, letterSpacing: 5, textTransform: 'uppercase' as const, color: amber, opacity: 0.9, marginBottom: 14 }}>{n}</p>
+    <div style={{ marginBottom: 24 }}>
       <h2 style={{ fontFamily: font, fontSize: 32, fontWeight: 700, color: textPrimary, letterSpacing: -0.5, margin: 0 }}>{title}</h2>
     </div>
   );
@@ -250,7 +249,7 @@ export default async function HomePage() {
             }} />
 
             {/* Two-column: headline + image */}
-            <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', position: 'relative', zIndex: 1, marginBottom: 48 }}>
+            <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', position: 'relative', zIndex: 1, marginBottom: 72 }}>
               {/* Text */}
               <div style={{ flex: '0 0 auto', width: '50%' }}>
                 <Eyebrow>AI Screening Platform</Eyebrow>
@@ -313,7 +312,7 @@ export default async function HomePage() {
             </div>
 
             {/* CTAs — centered */}
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 48, position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 64, position: 'relative', zIndex: 1 }}>
               <RetroTryButton />
               <Link
                 href="/start"
@@ -362,7 +361,7 @@ export default async function HomePage() {
 
           {/* ── FEATURES ──────────────────────────────────────────────────── */}
           <section id="features" style={{ padding: '90px 0', borderBottom: borderSubtle }}>
-            <SectionLabel n="01" title="Everything you need to screen at scale" />
+            <SectionLabel title="Everything you need to screen at scale" />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               <Card label="Time Saved" title="10 hrs" body="Per open position. No scheduling, no prep, no debrief." />
               <Card label="Wider Net" title="50 screens" body="Not just the 10 you could manually reach in the same window." />
@@ -375,7 +374,9 @@ export default async function HomePage() {
 
           {/* ── HOW IT WORKS ──────────────────────────────────────────────── */}
           <section id="approach" style={{ padding: '90px 0', borderBottom: borderSubtle }}>
-            <div style={{ display: 'flex', gap: 56, alignItems: 'flex-start' }}>
+
+            {/* Two-column: image | title + description */}
+            <div style={{ display: 'flex', gap: 56, alignItems: 'flex-start', marginBottom: 56 }}>
 
               {/* Left: image */}
               <div style={{ flex: '0 0 auto', width: '50%', position: 'relative' }}>
@@ -415,39 +416,45 @@ export default async function HomePage() {
                 }} />
               </div>
 
-              {/* Right: heading + steps */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <SectionLabel n="02" title="From JD to shortlist in four steps" />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                  {[
-                    { n: '01', title: 'Upload your JD', body: 'Paste or upload your job description. Screen AI reads it and generates tailored screening questions automatically.' },
-                    { n: '02', title: 'Send interview links', body: 'Share a unique link with each candidate. They complete the interview on their own time — no scheduling.' },
-                    { n: '03', title: 'Screen AI interviews', body: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
-                    { n: '04', title: 'Review ranked results', body: 'Log in to find candidates scored and ranked, with notes from each interview ready to act on.' },
-                  ].map(({ n, title, body }, i) => (
-                    <div key={n} style={{
-                      display: 'flex', gap: 24, alignItems: 'flex-start',
-                      padding: '28px 0',
-                      borderBottom: i < 3 ? borderSubtle : 'none',
-                    }}>
-                      <div style={{ flexShrink: 0, width: 36 }}>
-                        <span style={{ fontFamily: font, fontSize: 18, fontWeight: 700, color: amber, lineHeight: 1 }}>{n}</span>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{ fontFamily: font, fontSize: 18, fontWeight: 600, color: textPrimary, letterSpacing: -0.3, marginBottom: 6 }}>{title}</h3>
-                        <p style={{ fontFamily: font, fontSize: 14, color: textMuted, lineHeight: 1.65, margin: 0 }}>{body}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {/* Right: title + description */}
+              <div style={{ flex: 1, minWidth: 0, paddingTop: 8 }}>
+                <SectionLabel title="From JD to shortlist in four steps" />
+                <p style={{ fontFamily: font, fontSize: 16, color: textSecondary, lineHeight: 1.75, margin: 0 }}>
+                  A structured, consistent process that takes you from job description to a ranked candidate shortlist — without scheduling a single interview. Every candidate gets the same fair assessment, on their own time.
+                </p>
               </div>
 
             </div>
+
+            {/* 2×2 grid of steps */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
+              {[
+                { n: '01', title: 'Upload your JD', body: 'Paste or upload your job description. Screen AI reads it and generates tailored screening questions automatically.' },
+                { n: '02', title: 'Send interview links', body: 'Share a unique link with each candidate. They complete the interview on their own time — no scheduling.' },
+                { n: '03', title: 'Screen AI interviews', body: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
+                { n: '04', title: 'Review ranked results', body: 'Log in to find candidates scored and ranked, with notes from each interview ready to act on.' },
+              ].map(({ n, title, body }) => (
+                <div key={n} style={{
+                  background: bgSurface,
+                  border: borderCard,
+                  borderRadius: 8,
+                  padding: '28px 28px 26px',
+                  position: 'relative',
+                  boxShadow: '0 0 40px rgba(242,138,15,0.06)',
+                }}>
+                  <div style={{ position: 'absolute', top: 0, left: 24, right: 24, height: 1, background: 'linear-gradient(90deg, transparent, rgba(242,138,15,0.4), transparent)' }} aria-hidden />
+                  <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 3, textTransform: 'uppercase' as const, color: amber, opacity: 0.85, marginBottom: 10 }}>Step {n}</p>
+                  <h3 style={{ fontFamily: font, fontSize: 18, fontWeight: 600, color: textPrimary, letterSpacing: -0.3, marginBottom: 8 }}>{title}</h3>
+                  <p style={{ fontFamily: font, fontSize: 14, color: textMuted, lineHeight: 1.65, margin: 0 }}>{body}</p>
+                </div>
+              ))}
+            </div>
+
           </section>
 
           {/* ── PRICING ───────────────────────────────────────────────────── */}
           <section id="pricing" style={{ padding: '90px 0', borderBottom: borderSubtle }}>
-            <SectionLabel n="03" title="Plans to fit your team" />
+            <SectionLabel title="Plans to fit your team" />
 
             {/* ─ No commitment ─────────────────────────────────────────────── */}
             <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 4, textTransform: 'uppercase' as const, color: textMuted, marginBottom: 14 }}>No commitment</p>
