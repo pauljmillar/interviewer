@@ -249,12 +249,13 @@ export default async function HomePage() {
               pointerEvents: 'none',
             }} />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-              <div style={{ maxWidth: 680 }}>
+            <div style={{ display: 'flex', gap: 48, alignItems: 'center', position: 'relative', zIndex: 1 }}>
+              {/* Text */}
+              <div style={{ flex: '0 0 auto', width: '50%' }}>
                 <Eyebrow>AI Screening Platform</Eyebrow>
                 <h1 style={{
                   fontFamily: font,
-                  fontSize: 'clamp(48px, 7vw, 72px)',
+                  fontSize: 'clamp(40px, 5.5vw, 64px)',
                   fontWeight: 700,
                   color: textPrimary,
                   lineHeight: 1,
@@ -264,12 +265,12 @@ export default async function HomePage() {
                   SCREEN MORE.<br />
                   HIRE <span style={{ color: red }}>SMARTER.</span>
                 </h1>
-                <p style={{ fontSize: 16, fontWeight: 400, letterSpacing: 2, textTransform: 'uppercase' as const, color: textSecondary, marginBottom: 40 }}>
+                <p style={{ fontSize: 15, fontWeight: 400, letterSpacing: 2, textTransform: 'uppercase' as const, color: textSecondary, marginBottom: 36 }}>
                   Your AI agent meets every candidate&nbsp;·&nbsp;You review the shortlist
                 </p>
 
                 {/* Stats */}
-                <div style={{ display: 'flex', gap: 48, marginBottom: 48, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 32, marginBottom: 40, flexWrap: 'wrap' }}>
                   <StatBlock value="10" accent="h" label="Saved per role" />
                   <StatBlock value="50" accent="+" label="Candidates screened" />
                   <StatBlock value="0" accent="h" label="Scheduling conflicts" />
@@ -277,7 +278,7 @@ export default async function HomePage() {
                 </div>
 
                 {/* CTAs */}
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-start', marginBottom: 40 }}>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-start', marginBottom: 36 }}>
                   <RetroTryButton />
                   <Link
                     href="/start"
@@ -307,12 +308,45 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              {/* Ghost badge */}
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <GhostNumber>01</GhostNumber>
-                <p style={{ fontFamily: font, fontSize: 11, letterSpacing: 4, textTransform: 'uppercase' as const, color: textAccentDim, marginTop: 4 }}>
-                  Screen AI
-                </p>
+              {/* Hero image */}
+              <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+                <div style={{
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  border: `0.8px solid rgba(242,138,15,0.25)`,
+                  boxShadow: '0 0 60px rgba(242,138,15,0.12), 0 0 120px rgba(229,52,11,0.06)',
+                  aspectRatio: '4/5',
+                  position: 'relative',
+                }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/landing/interview_woman_1.png"
+                    alt="Candidate completing an AI-powered screening interview"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+                  />
+                  {/* Subtle bottom gradient fade */}
+                  <div aria-hidden style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '30%',
+                    background: `linear-gradient(to top, ${bgBase}55, transparent)`,
+                  }} />
+                </div>
+                {/* Decorative corner accent */}
+                <div aria-hidden style={{
+                  position: 'absolute', top: -8, right: -8,
+                  width: 40, height: 40,
+                  borderTop: `1.5px solid ${amber}`,
+                  borderRight: `1.5px solid ${amber}`,
+                  borderRadius: '0 6px 0 0',
+                  opacity: 0.6,
+                }} />
+                <div aria-hidden style={{
+                  position: 'absolute', bottom: -8, left: -8,
+                  width: 40, height: 40,
+                  borderBottom: `1.5px solid ${teal}`,
+                  borderLeft: `1.5px solid ${teal}`,
+                  borderRadius: '0 0 0 6px',
+                  opacity: 0.6,
+                }} />
               </div>
             </div>
           </section>
@@ -349,32 +383,74 @@ export default async function HomePage() {
 
           {/* ── HOW IT WORKS ──────────────────────────────────────────────── */}
           <section id="approach" style={{ padding: '90px 0', borderBottom: borderSubtle }}>
-            <SectionLabel n="02" title="From JD to shortlist in four steps" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {[
-                { n: '01', title: 'Upload your JD', body: 'Paste or upload your job description. Screen AI reads it and generates tailored screening questions automatically.' },
-                { n: '02', title: 'Send interview links', body: 'Share a unique link with each candidate. They complete the interview on their own time — no scheduling.' },
-                { n: '03', title: 'Screen AI interviews', body: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
-                { n: '04', title: 'Review ranked results', body: 'Log in to find candidates scored and ranked, with notes from each interview ready to act on.' },
-              ].map(({ n, title, body }, i) => (
-                <div key={n} style={{
-                  display: 'flex', gap: 40, alignItems: 'flex-start',
-                  padding: '40px 0',
-                  borderBottom: i < 3 ? borderSubtle : 'none',
+            <div style={{ display: 'flex', gap: 56, alignItems: 'flex-start' }}>
+
+              {/* Left: image */}
+              <div style={{ flex: '0 0 auto', width: '42%', position: 'relative' }}>
+                <div style={{
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  border: `0.8px solid rgba(63,138,140,0.30)`,
+                  boxShadow: '0 0 60px rgba(63,138,140,0.10)',
+                  aspectRatio: '3/4',
                   position: 'relative',
                 }}>
-                  <div style={{ flexShrink: 0, width: 80 }}>
-                    <span style={{ fontFamily: font, fontSize: 22, fontWeight: 700, color: amber, lineHeight: 1 }}>{n}</span>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ fontFamily: font, fontSize: 22, fontWeight: 600, color: textPrimary, letterSpacing: -0.5, marginBottom: 10 }}>{title}</h3>
-                    <p style={{ fontFamily: font, fontSize: 16, color: textMuted, lineHeight: 1.7, margin: 0 }}>{body}</p>
-                  </div>
-                  <div style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }}>
-                    <GhostNumber>{n}</GhostNumber>
-                  </div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/landing/interview_man_1.png"
+                    alt="Hiring manager reviewing AI interview results"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+                  />
+                  <div aria-hidden style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '25%',
+                    background: `linear-gradient(to top, ${bgBase}55, transparent)`,
+                  }} />
                 </div>
-              ))}
+                <div aria-hidden style={{
+                  position: 'absolute', top: -8, left: -8,
+                  width: 40, height: 40,
+                  borderTop: `1.5px solid ${teal}`,
+                  borderLeft: `1.5px solid ${teal}`,
+                  borderRadius: '6px 0 0 0',
+                  opacity: 0.6,
+                }} />
+                <div aria-hidden style={{
+                  position: 'absolute', bottom: -8, right: -8,
+                  width: 40, height: 40,
+                  borderBottom: `1.5px solid ${amber}`,
+                  borderRight: `1.5px solid ${amber}`,
+                  borderRadius: '0 0 6px 0',
+                  opacity: 0.6,
+                }} />
+              </div>
+
+              {/* Right: heading + steps */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <SectionLabel n="02" title="From JD to shortlist in four steps" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                  {[
+                    { n: '01', title: 'Upload your JD', body: 'Paste or upload your job description. Screen AI reads it and generates tailored screening questions automatically.' },
+                    { n: '02', title: 'Send interview links', body: 'Share a unique link with each candidate. They complete the interview on their own time — no scheduling.' },
+                    { n: '03', title: 'Screen AI interviews', body: 'Your AI interviewer leads a structured, consistent conversation with every candidate.' },
+                    { n: '04', title: 'Review ranked results', body: 'Log in to find candidates scored and ranked, with notes from each interview ready to act on.' },
+                  ].map(({ n, title, body }, i) => (
+                    <div key={n} style={{
+                      display: 'flex', gap: 24, alignItems: 'flex-start',
+                      padding: '28px 0',
+                      borderBottom: i < 3 ? borderSubtle : 'none',
+                    }}>
+                      <div style={{ flexShrink: 0, width: 36 }}>
+                        <span style={{ fontFamily: font, fontSize: 18, fontWeight: 700, color: amber, lineHeight: 1 }}>{n}</span>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <h3 style={{ fontFamily: font, fontSize: 18, fontWeight: 600, color: textPrimary, letterSpacing: -0.3, marginBottom: 6 }}>{title}</h3>
+                        <p style={{ fontFamily: font, fontSize: 14, color: textMuted, lineHeight: 1.65, margin: 0 }}>{body}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
           </section>
 
