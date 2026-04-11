@@ -4,10 +4,13 @@ import { useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 const DEMO_JD_KEY = 'demo_jd';
+const font = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+const red = '#E5340B';
+const cream = '#FFE7BD';
 
 const MENU_OPTIONS = [
   { id: 'upload', label: 'Upload job description' },
-  { id: 'link', label: 'Share link/URL' },
+  { id: 'link', label: 'Share link / URL' },
   { id: 'typing', label: 'Start typing' },
 ] as const;
 
@@ -129,36 +132,99 @@ export default function JobDescriptionInput() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full">
-      <div className="rounded-2xl bg-landing-card-bg border border-landing-border shadow-sm flex flex-col overflow-visible">
+    <div style={{ maxWidth: 680, margin: '0 auto', width: '100%' }}>
+      {/* Input card */}
+      <div style={{
+        background: 'var(--retro-bg-surface)',
+        border: 'var(--retro-border-card)',
+        borderRadius: 8,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'visible',
+        position: 'relative',
+        boxShadow: '0 0 40px rgba(242,138,15,0.07)',
+      }}>
+        {/* Top amber accent line */}
+        <div aria-hidden style={{
+          position: 'absolute', top: 0, left: 24, right: 24, height: 1,
+          background: 'linear-gradient(90deg, transparent, rgba(242,138,15,0.5), transparent)',
+        }} />
+
         <textarea
           ref={inputRef}
           placeholder="Paste or type your job description…"
-          rows={3}
-          className="w-full px-4 py-3 text-sm text-landing-text placeholder:text-landing-muted bg-transparent resize-none focus:outline-none focus:ring-0 min-h-[80px]"
+          rows={4}
+          className="placeholder:text-[color:var(--retro-text-muted)]"
+          style={{
+            width: '100%',
+            padding: '20px 20px 12px',
+            fontFamily: font,
+            fontSize: 14,
+            lineHeight: 1.65,
+            color: 'var(--retro-text-primary)',
+            background: 'transparent',
+            resize: 'none',
+            border: 'none',
+            outline: 'none',
+            minHeight: 100,
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Escape') closeMenu();
           }}
           onChange={() => setSubmitError(null)}
         />
-        <div className="flex items-center justify-between px-3 pb-3 gap-2">
-          <div className="relative flex-shrink-0">
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 12px 12px', gap: 8 }}>
+
+          {/* + options button */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
-              className="flex items-center justify-center w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-landing-bg-section-alt hover:bg-landing-border/30 text-landing-text transition-colors"
               aria-expanded={menuOpen}
               aria-haspopup="true"
               aria-label="Open input options"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 40, height: 40,
+                borderRadius: 6,
+                background: 'var(--retro-bg-raised)',
+                border: 'var(--retro-border-card)',
+                color: 'var(--retro-text-secondary)',
+                fontFamily: font,
+                fontSize: 20,
+                fontWeight: 300,
+                cursor: 'pointer',
+                transition: 'all 180ms',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(242,138,15,0.12)';
+                (e.currentTarget as HTMLButtonElement).style.color = '#F28A0F';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'var(--retro-bg-raised)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--retro-text-secondary)';
+              }}
             >
-              <span className="text-lg leading-none font-light">+</span>
+              +
             </button>
+
             {menuOpen && (
               <>
-                <div className="fixed inset-0 z-40" aria-hidden onClick={closeMenu} />
+                <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} aria-hidden onClick={closeMenu} />
                 <ul
-                  className="absolute left-0 top-full mt-2 z-50 min-w-[220px] py-1 rounded-xl bg-landing-card-bg border border-landing-border shadow-xl"
                   role="menu"
+                  style={{
+                    position: 'absolute', left: 0, top: '100%', marginTop: 8,
+                    zIndex: 50, minWidth: 220,
+                    background: 'var(--retro-bg-surface)',
+                    border: 'var(--retro-border-card)',
+                    borderRadius: 8,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+                    padding: '4px 0',
+                    listStyle: 'none',
+                    margin: '8px 0 0',
+                  }}
                 >
                   {MENU_OPTIONS.map(({ id, label }) => (
                     <li key={id} role="none">
@@ -166,7 +232,24 @@ export default function JobDescriptionInput() {
                         type="button"
                         role="menuitem"
                         onClick={() => handleOption(id)}
-                        className="w-full text-left px-4 py-3 min-h-[44px] text-sm text-landing-text hover:bg-landing-bg-section-alt transition-colors"
+                        style={{
+                          width: '100%', textAlign: 'left',
+                          padding: '12px 16px',
+                          fontFamily: font, fontSize: 13,
+                          color: 'var(--retro-text-secondary)',
+                          background: 'transparent',
+                          border: 'none', cursor: 'pointer',
+                          transition: 'all 150ms',
+                          letterSpacing: 0.3,
+                        }}
+                        onMouseEnter={e => {
+                          (e.currentTarget as HTMLButtonElement).style.background = 'var(--retro-bg-raised)';
+                          (e.currentTarget as HTMLButtonElement).style.color = 'var(--retro-text-primary)';
+                        }}
+                        onMouseLeave={e => {
+                          (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                          (e.currentTarget as HTMLButtonElement).style.color = 'var(--retro-text-secondary)';
+                        }}
                       >
                         {label}
                       </button>
@@ -176,57 +259,127 @@ export default function JobDescriptionInput() {
               </>
             )}
           </div>
+
+          {/* Error */}
           {submitError && (
-            <p className="text-sm text-red-500 truncate flex-1 min-w-0" role="alert">
+            <p role="alert" style={{ fontFamily: font, fontSize: 13, color: red, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
               {submitError}
             </p>
           )}
+
+          {/* Continue button */}
           <button
             type="button"
             onClick={handleSubmitInput}
             disabled={submitting}
-            className="flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-landing-primary text-white font-medium hover:bg-landing-primary-hover disabled:opacity-50 text-sm transition-colors"
-            aria-label="Submit"
+            style={{
+              flexShrink: 0,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              padding: '10px 22px',
+              borderRadius: 6,
+              border: 'none',
+              background: red,
+              color: cream,
+              fontFamily: font, fontSize: 13, fontWeight: 600,
+              letterSpacing: 2, textTransform: 'uppercase' as const,
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              opacity: submitting ? 0.6 : 1,
+              transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)',
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={e => {
+              if (!submitting) {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 20px rgba(229,52,11,0.30)';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
+              }
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none';
+              (e.currentTarget as HTMLButtonElement).style.transform = 'none';
+            }}
           >
-            {submitting ? 'Processing…' : 'Continue'}
+            {submitting ? 'Processing…' : 'Continue →'}
           </button>
         </div>
       </div>
 
+      {/* Upload modal */}
       {uploadModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-landing-heading/60">
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 50,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 16,
+          background: 'rgba(0,0,0,0.72)',
+        }}>
           <div
-            className="bg-landing-card-bg rounded-2xl shadow-xl max-w-md w-full p-6 border border-landing-border"
             role="dialog"
             aria-modal="true"
             aria-labelledby="upload-modal-title"
+            style={{
+              background: 'var(--retro-bg-surface)',
+              border: 'var(--retro-border-card)',
+              borderRadius: 8,
+              boxShadow: '0 0 60px rgba(0,0,0,0.40)',
+              maxWidth: 440, width: '100%',
+              padding: 28,
+              position: 'relative',
+            }}
           >
-            <h2 id="upload-modal-title" className="text-lg font-semibold text-landing-heading mb-3">
+            {/* Top accent */}
+            <div aria-hidden style={{
+              position: 'absolute', top: 0, left: 24, right: 24, height: 1,
+              background: 'linear-gradient(90deg, transparent, rgba(242,138,15,0.5), transparent)',
+            }} />
+
+            <h2 id="upload-modal-title" style={{
+              fontFamily: font, fontSize: 18, fontWeight: 700,
+              color: 'var(--retro-text-primary)', letterSpacing: -0.3,
+              marginBottom: 8,
+            }}>
               Upload job description
             </h2>
-            <p className="text-sm text-landing-muted mb-4">
+            <p style={{
+              fontFamily: font, fontSize: 13,
+              color: 'var(--retro-text-muted)', lineHeight: 1.6,
+              marginBottom: 20,
+            }}>
               Choose a .txt, .pdf, or .docx file. We&apos;ll generate interview questions from it.
             </p>
+
             <input
               ref={fileInputRef}
               type="file"
               accept=".txt,.pdf,.docx,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              className="block w-full text-sm text-landing-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-landing-primary file:text-white"
+              className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-[#E5340B] file:text-[#FFE7BD] file:font-medium file:text-xs file:tracking-widest file:uppercase file:cursor-pointer"
+              style={{ color: 'var(--retro-text-muted)' }}
               onChange={() => setUploadError(null)}
             />
+
             {uploadError && (
-              <p className="mt-2 text-sm text-red-500" role="alert">
+              <p role="alert" style={{ fontFamily: font, fontSize: 13, color: red, marginTop: 8 }}>
                 {uploadError}
               </p>
             )}
-            <div className="flex gap-3 mt-6">
+
+            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
               <button
                 type="button"
                 onClick={() => {
                   setUploadModalOpen(false);
                   setUploadError(null);
                 }}
-                className="flex-1 px-4 py-3 min-h-[44px] text-sm font-medium text-landing-text bg-landing-bg-section-alt rounded-lg hover:bg-landing-border/30"
+                style={{
+                  flex: 1, padding: '12px 16px',
+                  fontFamily: font, fontSize: 13, fontWeight: 500,
+                  letterSpacing: 1, textTransform: 'uppercase' as const,
+                  color: 'var(--retro-text-secondary)',
+                  background: 'var(--retro-bg-raised)',
+                  border: 'var(--retro-border-card)',
+                  borderRadius: 6, cursor: 'pointer',
+                  transition: 'all 150ms',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--retro-text-primary)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--retro-text-secondary)'; }}
               >
                 Cancel
               </button>
@@ -234,7 +387,20 @@ export default function JobDescriptionInput() {
                 type="button"
                 onClick={handleFileUpload}
                 disabled={uploading}
-                className="flex-1 px-4 py-3 min-h-[44px] text-sm font-medium text-white bg-landing-primary rounded-lg hover:bg-landing-primary-hover disabled:opacity-50"
+                style={{
+                  flex: 1, padding: '12px 16px',
+                  fontFamily: font, fontSize: 13, fontWeight: 600,
+                  letterSpacing: 2, textTransform: 'uppercase' as const,
+                  background: red, color: cream,
+                  border: 'none', borderRadius: 6,
+                  cursor: uploading ? 'not-allowed' : 'pointer',
+                  opacity: uploading ? 0.6 : 1,
+                  transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+                onMouseEnter={e => {
+                  if (!uploading) (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 20px rgba(229,52,11,0.30)';
+                }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}
               >
                 {uploading ? 'Uploading…' : 'Upload'}
               </button>
