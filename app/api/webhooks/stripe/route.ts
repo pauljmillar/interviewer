@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import type Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe/client';
 import { createServerSupabase } from '@/lib/supabase/server';
-import { saveOrgSettings } from '@/lib/server/supabaseOrgSettings';
+import { getOrgSettings, saveOrgSettings } from '@/lib/server/supabaseOrgSettings';
+import { computeInterviewsIncluded } from '@/lib/billing/activation';
 import { countActivations } from '@/lib/server/instanceStoreAdapter';
 import {
   PLAN_STRIPE_PRICES,
@@ -105,12 +106,18 @@ async function handleEvent(
         const plan = priceId ? planFromPriceId(priceId) : null;
         const periodStart = getPeriodStart(sub);
 
+        // Load previous settings to carry over unused free interviews.
+        const prevSettings = await getOrgSettings(supabase!, orgId);
+        const existingIncluded = prevSettings?.interviewsIncluded ?? 0;
+        const computed = plan ? await computeInterviewsIncluded(orgId, plan, prevSettings?.plan) : null;
+        const interviewsIncluded = computed !== null ? Math.max(computed, existingIncluded) : null;
+
         await saveOrgSettings(supabase!, orgId, {
           stripeCustomerId: session.customer as string,
           stripeSubscriptionId: session.subscription as string,
           stripeSubscriptionStatus: (sub.status as string) ?? 'active',
           currentPeriodStart: periodStart,
-          ...(plan ? { plan, interviewsIncluded: PLAN_QUOTAS[plan] } : {}),
+          ...(plan ? { plan, interviewsIncluded } : {}),
         });
       }
       break;
@@ -127,8 +134,14 @@ async function handleEvent(
       const plan = priceId ? planFromPriceId(priceId) : null;
       const periodStart = getPeriodStart(sub);
 
+      // Carry over unused free interviews; preserve any higher quota already set.
+      const prevSettings = await getOrgSettings(supabase!, orgId);
+      const existingIncluded = prevSettings?.interviewsIncluded ?? 0;
+      const computed = plan ? await computeInterviewsIncluded(orgId, plan, prevSettings?.plan) : null;
+      const interviewsIncluded = computed !== null ? Math.max(computed, existingIncluded) : null;
+
       await saveOrgSettings(supabase!, orgId, {
-        ...(plan ? { plan, interviewsIncluded: PLAN_QUOTAS[plan] } : {}),
+        ...(plan ? { plan, interviewsIncluded } : {}),
         stripeSubscriptionId: sub.id as string,
         stripeSubscriptionStatus: sub.status as string,
         currentPeriodStart: periodStart,
@@ -196,10 +209,23 @@ async function handleEvent(
 
       const sub = await stripe.subscriptions.retrieve(invoice.subscription as string) as unknown as Record<string, unknown>;
       const periodStart = getPeriodStart(sub);
-      await saveOrgSettings(supabase!, orgId, {
+
+      const updates: Parameters<typeof saveOrgSettings>[2] = {
         stripeSubscriptionStatus: 'active',
         currentPeriodStart: periodStart,
-      });
+      };
+
+      // On renewal (not initial creation), reset interviewsIncluded to the base
+      // plan quota so carryover from the free tier only applies to the first period.
+      if (invoice.billing_reason === 'subscription_cycle') {
+        const orgSettings = await getOrgSettings(supabase!, orgId);
+        if (orgSettings?.plan) {
+          const base = PLAN_QUOTAS[orgSettings.plan];
+          if (base !== null) updates.interviewsIncluded = base;
+        }
+      }
+
+      await saveOrgSettings(supabase!, orgId, updates);
       break;
     }
 

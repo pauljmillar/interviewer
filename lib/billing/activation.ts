@@ -1,7 +1,30 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { activateInstance, countActivations } from '@/lib/server/instanceStoreAdapter';
 import { getOrgSettings, saveOrgSettings } from '@/lib/server/supabaseOrgSettings';
-import { PLAN_QUOTAS, PAYG_PRICE_CENTS } from '@/lib/constants/plans';
+import { PLAN_QUOTAS, PAYG_PRICE_CENTS, type PlanId } from '@/lib/constants/plans';
+
+/**
+ * Compute the interviewsIncluded quota for a plan, carrying over any unused
+ * free-tier interviews when upgrading from the free plan.
+ *
+ * Returns null for unlimited plans (enterprise).
+ */
+export async function computeInterviewsIncluded(
+  orgId: string,
+  newPlan: PlanId,
+  prevPlan: string | null | undefined,
+): Promise<number | null> {
+  const base = PLAN_QUOTAS[newPlan];
+  if (base === null) return null;
+  if (prevPlan !== 'free') return base;
+
+  const freeTierQuota = PLAN_QUOTAS.free;
+  if (freeTierQuota === null) return base;
+
+  const usedOnFree = await countActivations(orgId); // lifetime count, no period filter
+  const freeRemaining = Math.max(0, freeTierQuota - usedOnFree);
+  return base + freeRemaining;
+}
 
 /**
  * Called when a candidate sends their first message to an interview.

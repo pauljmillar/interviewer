@@ -4,6 +4,7 @@ import { getOrgSettings, saveOrgSettings } from '@/lib/server/supabaseOrgSetting
 import { createServerSupabase } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe/client';
 import { PLAN_STRIPE_PRICES, PLAN_QUOTAS, type PlanId } from '@/lib/constants/plans';
+import { computeInterviewsIncluded } from '@/lib/billing/activation';
 
 function planFromPriceId(priceId: string): PlanId | null {
   for (const [plan, pid] of Object.entries(PLAN_STRIPE_PRICES)) {
@@ -72,13 +73,21 @@ export async function POST(request: NextRequest) {
     const plan = priceId ? planFromPriceId(priceId) : null;
     const periodStart = getPeriodStart(active as unknown as Record<string, unknown>);
 
-    console.log('[billing/sync] syncing', { orgId, plan, priceId, periodStart });
+    // Compute quota with free-tier carryover if upgrading from free.
+    // Take the max so that whichever of sync/webhook runs last doesn't
+    // overwrite a higher value already set by the other.
+    const prevPlan = settings?.plan ?? 'free';
+    const existingIncluded = settings?.interviewsIncluded ?? 0;
+    const computed = plan ? await computeInterviewsIncluded(orgId, plan, prevPlan) : null;
+    const interviewsIncluded = computed !== null ? Math.max(computed, existingIncluded) : null;
+
+    console.log('[billing/sync] syncing', { orgId, plan, priceId, periodStart, prevPlan, computed, interviewsIncluded });
 
     await saveOrgSettings(supabase, orgId, {
       stripeSubscriptionId: active.id,
       stripeSubscriptionStatus: active.status,
       currentPeriodStart: periodStart,
-      ...(plan ? { plan, interviewsIncluded: PLAN_QUOTAS[plan] } : {}),
+      ...(plan ? { plan, interviewsIncluded } : {}),
     });
 
     return NextResponse.json({ synced: true, plan });
