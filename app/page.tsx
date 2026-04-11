@@ -249,7 +249,8 @@ export default async function HomePage() {
               pointerEvents: 'none',
             }} />
 
-            <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
+            {/* Two-column: headline + image */}
+            <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', position: 'relative', zIndex: 1, marginBottom: 48 }}>
               {/* Text */}
               <div style={{ flex: '0 0 auto', width: '50%' }}>
                 <Eyebrow>AI Screening Platform</Eyebrow>
@@ -265,47 +266,9 @@ export default async function HomePage() {
                   SCREEN MORE.<br />
                   HIRE <span style={{ color: red }}>SMARTER.</span>
                 </h1>
-                <p style={{ fontSize: 15, fontWeight: 400, letterSpacing: 2, textTransform: 'uppercase' as const, color: textSecondary, marginBottom: 36 }}>
-                  Your AI agent meets every candidate&nbsp;·&nbsp;You review the shortlist
+                <p style={{ fontSize: 15, fontWeight: 400, letterSpacing: 2, textTransform: 'uppercase' as const, color: textSecondary, margin: 0 }}>
+                  Your AI agent meets every candidate&nbsp;·&nbsp;You only review the shortlist
                 </p>
-
-                {/* Stats */}
-                <div style={{ display: 'flex', gap: 32, marginBottom: 40, flexWrap: 'wrap' }}>
-                  <StatBlock value="10" accent="h" label="Saved per role" />
-                  <StatBlock value="50" accent="+" label="Candidates screened" />
-                  <StatBlock value="0" accent="h" label="Scheduling conflicts" />
-                  <StatBlock value="1" suffix="day" label="Time to shortlist" />
-                </div>
-
-                {/* CTAs */}
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-start', marginBottom: 36 }}>
-                  <RetroTryButton />
-                  <Link
-                    href="/start"
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 8,
-                      fontFamily: font, fontSize: 13, fontWeight: 600,
-                      letterSpacing: 3, textTransform: 'uppercase',
-                      padding: '14px 29px', borderRadius: 8,
-                      background: 'rgba(63,138,140,0.10)',
-                      color: teal,
-                      border: borderTeal,
-                      textDecoration: 'none',
-                      transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    Upload your JD
-                  </Link>
-                </div>
-
-                {/* Tags */}
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <Tag variant="red">AI-Screened</Tag>
-                  <Tag variant="amber">Free Trial</Tag>
-                  <Tag variant="teal">No Scheduling</Tag>
-                  <Tag>Async · 24/7</Tag>
-                </div>
               </div>
 
               {/* Hero image */}
@@ -347,6 +310,36 @@ export default async function HomePage() {
                   opacity: 0.6,
                 }} />
               </div>
+            </div>
+
+            {/* CTAs — centered */}
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 48, position: 'relative', zIndex: 1 }}>
+              <RetroTryButton />
+              <Link
+                href="/start"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  fontFamily: font, fontSize: 13, fontWeight: 600,
+                  letterSpacing: 3, textTransform: 'uppercase',
+                  padding: '14px 29px', borderRadius: 8,
+                  background: 'rgba(63,138,140,0.10)',
+                  color: teal,
+                  border: borderTeal,
+                  textDecoration: 'none',
+                  transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Upload your JD
+              </Link>
+            </div>
+
+            {/* Stats — centered */}
+            <div style={{ display: 'flex', gap: 48, justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
+              <StatBlock value="10" accent="h" label="Saved per role" />
+              <StatBlock value="50" accent="+" label="Candidates screened" />
+              <StatBlock value="0" accent="h" label="Scheduling conflicts" />
+              <StatBlock value="1" suffix="day" label="Time to shortlist" />
             </div>
           </section>
 

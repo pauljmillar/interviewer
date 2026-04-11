@@ -58,7 +58,7 @@ export default function RetroTryButton() {
           (e.currentTarget as HTMLButtonElement).style.transform = 'none';
         }}
       >
-        {loading ? 'Opening…' : 'Try a demo interview'}
+        {loading ? 'Opening…' : 'Demo interview (no login)'}
       </button>
       {error && (
         <p style={{ fontSize: 13, color: '#E5340B' }} role="alert">{error}</p>
