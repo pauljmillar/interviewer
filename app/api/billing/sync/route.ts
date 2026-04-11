@@ -4,7 +4,6 @@ import { getOrgSettings, saveOrgSettings } from '@/lib/server/supabaseOrgSetting
 import { createServerSupabase } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe/client';
 import { PLAN_STRIPE_PRICES, PLAN_QUOTAS, type PlanId } from '@/lib/constants/plans';
-import type Stripe from 'stripe';
 
 function planFromPriceId(priceId: string): PlanId | null {
   for (const [plan, pid] of Object.entries(PLAN_STRIPE_PRICES)) {
@@ -14,10 +13,20 @@ function planFromPriceId(priceId: string): PlanId | null {
 }
 
 /**
+ * In Stripe API v2026+, current_period_start moved from the Subscription
+ * object to each SubscriptionItem. Fall back to billing_cycle_anchor.
+ */
+function getPeriodStart(sub: Record<string, unknown>): string {
+  const items = (sub.items as { data: Array<{ current_period_start?: number }> } | undefined)?.data ?? [];
+  const ts = items[0]?.current_period_start ?? (sub.billing_cycle_anchor as number | undefined);
+  return ts ? new Date(ts * 1000).toISOString() : new Date().toISOString();
+}
+
+/**
  * POST /api/billing/sync
  *
  * Called by the billing page on ?success=1 to pull the current subscription
- * state directly from Stripe and write it to the DB. This avoids depending on
+ * state directly from Stripe and write it to the DB. Avoids depending on
  * webhook delivery for the immediate post-checkout experience.
  */
 export async function POST(request: NextRequest) {
@@ -31,52 +40,53 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
   }
 
-  const settings = await getOrgSettings(supabase, orgId);
-  const customerId = settings?.stripeCustomerId ?? null;
+  try {
+    const settings = await getOrgSettings(supabase, orgId);
+    const customerId = settings?.stripeCustomerId ?? null;
 
-  if (!customerId) {
-    // No Stripe customer yet — nothing to sync.
-    return NextResponse.json({ synced: false });
-  }
-
-  const stripe = getStripe();
-
-  // Find the most recent active or trialing subscription for this customer.
-  const subs = await stripe.subscriptions.list({
-    customer: customerId,
-    status: 'all',
-    limit: 5,
-  });
-
-  const active = subs.data.find((s) =>
-    s.status === 'active' || s.status === 'trialing'
-  ) as (Stripe.Subscription & { current_period_start: number }) | undefined;
-
-  if (!active) {
-    // Also check for a PAYG setup: look for a default payment method on the customer.
-    const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
-    const pmId = (customer.invoice_settings?.default_payment_method as string | null)
-      ?? settings?.paygPaymentMethodId
-      ?? null;
-
-    if (pmId && settings?.plan === 'payg') {
-      // Already set — nothing to do.
-      return NextResponse.json({ synced: false });
+    if (!customerId) {
+      console.log('[billing/sync] no stripeCustomerId for org', orgId);
+      return NextResponse.json({ synced: false, reason: 'no_customer' });
     }
-    return NextResponse.json({ synced: false });
+
+    const stripe = getStripe();
+
+    const subs = await stripe.subscriptions.list({
+      customer: customerId,
+      limit: 5,
+    });
+
+    console.log('[billing/sync] found subscriptions', { orgId, customerId, count: subs.data.length, statuses: subs.data.map(s => s.status) });
+
+    const active = subs.data.find((s) =>
+      s.status === 'active' || s.status === 'trialing'
+    ) as (Record<string, unknown> & { id: string; status: string; items: { data: Array<{ price?: { id?: string }; current_period_start?: number }> }; billing_cycle_anchor: number }) | undefined;
+
+    if (!active) {
+      console.log('[billing/sync] no active subscription found for', { orgId, customerId });
+      return NextResponse.json({ synced: false, reason: 'no_active_subscription' });
+    }
+
+    const items = active.items.data;
+    const priceId = items[0]?.price?.id ?? null;
+    const plan = priceId ? planFromPriceId(priceId) : null;
+    const periodStart = getPeriodStart(active as unknown as Record<string, unknown>);
+
+    console.log('[billing/sync] syncing', { orgId, plan, priceId, periodStart });
+
+    await saveOrgSettings(supabase, orgId, {
+      stripeSubscriptionId: active.id,
+      stripeSubscriptionStatus: active.status,
+      currentPeriodStart: periodStart,
+      ...(plan ? { plan, interviewsIncluded: PLAN_QUOTAS[plan] } : {}),
+    });
+
+    return NextResponse.json({ synced: true, plan });
+  } catch (err) {
+    console.error('[billing/sync] error', err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Internal server error' },
+      { status: 500 }
+    );
   }
-
-  const items = active.items.data;
-  const priceId = items[0]?.price?.id ?? null;
-  const plan = priceId ? planFromPriceId(priceId) : null;
-  const periodStart = new Date(active.current_period_start * 1000).toISOString();
-
-  await saveOrgSettings(supabase, orgId, {
-    stripeSubscriptionId: active.id,
-    stripeSubscriptionStatus: active.status,
-    currentPeriodStart: periodStart,
-    ...(plan ? { plan, interviewsIncluded: PLAN_QUOTAS[plan] } : {}),
-  });
-
-  return NextResponse.json({ synced: true, plan });
 }

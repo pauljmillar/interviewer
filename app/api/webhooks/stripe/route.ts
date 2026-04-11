@@ -13,6 +13,17 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * In Stripe API v2026+, current_period_start moved from the Subscription
+ * object to each SubscriptionItem. Fall back to billing_cycle_anchor if
+ * neither is present.
+ */
+function getPeriodStart(sub: Record<string, unknown>): string {
+  const items = (sub.items as { data: Array<{ current_period_start?: number }> } | undefined)?.data ?? [];
+  const ts = items[0]?.current_period_start ?? (sub.billing_cycle_anchor as number | undefined);
+  return ts ? new Date(ts * 1000).toISOString() : new Date().toISOString();
+}
+
 /** Derive our plan ID from a Stripe subscription's price ID. */
 function planFromPriceId(priceId: string): PlanId | null {
   for (const [plan, pid] of Object.entries(PLAN_STRIPE_PRICES)) {
@@ -89,10 +100,10 @@ async function handleEvent(
         // Fetch subscription immediately so we can write the plan now,
         // rather than waiting for customer.subscription.updated to arrive.
         const sub = await stripe.subscriptions.retrieve(session.subscription as string) as unknown as Record<string, unknown>;
-        const items = (sub.items as { data: Array<{ price?: { id?: string } }> }).data;
+        const items = (sub.items as { data: Array<{ price?: { id?: string }; current_period_start?: number }> }).data;
         const priceId = items[0]?.price?.id ?? null;
         const plan = priceId ? planFromPriceId(priceId) : null;
-        const periodStart = new Date((sub.current_period_start as number) * 1000).toISOString();
+        const periodStart = getPeriodStart(sub);
 
         await saveOrgSettings(supabase!, orgId, {
           stripeCustomerId: session.customer as string,
@@ -111,10 +122,10 @@ async function handleEvent(
       const orgId = await orgIdFromCustomer(stripe, sub.customer as string);
       if (!orgId) return;
 
-      const items = (sub.items as { data: Array<{ price?: { id?: string } }> }).data;
+      const items = (sub.items as { data: Array<{ price?: { id?: string }; current_period_start?: number }> }).data;
       const priceId = items[0]?.price?.id ?? null;
       const plan = priceId ? planFromPriceId(priceId) : null;
-      const periodStart = new Date((sub.current_period_start as number) * 1000).toISOString();
+      const periodStart = getPeriodStart(sub);
 
       await saveOrgSettings(supabase!, orgId, {
         ...(plan ? { plan, interviewsIncluded: PLAN_QUOTAS[plan] } : {}),
@@ -151,13 +162,13 @@ async function handleEvent(
 
       // Load current subscription to get the plan and period start
       const sub = await stripe.subscriptions.retrieve(invoice.subscription as string) as unknown as Record<string, unknown>;
-      const subItems = (sub.items as { data: Array<{ price?: { id?: string } }> }).data;
+      const subItems = (sub.items as { data: Array<{ price?: { id?: string }; current_period_start?: number }> }).data;
       const priceId = subItems[0]?.price?.id ?? null;
       const plan = priceId ? planFromPriceId(priceId) : null;
       if (!plan || !OVERAGE_CENTS[plan]) return; // no overage rate for this plan
 
       // Period that's ending (the one being billed)
-      const periodStart = new Date((sub.current_period_start as number) * 1000).toISOString();
+      const periodStart = getPeriodStart(sub);
       const included = PLAN_QUOTAS[plan];
       if (included === null) return; // unlimited
 
@@ -184,7 +195,7 @@ async function handleEvent(
       if (!orgId) return;
 
       const sub = await stripe.subscriptions.retrieve(invoice.subscription as string) as unknown as Record<string, unknown>;
-      const periodStart = new Date((sub.current_period_start as number) * 1000).toISOString();
+      const periodStart = getPeriodStart(sub);
       await saveOrgSettings(supabase!, orgId, {
         stripeSubscriptionStatus: 'active',
         currentPeriodStart: periodStart,
