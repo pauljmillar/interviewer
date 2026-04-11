@@ -40,7 +40,7 @@ function isAdminPath(pathname: string): boolean {
 
 export default function Header({ hasClerk = true }: HeaderProps) {
   const pathname = usePathname();
-  const isLanding = pathname === '/' || pathname === '/ai-interviewer' || pathname === '/integrations' || pathname === '/blog' || pathname.startsWith('/blog/');
+  const isLanding = pathname === '/' || pathname === '/ai-interviewer' || pathname === '/integrations' || pathname === '/blog' || pathname.startsWith('/blog/') || pathname === '/start';
   const isAdmin = isAdminPath(pathname);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
