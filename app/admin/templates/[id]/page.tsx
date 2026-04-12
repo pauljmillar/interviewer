@@ -15,7 +15,7 @@ const MODE_LABELS: Record<InterviewMode, string> = {
 };
 
 const TTS_VOICES = [
-  { value: '', label: 'Default (alloy)' },
+  { value: '', label: 'Default (nova)' },
   { value: 'alloy', label: 'Alloy' },
   { value: 'echo', label: 'Echo' },
   { value: 'fable', label: 'Fable' },
@@ -34,6 +34,7 @@ export default function TemplateDetailPage() {
   const [isBuiltIn, setIsBuiltIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [copying, setCopying] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -165,6 +166,56 @@ export default function TemplateDetailPage() {
     }
   };
 
+  const handleCopy = async () => {
+    if (!template || copying) return;
+    setCopying(true);
+    setError(null);
+    try {
+      const questions: Question[] = editQuestions
+        .map((eq, i) => {
+          const existing = template.questions?.[i];
+          return {
+            mainQuestion: eq.mainQuestion.trim(),
+            subTopics: existing?.subTopics ?? [],
+            mode: eq.mode,
+            ...((eq.mode === 1 || eq.mode === 2) && {
+              acceptableAnswers: eq.acceptableAnswers.map((a) => a.trim()).filter(Boolean),
+            }),
+            ...(existing?.followUpPrompt != null && { followUpPrompt: existing.followUpPrompt }),
+            ...(existing?.correctReply != null && { correctReply: existing.correctReply }),
+            ...(existing?.incorrectReply != null && { incorrectReply: existing.incorrectReply }),
+            ...(existing?.wordCountThreshold != null && { wordCountThreshold: existing.wordCountThreshold }),
+          };
+        })
+        .filter((q) => q.mainQuestion.length > 0);
+      const payload: InterviewTemplate = {
+        id: String(Date.now()),
+        name: `Copy of ${editName.trim() || template.name}`,
+        intro: editIntro.trim() || undefined,
+        conclusion: editConclusion.trim() || undefined,
+        reminder: editReminder.trim() || undefined,
+        voice: editVoice?.trim() || undefined,
+        questions,
+      };
+      const res = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to copy template');
+      }
+      const created = await res.json();
+      router.push(`/admin/templates/${created.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to copy');
+    } finally {
+      setCopying(false);
+    }
+  };
+
   const addQuestion = () =>
     setEditQuestions((prev) => [...prev, { mainQuestion: '', mode: 4, acceptableAnswers: [] }]);
   const removeQuestion = (index: number) =>
@@ -186,7 +237,7 @@ export default function TemplateDetailPage() {
     if (voicePreviewPlaying) return;
     setVoicePreviewPlaying(true);
     try {
-      const voice = editVoice?.trim() || 'alloy';
+      const voice = editVoice?.trim() || 'nova';
       const res = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -420,26 +471,36 @@ export default function TemplateDetailPage() {
             </div>
           </div>
         </div>
-        {!isBuiltIn && (
-          <div className="mt-8 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving || !editName.trim()}
-              className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:pointer-events-none font-medium"
-            >
-              {saving ? 'Saving…' : 'Save changes'}
-            </button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:pointer-events-none font-medium"
-            >
-              {deleting ? 'Deleting…' : 'Delete template'}
-            </button>
-          </div>
-        )}
+        <div className="mt-8 flex items-center gap-3 flex-wrap">
+          {!isBuiltIn && (
+            <>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving || !editName.trim()}
+                className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] disabled:opacity-50 disabled:pointer-events-none font-medium"
+              >
+                {saving ? 'Saving…' : 'Save changes'}
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:pointer-events-none font-medium"
+              >
+                {deleting ? 'Deleting…' : 'Delete template'}
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={copying}
+            className="px-4 py-2 border border-[var(--retro-border-color)] text-[var(--retro-text-secondary)] rounded-lg hover:bg-[var(--retro-bg-raised)] disabled:opacity-50 disabled:pointer-events-none font-medium"
+          >
+            {copying ? 'Copying…' : 'Copy to new template'}
+          </button>
+        </div>
       </div>
     </div>
   );

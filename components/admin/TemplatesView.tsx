@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { INTERVIEW_TEMPLATES } from '@/constants/templates';
 import type { InterviewTemplate } from '@/types';
 
 type TemplateRow = InterviewTemplate & { source: 'Built-in' | 'Custom' };
 
 export default function TemplatesView() {
+  const router = useRouter();
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sourceFilter, setSourceFilter] = useState<string>('');
+  const [copyingId, setCopyingId] = useState<string | null>(null);
 
   useEffect(() => {
     const builtIn: TemplateRow[] = INTERVIEW_TEMPLATES.map((t) => ({
@@ -29,6 +32,36 @@ export default function TemplatesView() {
       .catch(() => setTemplates([...builtIn]))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleCopy = async (t: TemplateRow) => {
+    if (copyingId) return;
+    setCopyingId(t.id);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { source: _source, orgId: _orgId, ...rest } = t;
+      const payload: InterviewTemplate = {
+        ...rest,
+        id: String(Date.now()),
+        name: `Copy of ${t.name}`,
+      };
+      const res = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to copy');
+      }
+      const created = await res.json();
+      router.push(`/admin/templates/${created.id}`);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to copy template');
+    } finally {
+      setCopyingId(null);
+    }
+  };
 
   const filteredTemplates = sourceFilter
     ? templates.filter((t) => t.source.toLowerCase() === sourceFilter)
@@ -76,12 +109,22 @@ export default function TemplatesView() {
                     <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)]">{t.source}</td>
                     <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)]">{t.questions?.length ?? 0}</td>
                     <td className="px-4 py-2 text-right">
-                      <Link
-                        href={`/admin/templates/${t.id}`}
-                        className="text-[#F28A0F] hover:underline text-sm font-medium"
-                      >
-                        View
-                      </Link>
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          href={`/admin/templates/${t.id}`}
+                          className="text-[#F28A0F] hover:underline text-sm font-medium"
+                        >
+                          View
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(t)}
+                          disabled={copyingId === t.id}
+                          className="text-[var(--retro-text-secondary)] hover:text-[var(--retro-text-primary)] text-sm font-medium disabled:opacity-50"
+                        >
+                          {copyingId === t.id ? 'Copying…' : 'Copy'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

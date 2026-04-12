@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const requestedVoice = typeof body?.voice === 'string' ? body.voice.trim() : '';
     const voice = OPENAI_TTS_VOICES.includes(requestedVoice as (typeof OPENAI_TTS_VOICES)[number])
       ? requestedVoice
-      : 'alloy';
+      : 'nova';
 
     if (!text) {
       return NextResponse.json({ error: 'text is required' }, { status: 400 });
