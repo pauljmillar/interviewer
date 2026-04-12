@@ -14,24 +14,24 @@ export interface DetectDisengagementResult {
   disengaged: boolean;
 }
 
+// Only phrases that clearly indicate vulgarity or frustration with the AI interview itself
 const DISENGAGED_PHRASES = [
   'this is stupid',
-  'idk',
-  "i don't know",
-  "don't care",
-  'who cares',
+  'this is dumb',
   "it's just a bot",
   'just a bot',
+  "i'm not answering a bot",
+  'not answering a bot',
   'waste of time',
-  'pointless',
-  'whatever',
-  'doesn\'t matter',
-  'does not matter',
+  'talking to a bot',
+  'interviewing with ai',
+  'stupid bot',
 ];
 
 /**
- * Returns true if the user's response indicates they are dismissing the interview,
- * not taking it seriously, or refusing to engage (e.g. "idk this is stupid", "it's just a bot").
+ * Returns true only if the user's response contains vulgarity or expresses explicit
+ * frustration/refusal about being interviewed by AI.
+ * Short answers, incomplete sentences, and "I don't know" responses are NOT flagged.
  */
 export async function detectDisengagement(
   request: DetectDisengagementRequest
@@ -42,25 +42,26 @@ export async function detectDisengagement(
     return { disengaged: false };
   }
 
-  const prompt = questionContext
-    ? `You are evaluating whether an interviewee's response indicates they are dismissing the interview or not taking it seriously.
+  const contextLine = questionContext
+    ? `The question that was asked: "${questionContext}"\n\n`
+    : '';
 
-The question that was asked: "${questionContext}"
+  const prompt = `You are evaluating whether an interviewee's response contains vulgarity or expresses explicit frustration/refusal about being interviewed by AI.
 
-The interviewee's response: "${userResponse.trim()}"
+${contextLine}The interviewee's response: "${userResponse.trim()}"
 
-Consider as DISENGAGED: explicit dismissal ("this is stupid", "idk", "who cares"), saying it's just a bot, sarcasm, refusal to engage, or indicating their answers don't matter.
-Do NOT consider as disengaged: short but genuine answers (e.g. "16", "Yes", "No"), "I don't know" when it's a real attempt to answer, or brief legitimate responses.
+Flag as DISENGAGED only if the response clearly:
+- Contains vulgar or offensive language
+- Expresses frustration or refusal specifically about the AI/bot interview format (e.g. "this is stupid", "it's just a bot", "I'm not answering a bot", "waste of time")
+- Is an outright refusal to participate in the interview
 
-Does the response indicate the interviewee is dismissing the interview or not taking it seriously? Answer with exactly one word: Yes or No.`
-    : `You are evaluating whether an interviewee's response indicates they are dismissing the interview or not taking it seriously.
+Do NOT flag as disengaged:
+- Any answer to the question, even if brief, a few words, or not a complete sentence
+- Short or informal replies that address the question at all
+- "I don't know" or "idk" as a genuine attempt to answer
+- One-word or partial-sentence responses that are on-topic
 
-The interviewee's response: "${userResponse.trim()}"
-
-Consider as DISENGAGED: explicit dismissal ("this is stupid", "idk", "who cares"), saying it's just a bot, sarcasm, refusal to engage, or indicating their answers don't matter.
-Do NOT consider as disengaged: short but genuine answers, "I don't know" when it's a real attempt to answer, or brief legitimate responses.
-
-Does the response indicate the interviewee is dismissing the interview or not taking it seriously? Answer with exactly one word: Yes or No.`;
+Does the response clearly contain vulgarity or express frustration/refusal about the AI interview? Answer with exactly one word: Yes or No.`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -74,11 +75,8 @@ Does the response indicate the interviewee is dismissing the interview or not ta
     return { disengaged: text.startsWith('yes') };
   } catch (error) {
     console.error('detectDisengagement error:', error);
-    // Fallback: simple heuristic to avoid over-triggering
+    // Fallback: only trigger on clearly problematic phrases
     const normalized = userResponse.trim().toLowerCase();
-    const isShortAndNegative =
-      normalized.split(/\s+/).length <= 6 &&
-      DISENGAGED_PHRASES.some((p) => normalized.includes(p));
-    return { disengaged: isShortAndNegative };
+    return { disengaged: DISENGAGED_PHRASES.some((p) => normalized.includes(p)) };
   }
 }
