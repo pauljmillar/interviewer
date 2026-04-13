@@ -5,6 +5,14 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@napi-rs/canvas'],
   },
+  async headers() {
+    return [
+      {
+        source: '/blog/:slug*',
+        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+      },
+    ];
+  },
   async redirects() {
     return [
       { source: '/products', destination: '/ai-interviewer', permanent: true },
