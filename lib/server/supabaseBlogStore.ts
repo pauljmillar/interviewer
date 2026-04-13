@@ -25,7 +25,8 @@ export interface BlogPost {
 }
 
 function rowToPost(row: Record<string, unknown>): BlogPost {
-  const status = (row.status as string) ?? (((row.published as boolean) ?? false) ? 'published' : 'draft');
+  const publishedBool = (row.published as boolean) ?? false;
+  const status = (row.status as string) ?? (publishedBool ? 'published' : 'draft');
   return {
     id: row.id as string,
     slug: row.slug as string,
@@ -33,7 +34,7 @@ function rowToPost(row: Record<string, unknown>): BlogPost {
     summary: (row.summary as string | null) ?? null,
     content: (row.content as string) ?? '',
     thumbnailKey: (row.thumbnail_key as string | null) ?? null,
-    published: status === 'published',
+    published: publishedBool,
     publishedAt: (row.published_at as string | null) ?? null,
     createdAt: (row.created_at as string) ?? new Date().toISOString(),
     updatedAt: (row.updated_at as string) ?? new Date().toISOString(),
