@@ -25,9 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const supabase = createServerSupabase();
+  console.log('[BlogPostPage] slug=%s supabase=%s', slug, supabase ? 'ok' : 'NULL');
   if (!supabase) notFound();
   const post = await getPostBySlug(supabase!, slug);
-  if (!post || !post.published) notFound();
+  console.log('[BlogPostPage] post=%s published=%s', post?.id ?? 'NULL', post?.published);
 
   const date = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString('en-US', {
