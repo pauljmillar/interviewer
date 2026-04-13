@@ -12,8 +12,8 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 - *Implemented* **Templates**  
   Built-in and custom interview templates (questions, intro, conclusion, reminder, optional TTS voice). Start from template or save current questions as a template.
 
-- *Implemented* **Voice (TTS)**  
-  Voice is configurable per template (OpenAI-style ids: alloy, echo, fable, onyx, nova, shimmer). When an interview instance is created from a template, the template’s voice is copied to the instance. The candidate experience uses the instance’s voice for browser TTS and for POST `/api/tts` when server-generated audio is used. Admin config panel can pick a browser voice; when loading a template or instance that has a voice set, the panel’s selection is initialized from it.
+- *Implemented* **Voice (TTS)**
+  Voice is configurable per template (OpenAI-style ids: alloy, echo, fable, onyx, nova, shimmer). Default voice is **nova**. When an interview instance is created from a template, the template’s voice is copied to the instance. The candidate experience uses the instance’s voice for browser TTS and for POST `/api/tts` when server-generated audio is used. Admin config panel can pick a browser voice; when loading a template or instance that has a voice set, the panel’s selection is initialized from it.
 
 - *Implemented* **Persistence**  
   When Supabase is configured (see Database backend), positions, custom templates, and interview instances/sessions use Supabase. Otherwise localStorage is used for instances and sessions. Resume a previous interview; review-historical runs at session start to brief the agent.
@@ -21,8 +21,8 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 - *Implemented* **Intro and conclusion**  
   Optional intro before the first question and conclusion after all questions (per template). Used for screening and biography flows.
 
-- *Implemented* **Disengagement reminder**  
-  When the interviewee dismisses the interview (e.g. "idk this is stupid"), show a one-time per-session reminder that responses are reviewed as a real interview; then re-ask the current question.
+- *Implemented* **Disengagement reminder**
+  When the interviewee shows explicit vulgarity or frustration with the AI interview format (e.g. "this is just a bot", "waste of time"), show a one-time per-session reminder that responses are reviewed as a real interview; then re-ask the current question. Short answers, sarcasm, "idk", and on-topic brief replies do **not** trigger the reminder.
 
 - *Implemented* **Screening reply wording**  
   Per-question `correctReply` / `incorrectReply` (e.g. "Great, because this job does not offer visa sponsorships. Let's move on."). Mode 1/2/3 append the next question when moving on so the agent completes all questions.
@@ -31,8 +31,8 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 
 ## Terminology and data model
 
-- *Implemented* **Position**  
-  A role or project (e.g. "Janitor at Company X", "Biography for Grandma Betty"). Has optional `type`: job | biography | screening. Links to one interview definition (template). Stored in Supabase `positions` table when configured (see [supabase/schema.sql](../supabase/schema.sql)).
+- *Implemented* **Position**
+  A role or project (e.g. "Janitor at Company X", "Biography for Grandma Betty"). `type` is stored in the database (column retained) but always defaults to `'job'` for new positions; the type selector has been removed from the UI. Links to one interview definition (template). Stored in Supabase `positions` table when configured (see [supabase/schema.sql](../supabase/schema.sql)).
 
 - *Implemented* **Interview (definition)**  
   Reusable config: questions, intro, conclusion, reminder, optional voice. Implemented as **InterviewTemplate** (built-in in code; custom in Supabase when configured, else localStorage).
@@ -47,8 +47,8 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 
 ## Positions and job descriptions
 
-- *Implemented* **Create position**  
-  Admin goes to `/admin/positions/new`. Primary flow: upload or paste job description (or URL) → text extracted via `POST /api/jd/extract` when needed → LLM generates 5–10 questions and suggested job title (POST `/api/analyze-jd`) → review → create template + position. Alternative: “Use existing template” or “From scratch” (name, type, optional questions). Position dropdown in header; selecting a position loads its template when `templateId` is set.
+- *Implemented* **Create position**
+  Admin goes to `/admin/positions/new`. Primary flow: upload or paste job description (or URL) → text extracted via `POST /api/jd/extract` when needed → LLM generates 5–10 questions and suggested job title (POST `/api/analyze-jd`) → review → create template + position. Alternative: “Use existing template” or “From scratch” (name, optional questions). Type is not selectable — always `'job'`. Position dropdown in header; selecting a position loads its template when `templateId` is set.
 
 - *Implemented* **New position from job description**  
   On `/admin/positions/new` or in the **demo flow** (`/demo`), user pastes text, uploads a file, or pastes a URL. Supported formats: plain text; **.txt, .pdf, .docx** (server-side extraction); **URLs** (fetch then extract from HTML/PDF/DOCX with size limit). Single endpoint `POST /api/jd/extract` returns `{ text }`. LLM then analyzes the JD and returns suggested job title + 5–10 screening questions. Admin (or demo user) reviews, edits position name and questions, then creates the position and template.
@@ -109,6 +109,7 @@ Product and feature requirements for the AI Interviewer project. Items marked *I
 - **Create position** — `/admin/positions/new`. JD upload/paste/URL (with extract + generate questions), use existing template, or from scratch. Redirects to positions list on success.
 - **Templates list** — `/admin/templates`. Table with filter by source (Built-in / Custom); “View” links to `/admin/templates/[id]`.
 - **Template detail** — `/admin/templates/[id]`. Built-in: view-only. Custom: edit name, intro, conclusion, reminder, TTS voice (dropdown), and questions (add/remove/edit main question text); Save (PATCH) or Delete (DELETE). Back to list.
+- **Copy template** — Copy button on each row of the templates list and on the template detail page (built-in and custom). Creates a new custom template pre-filled with the source content ("Copy of …") via `POST /api/templates` and navigates to the new template's detail page.
 - **Demo and claim** — `/demo`: unauthenticated flow (JD → questions → settings → generate link). `/claim-demo`: runs after sign-in when `?next=/claim-demo`; POSTs to `/api/demo/claim` then redirects to `/admin`. Demo done page shows "Add to my account" when signed in (claims and redirects to admin).
 - **Auth** — Clerk protects `/admin` and `/api/templates`, `/api/positions`, `/api/instances`. `/api/demo/*` is public (create, create-instance); claim requires auth inside handler. Client fetches use `credentials: 'include'`. Env: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`. Demo instances are created under `INTERNAL_ORG_ID` (falls back to `'org_demo'`). Position tracking uses `DEMO_POSITION_ID` (landing page) and `CAMPAIGN_POSITION_ID` (campaign emails); both fall back to `undefined` (no position) if not set.
 

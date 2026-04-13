@@ -6,8 +6,8 @@ A Next.js SaaS platform for AI-powered candidate screening. Screen AI conducts s
 
 ### Core interview engine
 - **Interview modes (1–5)** — Per-question mode: strict screening (1), hints (2), list-only (3), biographer (4), contradiction check (5). Mode controls evaluation and follow-up behaviour.
-- **Templates** — Built-in and custom templates (questions, intro, conclusion, reminder). Start from a template or save current questions as a template.
-- **Positions** — Create positions with optional type (job / biography / screening) and link to a template.
+- **Templates** — Built-in and custom templates (questions, intro, conclusion, reminder). Start from a template, save current questions as a template, or **copy** any template (built-in or custom) into a new editable custom template. Default TTS voice is **nova**.
+- **Positions** — Create positions linked to a template. Type is stored as `'job'` for all new positions (selector removed from UI).
 - **New position from job description** — Paste or upload a JD (plain text, `.txt / .pdf / .docx`, or URL); an LLM generates 5–10 screening questions and a suggested title. Supported via `POST /api/jd/extract`.
 - **Demo flow (no account)** — From the landing hero, paste/upload a JD → generate questions → customise settings → get a shareable interview link. After signing in, claim the demo position into your account.
 - **Voice-enabled chat** — TTS for AI questions and STT for user responses (Chrome/Edge recommended).

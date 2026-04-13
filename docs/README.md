@@ -8,7 +8,7 @@ This directory holds plan documentation, requirements, and design notes for the 
 
 ## Terminology (implemented)
 
-- **Position** — The role or project (job opening or biography project). Type: job | biography | screening.
+- **Position** — The role or project (job opening or biography project). Type is stored in the database but always defaults to `'job'` for new positions; the type selector has been removed from the UI.
 - **Interview (definition)** — Reusable config: questions, intro, conclusion, reminder. Implemented as `InterviewTemplate`.
 - **Interview instance** — One candidate’s or person’s run; has many sessions. Implemented as `InterviewInstanceRecord`.
 - **Session** — One sitting / one conversation. Implemented as `SessionRecord`.
@@ -29,3 +29,11 @@ This directory holds plan documentation, requirements, and design notes for the 
 - **Create Position (dedicated page)** — “Create New” on the positions list goes to `/admin/positions/new`. Primary flow: upload or paste job description (or URL) → extract text if needed → generate questions (POST `/api/analyze-jd`) → review → create template + position. Secondary: “Use existing template” or “From scratch” with name/type and optional questions. All flows POST to `/api/templates` and/or `/api/positions` then redirect to `/admin/positions`.
 - **Position detail** — Clicking “View” on a position goes to `/admin/positions/[id]`. View and edit name, type, template link; Save (PATCH `/api/positions/[id]`) or Delete (DELETE then redirect to list). Back link to positions list.
 - **Template detail** — Clicking “View” on a template goes to `/admin/templates/[id]`. Built-in templates: view-only (name, intro, conclusion, reminder, questions). Custom templates: full edit (same fields plus TTS voice dropdown and add/remove questions) and Delete (DELETE `/api/templates/[id]`). Voice is stored per template and copied to interview instances when created. API: GET/PATCH/DELETE `/api/templates/[id]`.
+
+- **Copy template** — A Copy button appears on each row of the templates list and on the template detail page (for both built-in and custom templates). Clicking it POSTs to `/api/templates` with the source template's content prefixed with “Copy of …”, creates a new custom template, and navigates to its detail page for editing.
+
+- **Default TTS voice: nova** — The default voice for new templates and interview instances changed from `alloy` to `nova` (applied in `POST /api/tts`, `POST /api/tts/stream`, and the template voice dropdown default label).
+
+- **Disengagement detection narrowed** — `lib/tools/detectDisengagement.ts` now flags only explicit vulgarity or frustration with the AI interview format (e.g. “it's just a bot”, “waste of time”). Short answers, incomplete sentences, “idk”, sarcasm, and on-topic but brief replies are explicitly excluded. The fallback heuristic is also tightened to match.
+
+- **Position type hidden from UI** — The type selector (job / biography / screening) has been removed from position creation (JD, template, scratch flows) and the position edit form. `type: 'job'` is hardcoded for all new positions. Existing type values in the database are preserved on save. The Type column and filter dropdown have been removed from the positions list. The `type` column and API field remain unchanged in the backend.

@@ -291,18 +291,6 @@ export default function PositionDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Type</label>
-                <select
-                  value={editType}
-                  onChange={(e) => setEditType(e.target.value as PositionType)}
-                  className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
-                >
-                  <option value="job">job</option>
-                  <option value="biography">biography</option>
-                  <option value="screening">screening</option>
-                </select>
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Template</label>
                 <select
                   value={editTemplateId}
@@ -353,10 +341,6 @@ export default function PositionDetailPage() {
             <div>
               <dt className="font-medium text-[var(--retro-text-muted)]">Name</dt>
               <dd className="text-[var(--retro-text-primary)]">{position.name}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-[var(--retro-text-muted)]">Type</dt>
-              <dd className="text-[var(--retro-text-primary)]">{position.type ?? 'job'}</dd>
             </div>
             <div>
               <dt className="font-medium text-[var(--retro-text-muted)]">Template</dt>

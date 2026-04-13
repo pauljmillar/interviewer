@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { INTERVIEW_TEMPLATES } from '@/constants/templates';
-import type { Question, PositionType, InterviewTemplate } from '@/types';
+import type { Question, InterviewTemplate } from '@/types';
 
 type View = 'default' | 'jd' | 'jd-review' | 'template' | 'scratch';
 
@@ -25,19 +25,16 @@ export default function NewPositionPage() {
   const [jdAnalyzing, setJdAnalyzing] = useState(false);
   const [jdGeneratedQuestions, setJdGeneratedQuestions] = useState<Question[] | null>(null);
   const [jdPositionName, setJdPositionName] = useState('');
-  const [jdPositionType, setJdPositionType] = useState<PositionType>('job');
   const [jdDropActive, setJdDropActive] = useState(false);
   const [creating, setCreating] = useState(false);
 
   // Template flow
   const [customTemplates, setCustomTemplates] = useState<InterviewTemplate[]>([]);
   const [templatePositionName, setTemplatePositionName] = useState('');
-  const [templatePositionType, setTemplatePositionType] = useState<PositionType>('job');
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
 
   // Scratch flow
   const [scratchPositionName, setScratchPositionName] = useState('');
-  const [scratchPositionType, setScratchPositionType] = useState<PositionType>('job');
   const [scratchQuestionsText, setScratchQuestionsText] = useState('');
 
   const loadCustomTemplates = useCallback(() => {
@@ -109,7 +106,7 @@ export default function NewPositionPage() {
       const pRes = await fetch('/api/positions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, type: jdPositionType, templateId }),
+        body: JSON.stringify({ name, type: 'job', templateId }),
         credentials: 'include',
       });
       if (!pRes.ok) throw new Error('Failed to create position');
@@ -131,7 +128,7 @@ export default function NewPositionPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: templatePositionName.trim(),
-          type: templatePositionType,
+          type: 'job',
           templateId: selectedTemplateId,
         }),
         credentials: 'include',
@@ -173,7 +170,7 @@ export default function NewPositionPage() {
       const pRes = await fetch('/api/positions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, type: scratchPositionType, templateId }),
+        body: JSON.stringify({ name, type: 'job', templateId }),
         credentials: 'include',
       });
       if (!pRes.ok) throw new Error('Failed to create position');
@@ -309,18 +306,6 @@ export default function NewPositionPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Type</label>
-              <select
-                value={jdPositionType}
-                onChange={(e) => setJdPositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
-              >
-                <option value="job">job</option>
-                <option value="biography">biography</option>
-                <option value="screening">screening</option>
-              </select>
-            </div>
-            <div>
               <p className="text-sm font-medium text-[var(--retro-text-secondary)] mb-2">
                 Generated questions ({jdGeneratedQuestions?.length ?? 0})
               </p>
@@ -385,18 +370,6 @@ export default function NewPositionPage() {
                 className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)]"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Type</label>
-              <select
-                value={templatePositionType}
-                onChange={(e) => setTemplatePositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
-              >
-                <option value="job">job</option>
-                <option value="biography">biography</option>
-                <option value="screening">screening</option>
-              </select>
-            </div>
             <div className="flex gap-2 pt-2">
               <button
                 type="button"
@@ -436,18 +409,6 @@ export default function NewPositionPage() {
                 placeholder="e.g. Biography for Grandma Betty"
                 className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)]"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">Type</label>
-              <select
-                value={scratchPositionType}
-                onChange={(e) => setScratchPositionType((e.target.value as PositionType) || 'job')}
-                className="w-full px-3 py-2 border border-[var(--retro-border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F28A0F] text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)]"
-              >
-                <option value="job">job</option>
-                <option value="biography">biography</option>
-                <option value="screening">screening</option>
-              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--retro-text-secondary)] mb-1">

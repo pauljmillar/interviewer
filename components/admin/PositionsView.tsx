@@ -15,7 +15,6 @@ export default function PositionsView() {
   const [positions, setPositions] = useState<PositionRecord[]>([]);
   const [customTemplateNames, setCustomTemplateNames] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
-  const [typeFilter, setTypeFilter] = useState<string>('');
 
   const refreshPositions = useCallback(async () => {
     try {
@@ -48,26 +47,11 @@ export default function PositionsView() {
       .catch(() => {});
   }, []);
 
-  const filteredPositions = typeFilter
-    ? positions.filter((p) => p.type === typeFilter)
-    : positions;
-
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-[var(--retro-border-color)] bg-[var(--retro-bg-surface)] flex-shrink-0 flex items-center justify-between flex-wrap gap-2">
         <h1 className="text-lg font-semibold text-[var(--retro-text-primary)]">Positions</h1>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-[var(--retro-text-secondary)]">Filter by type:</label>
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-2 py-1.5 border border-[var(--retro-border-color)] rounded-lg text-[var(--retro-text-primary)] bg-[var(--retro-bg-raised)] text-sm"
-          >
-            <option value="">All</option>
-            <option value="job">job</option>
-            <option value="biography">biography</option>
-            <option value="screening">screening</option>
-          </select>
           <Link
             href="/admin/positions/new"
             className="px-4 py-2 bg-[#F28A0F] text-white rounded-lg hover:bg-[#d47b0a] font-medium text-sm inline-block"
@@ -79,25 +63,20 @@ export default function PositionsView() {
       <div className="flex-1 overflow-auto p-4">
         {loading ? (
           <p className="text-[var(--retro-text-muted)] text-sm">Loading positions...</p>
-        ) : filteredPositions.length === 0 ? (
-          <p className="text-[var(--retro-text-muted)] text-sm">
-            {positions.length === 0
-              ? 'No positions yet. Click Create New to add one.'
-              : 'No positions match the filter.'}
-          </p>
+        ) : positions.length === 0 ? (
+          <p className="text-[var(--retro-text-muted)] text-sm">No positions yet. Click Create New to add one.</p>
         ) : (
           <div className="overflow-x-auto border border-[var(--retro-border-color)] rounded-lg admin-card">
             <table className="min-w-full divide-y divide-[var(--retro-border-color)]">
               <thead className="bg-[var(--retro-bg-raised)]">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">Name</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">Type</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">Template</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-[var(--retro-text-muted)] uppercase">Created</th>
                 </tr>
               </thead>
               <tbody className="bg-[var(--retro-bg-surface)] divide-y divide-[var(--retro-border-color)]">
-                {filteredPositions.map((p) => (
+                {positions.map((p) => (
                   <tr key={p.id}>
                     <td className="px-4 py-2 text-sm">
                       <Link
@@ -107,7 +86,6 @@ export default function PositionsView() {
                         {p.name}
                       </Link>
                     </td>
-                    <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)]">{p.type ?? '—'}</td>
                     <td className="px-4 py-2 text-sm text-[var(--retro-text-secondary)]">
                       {p.templateId ? getTemplateName(p.templateId, customTemplateNames) : '—'}
                     </td>
