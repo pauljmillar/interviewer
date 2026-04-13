@@ -83,7 +83,11 @@ export async function getPostBySlug(
     .select('*')
     .eq('slug', slug)
     .single();
-  if (error || !data) return null;
+  if (error) {
+    console.error('[getPostBySlug] Supabase error for slug "%s":', slug, error);
+    return null;
+  }
+  if (!data) return null;
   return rowToPost(data);
 }
 
