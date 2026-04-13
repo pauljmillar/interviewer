@@ -19,6 +19,10 @@ function getSupabase() {
   }
   return createClient(supabaseUrl, supabaseServiceKey, {
     auth: { persistSession: false },
+    global: {
+      fetch: (url: RequestInfo | URL, init?: RequestInit) =>
+        fetch(url, { ...init, cache: 'no-store' }),
+    },
   });
 }
 
