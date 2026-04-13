@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 export const metadata: Metadata = {
   title: "Screen AI",
   description: "Your AI Agent for candidate interviews",
+  icons: { icon: '/images/favicon.png' },
 };
 
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
