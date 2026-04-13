@@ -27,6 +27,7 @@ export interface BlogPost {
 function rowToPost(row: Record<string, unknown>): BlogPost {
   const publishedBool = (row.published as boolean) ?? false;
   const status = (row.status as string) ?? (publishedBool ? 'published' : 'draft');
+  console.log('[rowToPost] id=%s row.published=%s row.status=%s → publishedBool=%s status=%s', row.id, row.published, row.status, publishedBool, status);
   return {
     id: row.id as string,
     slug: row.slug as string,
