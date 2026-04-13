@@ -29,6 +29,7 @@ export default async function BlogPostPage({ params }: Props) {
   if (!supabase) notFound();
   const post = await getPostBySlug(supabase!, slug);
   console.log('[BlogPostPage] post=%s published=%s', post?.id ?? 'NULL', post?.published);
+  if (!post || !post.published) notFound();
 
   const date = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString('en-US', {
