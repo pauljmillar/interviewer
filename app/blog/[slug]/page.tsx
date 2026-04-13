@@ -27,7 +27,6 @@ export default async function BlogPostPage({ params }: Props) {
   const supabase = createServerSupabase();
   if (!supabase) notFound();
   const post = await getPostBySlug(supabase!, slug);
-  console.log('[blog] id=%s published=%s status=%s', post?.id, post?.published, post?.status);
   if (!post || !post.published) notFound();
 
   const date = post.publishedAt
