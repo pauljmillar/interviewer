@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/server/apiAuth';
 import { createInstance } from '@/lib/server/instanceStoreAdapter';
 import { getTemplateById } from '@/constants/templates';
+import { createServerSupabase } from '@/lib/supabase/server';
+import { getPosition } from '@/lib/server/supabasePositions';
+import * as templatesStore from '@/lib/server/supabaseTemplates';
 
-const DEMO_TEMPLATE_ID = 'demo-walkthrough';
+const FALLBACK_TEMPLATE_ID = 'demo-walkthrough';
 
 export async function POST(request: NextRequest) {
   const authResult = await validateApiKey(request);
@@ -21,14 +24,37 @@ export async function POST(request: NextRequest) {
   const campaignPositionId = process.env['CAMPAIGN_POSITION_ID'] ?? undefined;
 
   try {
-    const template = getTemplateById(DEMO_TEMPLATE_ID);
+    // Resolve template from the position's current templateId, falling back to demo-walkthrough.
+    let templateId = FALLBACK_TEMPLATE_ID;
+    let template = getTemplateById(templateId);
+
+    if (campaignPositionId) {
+      const supabase = createServerSupabase();
+      if (supabase) {
+        const position = await getPosition(supabase, campaignPositionId, internalOrgId);
+        if (position?.templateId) {
+          const builtIn = getTemplateById(position.templateId);
+          if (builtIn) {
+            templateId = position.templateId;
+            template = builtIn;
+          } else {
+            const custom = await templatesStore.getTemplate(supabase, position.templateId, internalOrgId);
+            if (custom) {
+              templateId = position.templateId;
+              template = custom;
+            }
+          }
+        }
+      }
+    }
+
     if (!template) {
       return NextResponse.json({ error: 'Demo template not found' }, { status: 500 });
     }
 
     const { shareableToken } = await createInstance(internalOrgId, {
       name: 'Marketing Demo',
-      templateId: DEMO_TEMPLATE_ID,
+      templateId,
       positionId: campaignPositionId,
       recipientName: body.recipientName || 'Guest',
       recipientEmail: body.recipientEmail || undefined,
